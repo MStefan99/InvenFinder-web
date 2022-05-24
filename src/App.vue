@@ -16,6 +16,9 @@ export default {
 
 
 <style lang="stylus">
+*, *::before, *::after
+	box-sizing border-box
+
 body
 	font-family sans-serif
 	margin 0
