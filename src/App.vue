@@ -1,15 +1,21 @@
 <template lang="pug">
 NavBar
+p {{this.store}}
 </template>
 
 
 <script>
+import store from './store.js'
+
 import NavBar from './components/NavBar.vue';
 
 export default {
 	name: 'App',
 	components: {
 		NavBar
+	},
+	data() {
+		return {store};
 	}
 };
 </script>
