@@ -1,15 +1,26 @@
 <template lang="pug">
-span Hello Vue!
+NavBar
 </template>
 
 
 <script>
+import NavBar from './components/NavBar.vue';
+
 export default {
-	name: 'App'
+	name: 'App',
+	components: {
+		NavBar
+	}
 };
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus">
+body
+	font-family sans-serif
+	margin 0
 
+a
+	text-decoration none
+	color inherit
 </style>
