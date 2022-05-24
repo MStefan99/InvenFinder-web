@@ -1,11 +1,31 @@
 <template lang="pug">
 h2 Settings
+button(@click="testConnection") Test connection
+p {{privateState.connected}}
 </template>
 
 
 <script>
+import store from '../store.js';
+
+
 export default {
-	name: 'Settings'
+	name: 'Settings',
+	data() {
+		return {
+			sharedState: store,
+			privateState: {
+				connected: false
+			}
+		};
+	},
+	methods: {
+		testConnection() {
+			fetch(this.sharedState.backendURL)
+				.then(res => this.privateState.connected = res.ok)
+				.catch(err => this.privateState.connected = false);
+		}
+	}
 };
 </script>
 
