@@ -1,6 +1,9 @@
 <template lang="pug">
 NavBar
-p {{this.store}}
+main
+	Inventory(v-if="store.activeTab === 'inventory'")
+	Users(v-if="store.activeTab === 'users'")
+	Settings(v-if="store.activeTab === 'settings'")
 </template>
 
 
@@ -8,11 +11,18 @@ p {{this.store}}
 import store from './store.js'
 
 import NavBar from './components/NavBar.vue';
+import Inventory from './components/Inventory.vue';
+import Users from './components/Users.vue';
+import Settings from './components/Settings.vue';
+
 
 export default {
 	name: 'App',
 	components: {
-		NavBar
+		NavBar,
+		Inventory,
+		Users,
+		Settings
 	},
 	data() {
 		return {store};
@@ -32,4 +42,7 @@ body
 a
 	text-decoration none
 	color inherit
+
+main
+	padding 2em
 </style>
