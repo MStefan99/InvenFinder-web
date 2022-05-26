@@ -64,7 +64,7 @@ class User {
 		const user = new User();
 
 		const connection = await connectionPromise;
-		const rows = await connection.get(`select id,
+		const rows = await connection.query(`select id,
 		                                          username,
 		                                          password_salt as passwordSalt,
 		                                          password_hash as passwordHash,
