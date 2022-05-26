@@ -103,8 +103,8 @@ class Session {
 	static async deleteAllUserSessions(user) {
 		const connection = await connectionPromise;
 		await connection.query(`delete
-		                      from invenfinder.sessions
-		                      where user_id=?`, [user.id]);
+		                        from invenfinder.sessions
+		                        where user_id=?`, [user.id]);
 	}
 
 

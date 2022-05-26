@@ -18,6 +18,17 @@ class User {
 	permissions;
 
 
+	static #assignUser(user, row) {
+		user.id = row.id;
+		user.username = row.username;
+		user.#passwordSalt = row.password_salt;
+		user.#passwordHash = row.password_hash;
+		user.permissions = row.permissions;
+
+		return user;
+	}
+
+
 	static async createUser(username, password, permissions) {
 		const user = new User();
 
@@ -40,44 +51,38 @@ class User {
 
 
 	static async getUserByID(id) {
-		const user = new User();
-
 		const connection = await connectionPromise;
 		const rows = await connection.query(`select id,
-		                                           username,
-		                                           password_hash as passwordhash,
-		                                           password_salt as passwordsalt,
-		                                           permissions
-		                                    from invenfinder.users
-		                                    where id=?`, [id]);
+		                                            username,
+		                                            password_hash,
+		                                            password_salt,
+		                                            permissions
+		                                     from invenfinder.users
+		                                     where id=?`, [id]);
 
 		if (!rows.length) {
 			return null;
 		} else {
-			Object.assign(user, rows[0]);
-			return user;
+			return this.#assignUser(new User, rows[0]);
 		}
 	}
 
 
 	static async getUserByUsername(username) {
-		const user = new User();
-
 		const connection = await connectionPromise;
 		const rows = await connection.query(`select id,
-		                                          username,
-		                                          password_salt as passwordSalt,
-		                                          password_hash as passwordHash,
-		                                          permissions
-		                                   from invenfinder.users
-		                                   where username=?`, [username]);
+		                                            username,
+		                                            password_salt,
+		                                            password_hash,
+		                                            permissions
+		                                     from invenfinder.users
+		                                     where username=?`, [username]);
 
 		if (!rows.length) {
 			return null;
-		} else {
-			Object.assign(user, rows[0]);
-			return user;
 		}
+
+		return this.#assignUser(new User(), rows[0]);
 	}
 
 
@@ -86,17 +91,14 @@ class User {
 
 		const connection = await connectionPromise;
 		const rows = await connection.query(`select id,
-		                                          username,
-		                                          password_salt as passwordSalt,
-		                                          password_hash as passwordHash,
-		                                          permissions
-		                                   from invenfinder.users`);
+		                                            username,
+		                                            password_salt,
+		                                            password_hash,
+		                                            permissions
+		                                     from invenfinder.users`);
 
 		for (const row of rows) {
-			const user = new User();
-
-			Object.assign(user, row);
-			users.push(user);
+			users.push(this.#assignUser(new User(), row));
 		}
 
 		return users;
@@ -105,17 +107,13 @@ class User {
 
 	async verifyPassword(password) {
 		const salt = Buffer.from(this.#passwordSalt, 'base64');
-		const hash = Buffer.from(this.#passwordSalt, 'base64');
+		const hash = Buffer.from(this.#passwordHash, 'base64');
 
 		return hash.equals(await pbkdf2(password, salt, PBKDF2ITERATIONS, 64, 'sha3-256'));
 	}
 
 
-	async updatePassword(password) {
-		if (!password?.length < 8) {
-			return;  // TODO: throw error
-		}
-
+	async setPassword(password) {
 		const salt = crypto.randomBytes(32);
 		const hash = await pbkdf2(password, salt, PBKDF2ITERATIONS, 64, 'sha3-256');
 
