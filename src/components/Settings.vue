@@ -1,7 +1,11 @@
 <template lang="pug">
-h2 Settings
-button(@click="testConnection") Test connection
-p {{privateState.connected}}
+div#settings
+	h2 Settings
+	form(@submit.prevent)
+		label(for="backend-url") Backend URL
+		input#backend-url(type="text", v-model="appState.backendURL" @input="setURL")
+	button(@click="testConnection") Test connection
+	p {{getConnectionStatus()}}
 </template>
 
 
@@ -13,17 +17,31 @@ export default {
 	name: 'Settings',
 	data() {
 		return {
-			sharedState: store,
-			privateState: {
-				connected: false
+			appState: store,
+			state: {
+				connected: null
 			}
 		};
 	},
 	methods: {
+		setURL() {
+			localStorage.setItem('backendURL', this.appState.backendURL);
+		},
 		testConnection() {
-			fetch(this.sharedState.backendURL)
-				.then(res => this.privateState.connected = res.ok)
-				.catch(err => this.privateState.connected = false);
+			this.state.connected = null;
+
+			fetch(this.appState.backendURL)
+				.then(res => this.state.connected = res.ok)
+				.catch(err => this.state.connected = false);
+		},
+		getConnectionStatus() {
+			if (this.state.connected === null) {
+				return 'Test connection';
+			} else if (this.state.connected) {
+				return 'Connection succeeded';
+			} else {
+				return 'Connection failed';
+			}
 		}
 	}
 };

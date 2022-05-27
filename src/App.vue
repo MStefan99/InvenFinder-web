@@ -29,6 +29,7 @@ export default {
 	},
 	beforeMount() {
 		store.apiKey = localStorage.getItem('apiKey');
+		store.backendURL = localStorage.getItem('backendURL');
 	}
 };
 </script>
