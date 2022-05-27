@@ -70,6 +70,7 @@ export default {
 				return res.json();
 			}).then(data => {
 				this.appState.apiKey = data.key;
+				localStorage.setItem('apiKey', data.key);
 			});
 		},
 		logout() {
@@ -79,13 +80,15 @@ export default {
 				}
 			})
 				.then(res => {
-				if (!res.ok) {
-					console.warn('Could not log out');
-					return;
-				}
+					if (!res.ok) {
+						console.warn('Could not log out');
+						return;
+					}
 
-				this.appState.apiKey = null;
-			});
+					this.appState.apiKey = null;
+				});
+
+			localStorage.removeItem('apiKey');
 		}
 	}
 };
@@ -117,7 +120,7 @@ nav
 	right 0
 	bottom 0
 	background-color var(--color-overlay)
-	backdrop-filter blur(.1em)
+	box-shadow 0 0 3em var(--color-shadow)
 
 	#login
 		position relative
@@ -127,8 +130,9 @@ nav
 		transform translate(-50%, -50%)
 		padding 4em
 		border-radius 1em
-		backdrop-filter blur(1em)
+		background-color var(--color-overlay)
 		box-shadow 0 1em 3em var(--color-shadow)
+		backdrop-filter blur(2em)
 
 .v-enter-active, .v-leave-active
 	transition transform 0.5s ease-in-out

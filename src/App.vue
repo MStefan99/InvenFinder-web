@@ -26,6 +26,9 @@ export default {
 	},
 	data() {
 		return {store};
+	},
+	beforeMount() {
+		store.apiKey = localStorage.getItem('apiKey');
 	}
 };
 </script>

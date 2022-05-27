@@ -65,7 +65,7 @@ router.use(auth.getSession);
 
 
 router.get('/logout',
-	auth.redirectIfNotAuthenticated,
+	auth.rejectUnauthenticated,
 	(req, res) => {
 		res.sendStatus(200);
 

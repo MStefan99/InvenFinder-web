@@ -30,9 +30,11 @@ async function getUser(req, res, next) {
 }
 
 
-function redirectIfNotAuthenticated(req, res, next) {
+function rejectUnauthenticated(req, res, next) {
 	if (!req.session) {
-		res.redirect(303, '/login');
+		res
+			.status(403)
+			.json({error: 'Not authenticated'});
 		return;
 	}
 
@@ -43,5 +45,5 @@ function redirectIfNotAuthenticated(req, res, next) {
 module.exports = {
 	getUser,
 	getSession,
-	redirectIfNotAuthenticated
+	rejectUnauthenticated
 };
