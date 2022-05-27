@@ -10,7 +10,8 @@
       <env name="DB_URL" value="192.168.1.11" />
       <env name="DB_USER" value="root" />
       <env name="DB_PASSWORD" value="test" />
-    </envs>
+			<env name="NODE_ENV" value="development" />
+		</envs>
     <method v="2" />
   </configuration>
 </component>

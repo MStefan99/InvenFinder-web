@@ -1,18 +1,23 @@
 'use strict';
 
+const path = require('path');
+
 const express = require('express');
 const cors = require('cors');
+const apiRouter = require('./apiRouter');
 
 const app = express();
-app.use(cors());
+
+
+if (process.env.NODE_ENV === 'development') {
+	app.use(cors());
+}
 
 
 app.set('x-powered-by', false);
+app.use('/', express.static(path.resolve(__dirname, '..', 'dist')));
 
-
-app.get('/', (req, res) => {
-	res.send("Hello Express!");
-});
+app.use('/api', apiRouter);
 
 
 app.listen(3007, () => {

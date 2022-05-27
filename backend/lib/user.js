@@ -8,6 +8,7 @@ const connectionPromise = require('./db');
 const pbkdf2 = util.promisify(crypto.pbkdf2);
 
 const PBKDF2ITERATIONS = 100000;
+const DEFAULT_PERMISSIONS = 0;
 
 
 class User {
@@ -29,7 +30,7 @@ class User {
 	}
 
 
-	static async createUser(username, password, permissions) {
+	static async createUser(username, password, permissions = DEFAULT_PERMISSIONS) {
 		const user = new User();
 
 		const salt = crypto.randomBytes(32);
