@@ -4,46 +4,94 @@ const Session = require('./session');
 const User = require('./user');
 
 
-async function getSession(req, res, next) {
+function makeEnum(array) {
+	let i = 0;
+	let map = new Map();
+
+	for (const prop in array) {
+		if (!map.has(prop)) {
+			map.set(prop, 1 << i++);
+		}
+	}
+
+	return Object.freeze(map);
+}
+
+
+const PERMISSIONS = {
+	'READ_DB': 0,
+	'WRITE_DB': 0
+};
+
+const permissionEnum = makeEnum(PERMISSIONS);
+
+
+function getPermissionValue(permissions) {
+	let val = 0;
+
+	for (const p of permissions) {
+		val &= permissionEnum.get('p');
+	}
+
+	return val;
+}
+
+
+async function getSession(req) {
+	if (req.session) {
+		return req.session;
+	}
+
 	const id = req.cookies?.SID ?? req.get('api-key');
-
 	if (!id) {
-		next();
-		return;
+		return null;
 	}
 
-	req.session = await Session.getSessionByPublicID(id);
-
-	next();
+	return req.session = await Session.getSessionByPublicID(id);
 }
 
 
-async function getUser(req, res, next) {
-	if (!req.session) {
-		next();
-		return;
+async function getUser(req) {
+	if (req.user) {
+		return req.user;
 	}
 
-	req.user = await User.getUserByID(req.session.userID);
-
-	next();
-}
-
-
-function rejectUnauthenticated(req, res, next) {
 	if (!req.session) {
-		res
-			.status(403)
-			.json({error: 'Not authenticated'});
-		return;
+		await getSession(req);
 	}
 
-	next();
+	return req.user = await User.getUserByID(req.session.userID);
 }
 
 
 module.exports = {
-	getUser,
-	getSession,
-	rejectUnauthenticated
+	PERMISSIONS,
+
+
+	authenticated() {
+		return async (req, res, next) => {
+			if (!await getSession(req)) {
+				res
+					.status(401)
+					.json({error: 'Not authenticated'});
+				return;
+			}
+
+			next();
+		};
+	},
+
+
+	hasPermissions(permissions) {
+		const permissionValue = getPermissionValue(permissions);
+
+		return async (req, res, next) => {
+			// noinspection JSBitwiseOperatorUsage
+			if ((await getUser(req)).permissions & permissionValue === permissionValue) {
+				next();
+			} else {
+				res.status(403).json({error: 'Not authorized'});
+			}
+		};
+	}
 };

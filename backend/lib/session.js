@@ -15,6 +15,10 @@ class Session {
 
 
 	static async createSession(user, ua, ip) {
+		if (!user || !ua || !ip) {
+			return null;
+		}
+
 		const session = new Session();
 
 		session.publicID = crypto.randomBytes(32).toString('hex');
@@ -34,6 +38,10 @@ class Session {
 
 
 	static async getSessionByID(id) {
+		if (!id) {
+			return null;
+		}
+
 		const session = new Session();
 
 		const connection = await connectionPromise;
@@ -56,6 +64,10 @@ class Session {
 
 
 	static async getSessionByPublicID(id) {
+		if (!id) {
+			return null;
+		}
+
 		const session = new Session();
 
 		const connection = await connectionPromise;
@@ -78,6 +90,10 @@ class Session {
 
 
 	static async getUserSessions(user) {
+		if (!user) {
+			return null;
+		}
+
 		const sessions = [];
 
 		const connection = await connectionPromise;
@@ -101,6 +117,10 @@ class Session {
 
 
 	static async deleteAllUserSessions(user) {
+		if (!user) {
+			return;
+		}
+
 		const connection = await connectionPromise;
 		await connection.query(`delete
 		                        from invenfinder.sessions

@@ -61,15 +61,20 @@ router.post('/register', async (req, res) => {
 });
 
 
-router.use(auth.getSession);
-
-
 router.get('/logout',
-	auth.rejectUnauthenticated,
+	auth.authenticated(),
 	(req, res) => {
 		res.sendStatus(200);
 
 		req.session.delete();
+	});
+
+
+router.get('/permissions',
+	auth.authenticated(),
+	auth.hasPermissions([auth.PERMISSIONS.READ_DB]),
+	(req, res) => {
+		res.json({message: 'permissions!'});
 	});
 
 

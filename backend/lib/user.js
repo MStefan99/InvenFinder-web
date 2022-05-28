@@ -31,6 +31,10 @@ class User {
 
 
 	static async createUser(username, password, permissions = DEFAULT_PERMISSIONS) {
+		if (!username || !password) {
+			return null;
+		}
+
 		const user = new User();
 
 		const salt = crypto.randomBytes(32);
@@ -52,6 +56,10 @@ class User {
 
 
 	static async getUserByID(id) {
+		if (!id) {
+			return null;
+		}
+
 		const connection = await connectionPromise;
 		const rows = await connection.query(`select id,
 		                                            username,
@@ -70,6 +78,10 @@ class User {
 
 
 	static async getUserByUsername(username) {
+		if (!username) {
+			return null;
+		}
+
 		const connection = await connectionPromise;
 		const rows = await connection.query(`select id,
 		                                            username,
@@ -107,6 +119,10 @@ class User {
 
 
 	async verifyPassword(password) {
+		if (!password) {
+			return false;
+		}
+
 		const salt = Buffer.from(this.#passwordSalt, 'base64');
 		const hash = Buffer.from(this.#passwordHash, 'base64');
 
@@ -115,6 +131,10 @@ class User {
 
 
 	async setPassword(password) {
+		if (!password) {
+			return this;
+		}
+
 		const salt = crypto.randomBytes(32);
 		const hash = await pbkdf2(password, salt, PBKDF2ITERATIONS, 64, 'sha3-256');
 
