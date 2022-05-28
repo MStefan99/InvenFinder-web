@@ -6,6 +6,7 @@ const cors = require('cors');
 
 const User = require('./lib/user');
 const Session = require('./lib/session');
+const {PERMISSIONS} = require('./lib/permissions');
 const auth = require('./lib/auth');
 
 
@@ -72,7 +73,7 @@ router.get('/logout',
 
 router.get('/permissions',
 	auth.authenticated(),
-	auth.hasPermissions([auth.PERMISSIONS.READ_DB]),
+	auth.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT]),
 	(req, res) => {
 		res.json({message: 'permissions!'});
 	});

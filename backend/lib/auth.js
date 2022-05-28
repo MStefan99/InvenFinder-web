@@ -4,39 +4,6 @@ const Session = require('./session');
 const User = require('./user');
 
 
-function makeEnum(array) {
-	let i = 0;
-	let map = new Map();
-
-	for (const prop in array) {
-		if (!map.has(prop)) {
-			map.set(prop, 1 << i++);
-		}
-	}
-
-	return Object.freeze(map);
-}
-
-
-const PERMISSIONS = {
-	'READ_DB': 0,
-	'WRITE_DB': 0
-};
-
-const permissionEnum = makeEnum(PERMISSIONS);
-
-
-function getPermissionValue(permissions) {
-	let val = 0;
-
-	for (const p of permissions) {
-		val &= permissionEnum.get('p');
-	}
-
-	return val;
-}
-
-
 async function getSession(req) {
 	if (req.session) {
 		return req.session;
@@ -65,12 +32,11 @@ async function getUser(req) {
 
 
 module.exports = {
-	PERMISSIONS,
-
-
 	authenticated() {
 		return async (req, res, next) => {
-			if (!await getSession(req)) {
+			const session = await getSession(req);
+
+			if (!session) {
 				res
 					.status(401)
 					.json({error: 'Not authenticated'});
@@ -83,11 +49,9 @@ module.exports = {
 
 
 	hasPermissions(permissions) {
-		const permissionValue = getPermissionValue(permissions);
-
 		return async (req, res, next) => {
-			// noinspection JSBitwiseOperatorUsage
-			if ((await getUser(req)).permissions & permissionValue === permissionValue) {
+			const user = await getUser(req);
+			if (user.hasPermissions(permissions)) {
 				next();
 			} else {
 				res.status(403).json({error: 'Not authorized'});

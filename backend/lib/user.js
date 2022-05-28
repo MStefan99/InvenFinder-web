@@ -3,6 +3,7 @@
 const crypto = require('crypto');
 const util = require('util');
 
+const Permissions = require('./permissions');
 const connectionPromise = require('./db');
 
 const pbkdf2 = util.promisify(crypto.pbkdf2);
@@ -148,6 +149,14 @@ class User {
 		                        where id=?`, [this.#passwordSalt, this.#passwordHash, this.id]);
 
 		return this;
+	}
+
+
+	hasPermissions(permissions) {
+		const permissionValue = Permissions.getPermissionValue(permissions);
+
+		// noinspection JSBitwiseOperatorUsage
+		return ((this.permissions & permissionValue) === permissionValue);
 	}
 
 
