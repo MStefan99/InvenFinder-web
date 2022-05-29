@@ -49,6 +49,10 @@ module.exports = {
 
 
 	hasPermissions(permissions) {
+		if (!(permissions instanceof Array)) {
+			permissions = [permissions];
+		}
+
 		return async (req, res, next) => {
 			const user = await getUser(req);
 			if (user.hasPermissions(permissions)) {

@@ -8,6 +8,7 @@ const User = require('./lib/user');
 const Session = require('./lib/session');
 const {PERMISSIONS} = require('./lib/permissions');
 const auth = require('./lib/auth');
+const connectionPromise = require('./lib/db');
 
 
 const router = express.Router();
@@ -71,11 +72,62 @@ router.get('/logout',
 	});
 
 
-router.get('/permissions',
+router.get('/items',
 	auth.authenticated(),
-	auth.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT]),
-	(req, res) => {
-		res.json({message: 'permissions!'});
+	async (req, res) => {
+		const connection = await connectionPromise;
+
+		res.json(await connection.query(`select *
+		                                 from invenfinder.items`));
+	});
+
+
+router.get('/items/:id',
+	auth.authenticated(),
+	async (req, res) => {
+		const id = +req.params.id;
+
+		if (!id) {
+			res
+				.status(400)
+				.json({error: 'Invalid ID'});
+			return;
+		}
+
+		const connection = await connectionPromise;
+		res.json(await connection.query(`select *
+		                                 from invenfinder.items
+		                                 where id=?`, [id]));
+	});
+
+
+router.put('/items/:id/amount',
+	auth.authenticated(),
+	auth.hasPermissions(PERMISSIONS.EDIT_ITEM_AMOUNT),
+	async (req, res) => {
+		const id = +req.params.id;
+		const amount = +req.body.amount;
+
+		if (!id) {
+			res
+				.status(400)
+				.json({error: 'Invalid ID'});
+			return;
+		}
+
+		if (!amount || amount < 0) {
+			res
+				.status(400)
+				.json({error: 'Invalid amount'});
+			return;
+		}
+
+		const connection = await connectionPromise;
+		connection.query('update invenfinder.items set amount=? where id=?',
+			[amount, id]);
+
+		res
+			.json({message: 'OK'});
 	});
 
 
