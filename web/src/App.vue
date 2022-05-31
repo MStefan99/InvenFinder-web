@@ -36,9 +36,6 @@ export default {
 
 
 <style lang="stylus">
-@require './style/stylify.styl'
-@require './style/colors.styl'
-
 *, *::before, *::after
 	box-sizing border-box
 
