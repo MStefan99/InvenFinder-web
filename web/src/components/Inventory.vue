@@ -1,5 +1,5 @@
 <template lang="pug">
-h2 Inventory
+h2.text-teal-500.text-2xl.mb-4 Inventory
 </template>
 
 
@@ -10,7 +10,5 @@ export default {
 </script>
 
 
-<style lang="stylus" scoped>
-h2
-	color var(--color-accent)
+<style lang="sass" scoped>
 </style>

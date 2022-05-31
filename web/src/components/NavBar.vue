@@ -1,10 +1,10 @@
 <template lang="pug">
-nav.d-flex.justify-content-between.vw-100.bold
-	div
+nav.text-teal-500.font-semibold
+	span
 		span.clickable(@click="appState.activeTab = 'inventory'") Inventory
 		span.clickable(@click="appState.activeTab = 'users'") Users
 		span.clickable(@click="appState.activeTab = 'settings'") Settings
-	div
+	span
 		span.clickable(v-if="!appState.apiKey" @click="showLogin") Sign in
 		span.clickable(v-else @click="logout") Sign out
 Transition
@@ -95,48 +95,54 @@ export default {
 </script>
 
 
-<style lang="stylus">
+<style lang="sass">
+@tailwind base
+@tailwind components
+@tailwind utilities
+
+
 nav
-	position sticky
-	top 0
-	padding 1em 1.5em
-	background-color var(--color-overlay)
-	color var(--color-accent)
-	backdrop-filter blur(1em)
-	border-radius 0 0 1em 1em
-	box-shadow 0 0 3em var(--color-shadow)
+	position: sticky
+	top: 0
+	padding: 1em 1.5em
+	display: flex
+	flex-flow: row nowrap
+	justify-content: space-between
+	backdrop-filter: blur(1em)
+	border-radius: 0 0 1em 1em
+	@apply shadow-neutral-300/10 shadow-xl
 
 	.clickable
-		cursor pointer
+		cursor: pointer
 
 		&:not(:last-child)
-			margin-right 1.5em
+			margin-right: 1.5em
 
 
 #login-wrapper
-	position fixed
-	left 0
-	top 0
-	right 0
-	bottom 0
-	background-color var(--color-overlay)
-	box-shadow 0 0 3em var(--color-shadow)
+	position: fixed
+	left: 0
+	top: 0
+	right: 0
+	bottom: 0
+	background-color: var(--color-overlay)
+	box-shadow: 0 0 3em var(--color-shadow)
 
 	#login
-		position relative
-		left 50%
-		top 50%
-		max-width 50vw
-		transform translate(-50%, -50%)
-		padding 4em
-		border-radius 1em
-		background-color var(--color-overlay)
-		box-shadow 0 1em 3em var(--color-shadow)
-		backdrop-filter blur(2em)
+		position: relative
+		left: 50%
+		top: 50%
+		max-width: 50vw
+		transform: translate(-50%, -50%)
+		padding: 4em
+		border-radius: 1em
+		background-color: var(--color-overlay)
+		box-shadow: 0 1em 3em var(--color-shadow)
+		backdrop-filter: blur(2em)
 
 .v-enter-active, .v-leave-active
-	transition transform 0.5s ease-in-out
+	transition: transform 0.5s ease-in-out
 
 .v-enter-from, .v-leave-to
-	transform translateY(-100%)
+	transform: translateY(-100%)
 </style>

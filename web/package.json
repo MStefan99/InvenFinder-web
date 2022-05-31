@@ -1,22 +1,21 @@
 {
-  "name": "invenfinder",
-  "private": true,
-  "version": "0.0.0",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "vue": "^3.2.25"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "^2.3.3",
-    "autoprefixer": "^10.4.7",
-    "postcss": "^8.4.14",
-    "stylus": "^0.58.1",
-    "tailwindcss": "^3.0.24",
-    "vite": "^2.9.9",
-    "vite-plugin-pug": "^0.3.1"
-  }
+	"name": "invenfinder",
+	"private": true,
+	"version": "0.0.0",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"vue": "^3.2.25"
+	},
+	"devDependencies": {
+		"@vitejs/plugin-vue": "^2.3.3",
+		"less": "^4.1.2",
+		"postcss": "^8.4.14",
+		"tailwindcss": "^3.0.24",
+		"vite": "^2.9.9",
+		"vite-plugin-pug": "^0.3.1"
+	}
 }

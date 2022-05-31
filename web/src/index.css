@@ -1,1 +1,17 @@
 @tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+html {
+	--color-background: white;
+	--color-foreground: black;
+	--color-accent: #05a18a;
+	--color-overlay: #fff8;
+	--color-shadow: #0001;
+
+	--color-overlay-dark: #0008;
+	--color-shadow-dark: #fff2;
+}
+
+

@@ -8,7 +8,7 @@ main
 
 
 <script>
-import store from './store.js'
+import store from './store.js';
 
 import NavBar from './components/NavBar.vue';
 import Inventory from './components/Inventory.vue';
@@ -35,18 +35,23 @@ export default {
 </script>
 
 
-<style lang="stylus">
+<style lang="sass">
+@tailwind base
+@tailwind components
+@tailwind utilities
+
+
 *, *::before, *::after
-	box-sizing border-box
+  box-sizing: border-box
 
 body
-	font-family sans-serif
-	margin 0
+  font-family: sans-serif
+  margin: 0
 
 a
-	text-decoration none
-	color inherit
+  text-decoration: none
+  color: inherit
 
 main
-	padding 2em
+  padding: 2em
 </style>
