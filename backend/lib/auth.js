@@ -48,14 +48,16 @@ module.exports = {
 	},
 
 
-	hasPermissions(permissions) {
+	permissions(permissions) {
 		if (!(permissions instanceof Array)) {
 			permissions = [permissions];
 		}
 
 		return async (req, res, next) => {
 			const user = await getUser(req);
-			if (user.hasPermissions(permissions)) {
+			if (!user) {
+				res.status(401).json({error: 'Not authenticated'});
+			} else if (user.hasPermissions(permissions)) {
 				next();
 			} else {
 				res.status(403).json({error: 'Not authorized'});

@@ -19,6 +19,32 @@ class User {
 	#passwordHash;
 	permissions;
 
+	#saveHandle;
+
+
+	static #makeReactive(user) {
+		const proxy = {
+			set(target, propertyKey, value, receiver) {
+				clearImmediate(target.#saveHandle);
+
+				target.#saveHandle = setImmediate(async () => {
+					const connection = await connectionPromise;
+					await connection.query(`insert into invenfinder.users(id, username, password_salt, password_hash, permissions)
+					                        values (?, ?, ?, ?, ?)
+					                        on duplicate key update username = values(username),
+					                                                password_salt = values(password_salt),
+					                                                password_hash = values(password_hash),
+					                                                permissions = values(permissions)`,
+						[target.id, target.username, target.#passwordSalt, target.#passwordHash, target.permissions]);
+				});
+
+				return Reflect.set(target, propertyKey, value, receiver);
+			}
+		};
+
+		return new Proxy(user, proxy);
+	}
+
 
 	static #assignUser(user, row) {
 		user.id = row.id;
@@ -27,7 +53,8 @@ class User {
 		user.#passwordHash = row.password_hash;
 		user.permissions = row.permissions;
 
-		return user;
+		clearImmediate(user.#saveHandle);
+		return this.#makeReactive(user);
 	}
 
 
@@ -36,7 +63,7 @@ class User {
 			return null;
 		}
 
-		const user = new User();
+		const user = this.#makeReactive(new User());
 
 		const salt = crypto.randomBytes(32);
 		const hash = await pbkdf2(password, salt, PBKDF2ITERATIONS, 64, 'sha3-256');
@@ -45,6 +72,7 @@ class User {
 		user.permissions = permissions;
 		user.#passwordSalt = salt.toString('base64');
 		user.#passwordHash = hash.toString('base64');
+		clearImmediate(user.#saveHandle);
 
 		const connection = await connectionPromise;
 		const res = await connection.query(`insert into invenfinder.users(username, password_salt, password_hash, permissions)
@@ -52,6 +80,7 @@ class User {
 			[user.username, user.#passwordSalt, user.#passwordHash, user.permissions]);
 
 		user.id = res.insertId;
+		clearImmediate(user.#saveHandle);
 		return user;
 	}
 
@@ -141,12 +170,6 @@ class User {
 
 		this.#passwordSalt = salt.toString('base64');
 		this.#passwordHash = hash.toString('base64');
-
-		const connection = await connectionPromise;
-		await connection.query(`update invenfinder.users
-		                        set password_salt=?,
-		                            password_hash=?
-		                        where id=?`, [this.#passwordSalt, this.#passwordHash, this.id]);
 
 		return this;
 	}

@@ -27,12 +27,6 @@ class Session {
 		session.ua = ua;
 		session.time = Date.now();
 
-		const connection = await connectionPromise;
-		const res = await connection.query(`insert into invenfinder.sessions(public_id, user_id, ip, ua, time)
-		                                    values (?, ?, ?, ?, ?)`,
-			[session.publicID, session.userID, session.ip, session.ua, session.time]);
-
-		session.id = res.insertId;
 		return session;
 	}
 

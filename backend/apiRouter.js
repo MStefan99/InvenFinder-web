@@ -102,8 +102,7 @@ router.get('/items/:id',
 
 
 router.put('/items/:id/amount',
-	auth.authenticated(),
-	auth.hasPermissions(PERMISSIONS.EDIT_ITEM_AMOUNT),
+	auth.permissions(PERMISSIONS.EDIT_ITEM_AMOUNT),
 	async (req, res) => {
 		const id = +req.params.id;
 		const amount = +req.body.amount;
@@ -123,12 +122,48 @@ router.put('/items/:id/amount',
 		}
 
 		const connection = await connectionPromise;
-		connection.query('update invenfinder.items set amount=? where id=?',
+		connection.query(`update invenfinder.items
+		                  set amount=?
+		                  where id=?`,
 			[amount, id]);
 
 		res
 			.json({message: 'OK'});
 	});
+
+
+router.post('/items',
+	auth.permissions(PERMISSIONS.MANAGE_ITEMS),
+	async (req, res) => {
+		const item = {
+			name: req.body.name,
+			description: req.body.description,
+			location: Location.parsereq.body.location,
+			amount: +req.body.amount
+		};
+
+		if (!item.name) {
+			res.status(400).json({error: 'No name provided'});
+			return;
+		}
+		if (!item.location) {
+			res.status(400).json({error: 'No or invalid location provided'});
+			return;
+		}
+		if (!Number.isInteger(item.amount)) {
+			res.status(400).json({error: 'No or invalid amount provided'});
+			return;
+		}
+
+
+	}
+);
+
+
+(async () => {
+	const admin = await User.getUserByID(3);
+	admin.username = 'admin';
+})();
 
 
 module.exports = router;

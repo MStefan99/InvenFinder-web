@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Backend" type="js.build_tools.npm">
+    <package-json value="$PROJECT_DIR$/backend/package.json" />
+    <command value="start" />
+    <node-interpreter value="project" />
+    <envs>
+      <env name="DB_URL" value="localhost" />
+      <env name="DB_USER" value="root" />
+      <env name="DB_PASSWORD" value="test" />
+    </envs>
+    <method v="2" />
+  </configuration>
+</component>
