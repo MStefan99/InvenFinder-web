@@ -1,0 +1,28 @@
+{
+	"name": "invenfinder-web",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"install:frontend": "cd ./frontend && npm install",
+		"install:backend": "cd ./backend && npm install",
+		"postinstall": "run-p install:*",
+		"dev:frontend": "cd ./frontend && npx vite",
+		"dev:backend": "cd ./backend && npm run start",
+		"dev": "run-p dev:*"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/MStefan99/InvenFinder-web.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/MStefan99/InvenFinder-web/issues"
+	},
+	"homepage": "https://github.com/MStefan99/InvenFinder-web#readme",
+	"devDependencies": {
+		"npm-run-all": "^4.1.5"
+	}
+}
