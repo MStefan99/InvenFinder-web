@@ -15,7 +15,7 @@ if (process.env.NODE_ENV === 'development') {
 
 
 app.set('x-powered-by', false);
-app.use('/', express.static(path.resolve(__dirname, '..', 'dist')));
+app.use('/', express.static(path.resolve(__dirname, '..', 'frontend', 'dist')));
 
 app.use('/api', apiRouter);
 

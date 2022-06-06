@@ -160,10 +160,4 @@ router.post('/items',
 );
 
 
-(async () => {
-	const admin = await User.getUserByID(3);
-	admin.username = 'admin';
-})();
-
-
 module.exports = router;
