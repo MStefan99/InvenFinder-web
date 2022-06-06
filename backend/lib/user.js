@@ -29,7 +29,11 @@ class User {
 
 				target.#saveHandle = setImmediate(async () => {
 					const connection = await connectionPromise;
-					await connection.query(`insert into invenfinder.users(id, username, password_salt, password_hash, permissions)
+					await connection.query(`insert into invenfinder.users(id,
+					                                                      username,
+					                                                      password_salt,
+					                                                      password_hash,
+					                                                      permissions)
 					                        values (?, ?, ?, ?, ?)
 					                        on duplicate key update username = values(username),
 					                                                password_salt = values(password_salt),
@@ -46,36 +50,36 @@ class User {
 	}
 
 
-	static #assignUser(user, row) {
-		user.id = row.id;
-		user.username = row.username;
-		user.#passwordSalt = row.password_salt;
-		user.#passwordHash = row.password_hash;
-		user.permissions = row.permissions;
+	static #assignUser(user, props) {
+		user.id = props.id;
+		user.username = props.username;
+		user.#passwordSalt = props.password_salt;
+		user.#passwordHash = props.password_hash;
+		user.permissions = props.permissions;
 
 		clearImmediate(user.#saveHandle);
 		return this.#makeReactive(user);
 	}
 
 
-	static async createUser(username, password, permissions = DEFAULT_PERMISSIONS) {
-		if (!username || !password) {
+	static async create(options) {
+		if (!options.username || !options.password) {
 			return null;
 		}
 
-		const user = this.#makeReactive(new User());
-
+		const user = this.#assignUser(this.#makeReactive(new User()), options);
 		const salt = crypto.randomBytes(32);
-		const hash = await pbkdf2(password, salt, PBKDF2ITERATIONS, 64, 'sha3-256');
+		const hash = await pbkdf2(options.password, salt, PBKDF2ITERATIONS, 64, 'sha3-256');
 
-		user.username = username;
-		user.permissions = permissions;
 		user.#passwordSalt = salt.toString('base64');
 		user.#passwordHash = hash.toString('base64');
 		clearImmediate(user.#saveHandle);
 
 		const connection = await connectionPromise;
-		const res = await connection.query(`insert into invenfinder.users(username, password_salt, password_hash, permissions)
+		const res = await connection.query(`insert into invenfinder.users(username,
+		                                                                  password_salt,
+		                                                                  password_hash,
+		                                                                  permissions)
 		                                    values (?, ?, ?, ?)`,
 			[user.username, user.#passwordSalt, user.#passwordHash, user.permissions]);
 
@@ -85,39 +89,31 @@ class User {
 	}
 
 
-	static async getUserByID(id) {
+	static async getByID(id) {
 		if (!id) {
 			return null;
 		}
 
 		const connection = await connectionPromise;
-		const rows = await connection.query(`select id,
-		                                            username,
-		                                            password_hash,
-		                                            password_salt,
-		                                            permissions
+		const rows = await connection.query(`select *
 		                                     from invenfinder.users
 		                                     where id=?`, [id]);
 
 		if (!rows.length) {
 			return null;
 		} else {
-			return this.#assignUser(new User, rows[0]);
+			return this.#assignUser(new User(), rows[0]);
 		}
 	}
 
 
-	static async getUserByUsername(username) {
+	static async getByUsername(username) {
 		if (!username) {
 			return null;
 		}
 
 		const connection = await connectionPromise;
-		const rows = await connection.query(`select id,
-		                                            username,
-		                                            password_salt,
-		                                            password_hash,
-		                                            permissions
+		const rows = await connection.query(`select *
 		                                     from invenfinder.users
 		                                     where username=?`, [username]);
 
@@ -129,15 +125,11 @@ class User {
 	}
 
 
-	static async getAllUsers() {
+	static async getAll() {
 		const users = [];
 
 		const connection = await connectionPromise;
-		const rows = await connection.query(`select id,
-		                                            username,
-		                                            password_salt,
-		                                            password_hash,
-		                                            permissions
+		const rows = await connection.query(`select *
 		                                     from invenfinder.users`);
 
 		for (const row of rows) {

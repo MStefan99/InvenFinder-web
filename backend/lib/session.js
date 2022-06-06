@@ -14,7 +14,7 @@ class Session {
 	time;
 
 
-	static async createSession(user, ua, ip) {
+	static async create(user, ua, ip) {
 		if (!user || !ua || !ip) {
 			return null;
 		}
@@ -31,7 +31,7 @@ class Session {
 	}
 
 
-	static async getSessionByID(id) {
+	static async getByID(id) {
 		if (!id) {
 			return null;
 		}
@@ -57,7 +57,7 @@ class Session {
 	}
 
 
-	static async getSessionByPublicID(id) {
+	static async getByPublicID(id) {
 		if (!id) {
 			return null;
 		}
