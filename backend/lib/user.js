@@ -15,19 +15,19 @@ const DEFAULT_PERMISSIONS = 0;
 class User {
 	id;
 	username;
-	#passwordSalt;
-	#passwordHash;
+	_passwordSalt;
+	_passwordHash;
 	permissions;
 
-	_saveHandle;
+	#saveHandle;
 
 
 	static #makeReactive(user) {
 		const proxy = {
 			set(target, propertyKey, value, receiver) {
-				clearImmediate(target._saveHandle);
+				clearImmediate(target.#saveHandle);
 
-				target._saveHandle = setImmediate(async () => {
+				target.#saveHandle = setImmediate(async () => {
 					const connection = await connectionPromise;
 					await connection.query(`insert into invenfinder.users(id,
 					                                                      username,
@@ -41,8 +41,8 @@ class User {
 					                                                permissions = values(permissions)`,
 						[target.id,
 							target.username,
-							target.#passwordSalt,
-							target.#passwordHash,
+							target._passwordSalt,
+							target._passwordHash,
 							target.permissions]);
 				});
 
@@ -57,11 +57,11 @@ class User {
 	static #assignUser(user, props) {
 		user.id = props.id;
 		user.username = props.username;
-		user.#passwordSalt = props.password_salt;
-		user.#passwordHash = props.password_hash;
-		user.permissions = props.permissions;
+		user._passwordSalt = props.password_salt;
+		user._passwordHash = props.password_hash;
+		user.permissions = props.permissions ?? DEFAULT_PERMISSIONS;
 
-		return this.#makeReactive(user);
+		return user;
 	}
 
 
@@ -74,9 +74,8 @@ class User {
 		const salt = crypto.randomBytes(32);
 		const hash = await pbkdf2(options.password, salt, PBKDF2ITERATIONS, 64, 'sha3-256');
 
-		user.#passwordSalt = salt.toString('base64');
-		user.#passwordHash = hash.toString('base64');
-		clearImmediate(user._saveHandle);
+		user._passwordSalt = salt.toString('base64');
+		user._passwordHash = hash.toString('base64');
 
 		const connection = await connectionPromise;
 		const res = await connection.query(`insert into invenfinder.users(username,
@@ -84,7 +83,7 @@ class User {
 		                                                                  password_hash,
 		                                                                  permissions)
 		                                    values (?, ?, ?, ?)`,
-			[user.username, user.#passwordSalt, user.#passwordHash, user.permissions]);
+			[user.username, user._passwordSalt, user._passwordHash, user.permissions]);
 
 		user.id = Number(res.insertId);
 		return this.#makeReactive(user);
@@ -147,8 +146,8 @@ class User {
 			return false;
 		}
 
-		const salt = Buffer.from(this.#passwordSalt, 'base64');
-		const hash = Buffer.from(this.#passwordHash, 'base64');
+		const salt = Buffer.from(this._passwordSalt, 'base64');
+		const hash = Buffer.from(this._passwordHash, 'base64');
 
 		return hash.equals(await pbkdf2(password, salt, PBKDF2ITERATIONS, 64, 'sha3-256'));
 	}
@@ -162,8 +161,8 @@ class User {
 		const salt = crypto.randomBytes(32);
 		const hash = await pbkdf2(password, salt, PBKDF2ITERATIONS, 64, 'sha3-256');
 
-		this.#passwordSalt = salt.toString('base64');
-		this.#passwordHash = hash.toString('base64');
+		this._passwordSalt = salt.toString('base64');
+		this._passwordHash = hash.toString('base64');
 
 		return this;
 	}

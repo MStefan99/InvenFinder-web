@@ -56,7 +56,10 @@ router.post('/register', async (req, res) => {
 		return;
 	}
 
-	const user = await User.create(req.body.username, req.body.password);
+	const user = await User.create({
+		username: req.body.username,
+		password: req.body.password
+	});
 	const session = await Session.create(user, req.get('user-agent'), req.ip);
 
 	res
@@ -68,7 +71,7 @@ router.post('/register', async (req, res) => {
 router.get('/logout',
 	auth.authenticated(),
 	(req, res) => {
-		res.sendStatus(200);
+		res.json({message: 'OK'});
 
 		req.session.delete();
 	});
