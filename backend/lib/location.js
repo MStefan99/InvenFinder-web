@@ -50,8 +50,8 @@ class Location {
 	row;
 
 
-	constructor(drawer, col, row) {
-		this.cabinet = drawer;
+	constructor(cabinet, col, row) {
+		this.cabinet = cabinet;
 		this.col = col;
 		this.row = row;
 	}
@@ -64,7 +64,7 @@ class Location {
 	}
 
 
-	static parseLocation(str) {
+	static parse(str) {
 		const location = new Location();
 		const groups = str.match(/^(\d+)-([A-Z]+)(\d+)$/);
 

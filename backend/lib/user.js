@@ -19,15 +19,15 @@ class User {
 	#passwordHash;
 	permissions;
 
-	#saveHandle;
+	_saveHandle;
 
 
 	static #makeReactive(user) {
 		const proxy = {
 			set(target, propertyKey, value, receiver) {
-				clearImmediate(target.#saveHandle);
+				clearImmediate(target._saveHandle);
 
-				target.#saveHandle = setImmediate(async () => {
+				target._saveHandle = setImmediate(async () => {
 					const connection = await connectionPromise;
 					await connection.query(`insert into invenfinder.users(id,
 					                                                      username,
@@ -39,7 +39,11 @@ class User {
 					                                                password_salt = values(password_salt),
 					                                                password_hash = values(password_hash),
 					                                                permissions = values(permissions)`,
-						[target.id, target.username, target.#passwordSalt, target.#passwordHash, target.permissions]);
+						[target.id,
+							target.username,
+							target.#passwordSalt,
+							target.#passwordHash,
+							target.permissions]);
 				});
 
 				return Reflect.set(target, propertyKey, value, receiver);
@@ -57,7 +61,6 @@ class User {
 		user.#passwordHash = props.password_hash;
 		user.permissions = props.permissions;
 
-		clearImmediate(user.#saveHandle);
 		return this.#makeReactive(user);
 	}
 
@@ -67,13 +70,13 @@ class User {
 			return null;
 		}
 
-		const user = this.#assignUser(this.#makeReactive(new User()), options);
+		const user = this.#assignUser(new User(), options);
 		const salt = crypto.randomBytes(32);
 		const hash = await pbkdf2(options.password, salt, PBKDF2ITERATIONS, 64, 'sha3-256');
 
 		user.#passwordSalt = salt.toString('base64');
 		user.#passwordHash = hash.toString('base64');
-		clearImmediate(user.#saveHandle);
+		clearImmediate(user._saveHandle);
 
 		const connection = await connectionPromise;
 		const res = await connection.query(`insert into invenfinder.users(username,
@@ -83,9 +86,8 @@ class User {
 		                                    values (?, ?, ?, ?)`,
 			[user.username, user.#passwordSalt, user.#passwordHash, user.permissions]);
 
-		user.id = res.insertId;
-		clearImmediate(user.#saveHandle);
-		return user;
+		user.id = Number(res.insertId);
+		return this.#makeReactive(user);
 	}
 
 
@@ -102,7 +104,7 @@ class User {
 		if (!rows.length) {
 			return null;
 		} else {
-			return this.#assignUser(new User(), rows[0]);
+			return this.#makeReactive(this.#assignUser(new User(), rows[0]));
 		}
 	}
 
@@ -121,7 +123,7 @@ class User {
 			return null;
 		}
 
-		return this.#assignUser(new User(), rows[0]);
+		return this.#makeReactive(this.#assignUser(new User(), rows[0]));
 	}
 
 
@@ -133,7 +135,7 @@ class User {
 		                                     from invenfinder.users`);
 
 		for (const row of rows) {
-			users.push(this.#assignUser(new User(), row));
+			users.push(this.#makeReactive(this.#assignUser(new User(), row)));
 		}
 
 		return users;

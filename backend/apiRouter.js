@@ -6,9 +6,11 @@ const cors = require('cors');
 
 const User = require('./lib/user');
 const Session = require('./lib/session');
+const Item = require('./lib/item');
+const Location = require('./lib/location');
+
 const {PERMISSIONS} = require('./lib/permissions');
 const auth = require('./lib/auth');
-const connectionPromise = require('./lib/db');
 
 
 const router = express.Router();
@@ -31,7 +33,7 @@ router.post('/login', async (req, res) => {
 		return;
 	}
 
-	const user = await User.getUserByUsername(req.body.username);
+	const user = await User.getByUsername(req.body.username);
 	if (!user) {
 		res.status(400).json({error: 'User not found'});
 		return;
@@ -40,7 +42,7 @@ router.post('/login', async (req, res) => {
 		return;
 	}
 
-	const session = await Session.createSession(user, req.get('user-agent'), req.ip);
+	const session = await Session.create(user, req.get('user-agent'), req.ip);
 
 	res
 		.status(201)
@@ -54,8 +56,8 @@ router.post('/register', async (req, res) => {
 		return;
 	}
 
-	const user = await User.createUser(req.body.username, req.body.password);
-	const session = await Session.createSession(user, req.get('user-agent'), req.ip);
+	const user = await User.create(req.body.username, req.body.password);
+	const session = await Session.create(user, req.get('user-agent'), req.ip);
 
 	res
 		.status(201)
@@ -75,10 +77,7 @@ router.get('/logout',
 router.get('/items',
 	auth.authenticated(),
 	async (req, res) => {
-		const connection = await connectionPromise;
-
-		res.json(await connection.query(`select *
-		                                 from invenfinder.items`));
+		res.json(await Item.getAll());
 	});
 
 
@@ -94,10 +93,7 @@ router.get('/items/:id',
 			return;
 		}
 
-		const connection = await connectionPromise;
-		res.json(await connection.query(`select *
-		                                 from invenfinder.items
-		                                 where id=?`, [id]));
+		res.json(await Item.getByID(id));
 	});
 
 
@@ -121,11 +117,8 @@ router.put('/items/:id/amount',
 			return;
 		}
 
-		const connection = await connectionPromise;
-		connection.query(`update invenfinder.items
-		                  set amount=?
-		                  where id=?`,
-			[amount, id]);
+		const item = await Item.getByID(id);
+		item.amount = amount;
 
 		res
 			.json({message: 'OK'});
@@ -135,27 +128,49 @@ router.put('/items/:id/amount',
 router.post('/items',
 	auth.permissions(PERMISSIONS.MANAGE_ITEMS),
 	async (req, res) => {
-		const item = {
+		const props = {
 			name: req.body.name,
 			description: req.body.description,
-			location: Location.parsereq.body.location,
+			location: Location.parse(req.body.location),
 			amount: +req.body.amount
 		};
 
-		if (!item.name) {
+		if (!props.name) {
 			res.status(400).json({error: 'No name provided'});
 			return;
 		}
-		if (!item.location) {
+		if (!props.location) {
 			res.status(400).json({error: 'No or invalid location provided'});
 			return;
 		}
-		if (!Number.isInteger(item.amount)) {
+		if (!Number.isInteger(props.amount)) {
 			res.status(400).json({error: 'No or invalid amount provided'});
 			return;
 		}
 
+		const item = await Item.create(props);
+		res.json(item);
+	}
+);
 
+
+router.delete('/items/:id',
+	auth.permissions(PERMISSIONS.MANAGE_ITEMS),
+	async (req, res) => {
+		const id = +req.params.id;
+
+		if (!id) {
+			res
+				.status(400)
+				.json({error: 'Invalid ID'});
+			return;
+		}
+
+		const item = await Item.getByID(id);
+		item.delete();
+
+		res
+			.json({message: 'OK'});
 	}
 );
 

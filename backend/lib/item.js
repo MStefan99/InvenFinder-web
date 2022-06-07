@@ -2,10 +2,9 @@
 
 const Location = require('./location');
 const connectionPromise = require('./db');
-const crypto = require('crypto');
 
 
-module.exports = class Item {
+class Item {
 	id;
 	name;
 	description;
@@ -15,7 +14,7 @@ module.exports = class Item {
 	#saveHandle;
 
 
-	static #makeReactive(user) {
+	static #makeReactive(item) {
 		const proxy = {
 			set(target, propertyKey, value, receiver) {
 				clearImmediate(target.#saveHandle);
@@ -24,21 +23,26 @@ module.exports = class Item {
 					const connection = await connectionPromise;
 					await connection.query(`insert into invenfinder.items(id, name, description, cabinet, col, row, amount)
 					                        values (?, ?, ?, ?, ?, ?, ?)
-					                        on duplicate key update id = values(id),
-					                                                name = values(name),
+					                        on duplicate key update name = values(name),
 					                                                description = values(description),
 					                                                cabinet = values(cabinet),
 					                                                col = values(col),
 					                                                row = values(row),
 					                                                amount = values(amount)`,
-						[target.id, target.name, target.description, target.cabinet, target.col, target.row, target.amount]);
+						[target.id,
+							target.name,
+							target.description,
+							target.location.cabinet,
+							target.location.col,
+							target.location.row,
+							target.amount]);
 				});
 
 				return Reflect.set(target, propertyKey, value, receiver);
 			}
 		};
 
-		return new Proxy(user, proxy);
+		return new Proxy(item, proxy);
 	}
 
 
@@ -46,7 +50,7 @@ module.exports = class Item {
 		item.id = props.id;
 		item.name = props.name;
 		item.description = props.description;
-		item.location = new Location(props.cabinet, props.col, props.row);
+		item.location = props.location ?? new Location(props.cabinet, props.col, props.row);
 		item.amount = props.amount;
 
 		return item;
@@ -55,14 +59,19 @@ module.exports = class Item {
 
 	static async create(options) {
 		if (!options.name
-			|| !options.cabinet
-			|| !options.col
-			|| !options.row
 			|| !options.amount) {
 			return null;
 		}
+		if (options.cabinet
+			|| options.col
+			|| options.row) {
+			options.location = new Location(options.cabinet, options.col, options.row);
+		}
+		if (!options.location) {
+			return null;
+		}
 
-		const item = this.#assignItem(this.#makeReactive(new Item()), options);
+		const item = this.#assignItem(new Item(), options);
 
 		const connection = await connectionPromise;
 		const res = await connection.query(`insert into invenfinder.items(name,
@@ -72,11 +81,15 @@ module.exports = class Item {
 		                                                                  row,
 		                                                                  amount)
 		                                    values (?, ?, ?, ?, ?, ?)`,
-			[item.name, item.description, item.cabinet, item.col, item.row, item.amount]);
+			[item.name,
+				item.description,
+				item.location.cabinet,
+				item.location.col,
+				item.location.row,
+				item.amount]);
 
-		item.id = res.insertId;
-		clearImmediate(user.#saveHandle);
-		return item;
+		item.id = Number(res.insertId);
+		return this.#makeReactive(item);
 	}
 
 
@@ -93,7 +106,7 @@ module.exports = class Item {
 		if (!rows.length) {
 			return null;
 		} else {
-			return this.#assignItem(new Item(), rows[0]);
+			return this.#makeReactive(this.#assignItem(new Item(), rows[0]));
 		}
 	}
 
@@ -114,10 +127,34 @@ module.exports = class Item {
 		if (!rows.length) {
 			return null;
 		} else {
-			return this.#assignItem(new Item(), rows[0]);
+			return this.#makeReactive(this.#assignItem(new Item(), rows[0]));
 		}
 	}
-};
+
+
+	static async getAll() {
+		const items = [];
+
+		const connection = await connectionPromise;
+		const rows = await connection.query(`select *
+		                                     from invenfinder.items`);
+
+		for (const row of rows) {
+			const session = new Item();
+
+			items.push(this.#makeReactive(this.#assignItem(new Item(), row)));
+		}
+		return items;
+	}
+
+
+	async delete() {
+		const connection = await connectionPromise;
+		await connection.query(`delete
+		                        from invenfinder.items
+		                        where id=?`, [this.id]);
+	}
+}
 
 
 module.exports = Item;

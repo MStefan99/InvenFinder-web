@@ -14,7 +14,7 @@ async function getSession(req) {
 		return null;
 	}
 
-	return req.session = await Session.getSessionByPublicID(id);
+	return req.session = await Session.getByPublicID(id);
 }
 
 
@@ -27,7 +27,7 @@ async function getUser(req) {
 		await getSession(req);
 	}
 
-	return req.user = await User.getUserByID(req.session.userID);
+	return req.user = await User.getByID(req.session.userID);
 }
 
 
