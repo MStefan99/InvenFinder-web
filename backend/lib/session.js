@@ -4,7 +4,6 @@ const crypto = require('crypto');
 
 const connectionPromise = require('./db');
 
-
 class Session {
 	id;
 	publicID;
@@ -12,7 +11,6 @@ class Session {
 	ip;
 	ua;
 	time;
-
 
 	static async create(user, ua, ip) {
 		if (!user || !ua || !ip) {
@@ -28,22 +26,25 @@ class Session {
 		session.time = Date.now();
 
 		const connection = await connectionPromise;
-		const res = await connection.query(`insert into invenfinder.sessions(public_id,
+		const res = await connection.query(
+			`insert into invenfinder.sessions(public_id,
 		                                                                     user_id,
 		                                                                     ip,
 		                                                                     ua,
 		                                                                     time)
 		                                    values (?, ?, ?, ?, ?)`,
-			[session.publicID,
+			[
+				session.publicID,
 				session.userID,
 				session.ip,
 				session.ua,
-				session.time]);
+				session.time,
+			],
+		);
 
 		session.id = Number(res.insertId);
 		return session;
 	}
-
 
 	static async getByID(id) {
 		if (!id) {
@@ -53,14 +54,17 @@ class Session {
 		const session = new Session();
 
 		const connection = await connectionPromise;
-		const rows = await connection.query(`select id,
+		const rows = await connection.query(
+			`select id,
 		                                            public_id as publicID,
 		                                            user_id   as userID,
 		                                            ip,
 		                                            ua,
 		                                            time
 		                                     from invenfinder.sessions
-		                                     where id=?`, [id]);
+		                                     where id=?`,
+			[id],
+		);
 
 		if (!rows.length) {
 			return null;
@@ -69,7 +73,6 @@ class Session {
 			return session;
 		}
 	}
-
 
 	static async getByPublicID(id) {
 		if (!id) {
@@ -79,14 +82,17 @@ class Session {
 		const session = new Session();
 
 		const connection = await connectionPromise;
-		const rows = await connection.query(`select id,
+		const rows = await connection.query(
+			`select id,
 		                                            public_id as publicID,
 		                                            user_id   as userID,
 		                                            ip,
 		                                            ua,
 		                                            time
 		                                     from invenfinder.sessions
-		                                     where public_id=?`, [id]);
+		                                     where public_id=?`,
+			[id],
+		);
 
 		if (!rows.length) {
 			return null;
@@ -96,7 +102,6 @@ class Session {
 		}
 	}
 
-
 	static async getUserSessions(user) {
 		if (!user) {
 			return null;
@@ -105,14 +110,17 @@ class Session {
 		const sessions = [];
 
 		const connection = await connectionPromise;
-		const rows = await connection.query(`select id,
+		const rows = await connection.query(
+			`select id,
 		                                            public_id as publicID,
 		                                            user_id   as userID,
 		                                            ip,
 		                                            ua,
 		                                            time
 		                                     from invenfinder.sessions
-		                                     where user_id=?`, [user.id]);
+		                                     where user_id=?`,
+			[user.id],
+		);
 
 		for (const row of rows) {
 			const session = new Session();
@@ -123,26 +131,29 @@ class Session {
 		return sessions;
 	}
 
-
 	static async deleteAllUserSessions(user) {
 		if (!user) {
 			return;
 		}
 
 		const connection = await connectionPromise;
-		await connection.query(`delete
+		await connection.query(
+			`delete
 		                        from invenfinder.sessions
-		                        where user_id=?`, [user.id]);
+		                        where user_id=?`,
+			[user.id],
+		);
 	}
-
 
 	async delete() {
 		const connection = await connectionPromise;
-		await connection.query(`delete
+		await connection.query(
+			`delete
 		                        from invenfinder.sessions
-		                        where id=?`, [this.id]);
+		                        where id=?`,
+			[this.id],
+		);
 	}
 }
-
 
 module.exports = Session;

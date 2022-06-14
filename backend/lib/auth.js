@@ -3,7 +3,6 @@
 const Session = require('./session');
 const User = require('./user');
 
-
 async function getSession(req) {
 	if (req.session) {
 		return req.session;
@@ -17,7 +16,6 @@ async function getSession(req) {
 	return req.session = await Session.getByPublicID(id);
 }
 
-
 async function getUser(req) {
 	if (req.user) {
 		return req.user;
@@ -30,7 +28,6 @@ async function getUser(req) {
 	return req.user = await User.getByID(req.session.userID);
 }
 
-
 module.exports = {
 	authenticated() {
 		return async (req, res, next) => {
@@ -39,14 +36,13 @@ module.exports = {
 			if (!session) {
 				res
 					.status(401)
-					.json({error: 'Not authenticated'});
+					.json({ error: 'Not authenticated' });
 				return;
 			}
 
 			next();
 		};
 	},
-
 
 	permissions(permissions) {
 		if (!(permissions instanceof Array)) {
@@ -56,12 +52,12 @@ module.exports = {
 		return async (req, res, next) => {
 			const user = await getUser(req);
 			if (!user) {
-				res.status(401).json({error: 'Not authenticated'});
+				res.status(401).json({ error: 'Not authenticated' });
 			} else if (user.hasPermissions(permissions)) {
 				next();
 			} else {
-				res.status(403).json({error: 'Not authorized'});
+				res.status(403).json({ error: 'Not authorized' });
 			}
 		};
-	}
+	},
 };

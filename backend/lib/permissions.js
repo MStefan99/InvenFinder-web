@@ -1,9 +1,8 @@
 'use strict';
 
-
 function makeEnum(obj) {
 	let i = 0;
-	let map = new Map();
+	const map = new Map();
 
 	for (const prop in obj) {
 		if (!map.has(prop)) {
@@ -18,7 +17,6 @@ function makeEnum(obj) {
 
 	return Object.freeze(map);
 }
-
 
 const PERMISSIONS = {
 	'EDIT_ITEM_AMOUNT': 0,

@@ -1,6 +1,5 @@
 'use strict';
 
-
 function colEncode(n) {
 	n = +n;
 
@@ -27,7 +26,6 @@ function colEncode(n) {
 	return str;
 }
 
-
 function colDecode(str) {
 	if (!str) {
 		return null;
@@ -43,12 +41,10 @@ function colDecode(str) {
 	return n;
 }
 
-
 class Location {
 	cabinet;
 	col;
 	row;
-
 
 	constructor(cabinet, col, row) {
 		this.cabinet = cabinet;
@@ -56,13 +52,11 @@ class Location {
 		this.row = row;
 	}
 
-
 	toString() {
-		return (this.cabinet + 1)
-			+ '-' + colEncode(this.col)
-			+ (this.row + 1);
+		return (this.cabinet + 1) +
+			'-' + colEncode(this.col) +
+			(this.row + 1);
 	}
-
 
 	static parse(str) {
 		const location = new Location();
@@ -79,6 +73,5 @@ class Location {
 		return location;
 	}
 }
-
 
 module.exports = Location;

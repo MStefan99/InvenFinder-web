@@ -4,16 +4,20 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"postinstall": "run-p install:*",
+		"postinstall": "run-p install:* && husky install",
 		"install:frontend": "cd ./frontend && npm install",
 		"install:backend": "cd ./backend && npm install",
 		"dev": "run-p dev:*",
-		"dev:frontend": "cd ./frontend && vite",
+		"dev:frontend": "cd ./frontend && npm run dev",
 		"dev:backend": "cd ./backend && deno task start",
 		"build": "run-p build:*",
-		"build:frontend": "cd ./frontend && vite build",
-		"build:backend": "cd ./backend && deno build",
-		"preview": "cd ./frontend && vite preview"
+		"build:frontend": "cd ./frontend && npm run build",
+		"build:backend": "cd ./backend && deno task build",
+		"preview": "cd ./frontend && npm run preview",
+		"lint:frontend": "echo 'No linter setup'",
+		"lint:backend": "cd ./backend && deno lint",
+		"lint": "run-p lint:*",
+		"precommit": "npm run lint"
 	},
 	"repository": {
 		"type": "git",
@@ -27,6 +31,7 @@
 	},
 	"homepage": "https://github.com/MStefan99/InvenFinder-web#readme",
 	"devDependencies": {
+		"husky": "^8.0.1",
 		"npm-run-all": "^4.1.5"
 	}
 }
