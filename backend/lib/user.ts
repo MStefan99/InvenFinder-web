@@ -1,10 +1,5 @@
-'use strict';
-
-const crypto = require('crypto');
-const util = require('util');
-
-const Permissions = require('./permissions');
-const connectionPromise = require('./db');
+import Permissions from './permissions.ts';
+import connectionPromise from './db.ts';
 
 const pbkdf2 = util.promisify(crypto.pbkdf2);
 
@@ -207,4 +202,4 @@ class User {
 	}
 }
 
-module.exports = User;
+export default User;

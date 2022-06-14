@@ -1,5 +1,3 @@
-'use strict';
-
 function makeEnum(obj) {
 	let i = 0;
 	const map = new Map();
@@ -29,7 +27,7 @@ const PERMISSIONS = {
 const permissionEnum = makeEnum(PERMISSIONS);
 
 
-module.exports = {
+export default {
 	PERMISSIONS,
 
 

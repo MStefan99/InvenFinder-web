@@ -1,8 +1,4 @@
-'use strict';
-
-const crypto = require('crypto');
-
-const connectionPromise = require('./db');
+import connectionPromise from './db.ts';
 
 class Session {
 	id;
@@ -156,4 +152,4 @@ class Session {
 	}
 }
 
-module.exports = Session;
+export default Session;

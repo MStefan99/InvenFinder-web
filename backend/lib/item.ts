@@ -1,7 +1,6 @@
-'use strict';
+import Location from './location.ts';
+import connectionPromise from './db.ts';
 
-const Location = require('./location');
-const connectionPromise = require('./db');
 
 class Item {
 	id;
@@ -171,4 +170,4 @@ class Item {
 	}
 }
 
-module.exports = Item;
+export default Item;

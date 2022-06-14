@@ -1,7 +1,5 @@
-'use strict';
-
-const Session = require('./session');
-const User = require('./user');
+import Session from './session.ts';
+import User from './user.ts';
 
 async function getSession(req) {
 	if (req.session) {
@@ -28,7 +26,8 @@ async function getUser(req) {
 	return req.user = await User.getByID(req.session.userID);
 }
 
-module.exports = {
+
+export default {
 	authenticated() {
 		return async (req, res, next) => {
 			const session = await getSession(req);

@@ -1,5 +1,3 @@
-'use strict';
-
 function colEncode(n) {
 	n = +n;
 
@@ -74,4 +72,4 @@ class Location {
 	}
 }
 
-module.exports = Location;
+export default Location;
