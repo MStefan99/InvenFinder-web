@@ -4,16 +4,16 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
+		"postinstall": "run-p install:*",
 		"install:frontend": "cd ./frontend && npm install",
 		"install:backend": "cd ./backend && npm install",
-		"postinstall": "run-p install:*",
-		"dev:frontend": "cd ./frontend && npm run dev",
-		"dev:backend": "cd ./backend && npm run start",
 		"dev": "run-p dev:*",
-		"build:frontend": "cd ./frontend && npm run build",
-		"build:backend": "cd ./backend && npm run build",
+		"dev:frontend": "cd ./frontend && vite",
+		"dev:backend": "cd ./backend && deno task start",
 		"build": "run-p build:*",
-		"preview": "cd ./frontend && npm run preview"
+		"build:frontend": "cd ./frontend && vite build",
+		"build:backend": "cd ./backend && deno build",
+		"preview": "cd ./frontend && vite preview"
 	},
 	"repository": {
 		"type": "git",
