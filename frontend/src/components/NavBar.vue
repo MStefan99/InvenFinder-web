@@ -1,5 +1,5 @@
 <template lang="pug">
-nav.text-teal-500.font-semibold
+nav.text-teal-700.font-semibold
 	span
 		span.clickable(@click="appState.activeTab = 'inventory'") Inventory
 		span.clickable(@click="appState.activeTab = 'users'") Users

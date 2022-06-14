@@ -1,6 +1,6 @@
 <template lang="pug">
 div#settings
-	h2.text-teal-500.text-2xl.mb-4 Settings
+	h2.text-teal-700.text-2xl.mb-4 Settings
 	form(@submit.prevent)
 		label(for="backend-url") Backend URL
 		input#backend-url(type="text", v-model="appState.backendURL" @input="setURL")
