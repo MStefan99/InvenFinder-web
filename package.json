@@ -7,9 +7,13 @@
 		"install:frontend": "cd ./frontend && npm install",
 		"install:backend": "cd ./backend && npm install",
 		"postinstall": "run-p install:*",
-		"dev:frontend": "cd ./frontend && npx vite",
+		"dev:frontend": "cd ./frontend && npm run dev",
 		"dev:backend": "cd ./backend && npm run start",
-		"dev": "run-p dev:*"
+		"dev": "run-p dev:*",
+		"build:frontend": "cd ./frontend && npm run build",
+		"build:backend": "cd ./backend && npm run build",
+		"build": "run-p build:*",
+		"preview": "cd ./frontend && npm run preview"
 	},
 	"repository": {
 		"type": "git",
