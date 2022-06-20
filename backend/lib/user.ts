@@ -1,9 +1,53 @@
+import {encode as hexEncode, decode as hexDecode} from 'https://deno.land/std@0.144.0/encoding/hex.ts';
+
 import * as Permissions from './permissions.ts';
 import connectionPromise from './db.ts';
-import {PERMISSIONS} from "./permissions.ts";
 
 const PBKDF2ITERATIONS = 100000;
 const DEFAULT_PERMISSIONS = 0;
+
+
+function buf2hex(buf: Uint8Array): string {
+	const dec = new TextDecoder();
+
+	return dec.decode(hexEncode(buf));
+}
+
+
+function hex2buf(str: string): Uint8Array {
+	const enc = new TextEncoder();
+
+	return hexDecode(enc.encode(str));
+}
+
+
+async function pbkdf2(password: string, salt: string): Promise<string> {
+	const enc = new TextEncoder();
+	const dec = new TextDecoder();
+
+	const importedKey = await crypto.subtle.importKey(
+		'raw',
+		enc.encode(password),
+		'PBKDF2',
+		false,
+		['deriveKey']
+	);
+	const generatedKey = await crypto.subtle.deriveKey(
+		{
+			name: 'PBKDF2',
+			salt: hex2buf(salt),
+			iterations: PBKDF2ITERATIONS,
+			hash: 'SHA-256'
+		},
+		importedKey,
+		{name: 'AES-GCM', length: 64},
+		true,
+		[]
+	);
+
+	const encodedKey = hexEncode(new Uint8Array(await crypto.subtle.exportKey('raw', generatedKey)));
+	return dec.decode(encodedKey);
+}
 
 
 type Props = {
@@ -68,8 +112,8 @@ class User {
 	}
 
 	static async create(username: string, password: string, permissions: number | undefined): Promise<User> {
-		const passwordSalt = 'ab';  // TODO: generate random salt
-		const passwordHash = 'abcd';  // TODO: generate key with PBKDF2
+		const passwordSalt = buf2hex(crypto.getRandomValues(new Uint8Array(32)));
+		const passwordHash = await pbkdf2(password, passwordSalt);
 
 		const connection = await connectionPromise;
 		const res = await connection.query(
@@ -111,7 +155,7 @@ class User {
 		}
 	}
 
-	static async getByUsername(username: string): Promise<User|null> {
+	static async getByUsername(username: string): Promise<User | null> {
 		const connection = await connectionPromise;
 		const rows = await connection.query(
 			`select *
@@ -142,15 +186,12 @@ class User {
 	}
 
 	async verifyPassword(password: string): Promise<boolean> {
-		await Promise.resolve();
-		// TODO: verify password
-		return true;
+		return this.passwordSalt === await pbkdf2(password, this.passwordSalt);
 	}
 
 	async setPassword(password: string): Promise<void> {
-		await Promise.resolve();
-		const passwordSalt = 'ab';  // TODO: generate random salt
-		const passwordHash = 'abcd';  // TODO: generate key with PBKDF2
+		this.passwordSalt = buf2hex(crypto.getRandomValues(new Uint8Array(32)));
+		this.passwordHash = await pbkdf2(password, this.passwordSalt);
 	}
 
 	hasPermissions(permissions: [Permissions.PERMISSIONS]): boolean {
