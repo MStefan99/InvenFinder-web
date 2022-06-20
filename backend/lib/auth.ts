@@ -1,61 +1,73 @@
+import {Context, Middleware} from 'https://deno.land/x/oak@v10.6.0/mod.ts';
+
 import Session from './session.ts';
 import User from './user.ts';
 
-async function getSession(req) {
-	if (req.session) {
-		return req.session;
+
+async function getSession(ctx: Context) {
+	if (ctx.state.session) {
+		return ctx.state.session;
 	}
 
-	const id = req.cookies?.SID ?? req.get('api-key');
+	const id = await ctx.cookies.get('SID') ?? ctx.request.headers.get('api-key');
 	if (!id) {
 		return null;
 	}
 
-	return req.session = await Session.getByPublicID(id);
+	return ctx.state.session = await Session.getByPublicID(id);
 }
 
-async function getUser(req) {
-	if (req.user) {
-		return req.user;
+async function getUser(ctx: Context) {
+	if (ctx.state.user) {
+		return ctx.state.user;
 	}
 
-	if (!req.session) {
-		await getSession(req);
+	if (!ctx.state.session) {
+		await getSession(ctx.request);
 	}
 
-	return req.user = await User.getByID(req.session.userID);
+	return ctx.state.user = await User.getByID(ctx.state.session.userID);
 }
+
+type Next = () => Promise<unknown>;
 
 
 export default {
-	authenticated() {
-		return async (req, res, next) => {
-			const session = await getSession(req);
+	test: {
+		async authenticated(ctx: Context): Promise<boolean> {
+			const session = await getSession(ctx.request);
 
-			if (!session) {
-				res
-					.status(401)
-					.json({ error: 'Not authenticated' });
-				return;
+			return !!session;
+		},
+
+		async permissions(ctx: Context, permissions: [number]): Promise<boolean> {
+			const user = await getUser(ctx.request);
+
+			return user.hasPermissions(permissions);
+		}
+	},
+
+	authenticated(): Middleware {
+		return async (ctx, next) => {
+			if (!await this.test.authenticated(ctx)) {
+				ctx.response.status = 401;
+				ctx.response.body = {error: 'Not authenticated'};
+			} else {
+				next();
 			}
-
-			next();
 		};
 	},
 
-	permissions(permissions) {
-		if (!(permissions instanceof Array)) {
-			permissions = [permissions];
-		}
-
-		return async (req, res, next) => {
-			const user = await getUser(req);
-			if (!user) {
-				res.status(401).json({ error: 'Not authenticated' });
-			} else if (user.hasPermissions(permissions)) {
-				next();
+	permissions(permissions: [number]): Middleware {
+		return async (ctx, next) => {
+			if (!await this.test.authenticated(ctx)) {
+				ctx.response.status = 401;
+				ctx.response.body = {error: 'Not authenticated'};
+			} else if (!await this.test.permissions(ctx, permissions)) {
+				ctx.response.status = 403;
+				ctx.response.body = {error: 'Not authorized'};
 			} else {
-				res.status(403).json({ error: 'Not authorized' });
+				next();
 			}
 		};
 	},
