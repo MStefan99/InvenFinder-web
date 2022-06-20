@@ -1,32 +1,53 @@
 import Location from './location.ts';
 import connectionPromise from './db.ts';
 
+type Props = {
+	id: number;
+	name: string;
+	description: string | null;
+	location: Location | undefined;
+	amount: number;
+	cabinet: number | undefined;
+	col: number | undefined;
+	row: number | undefined;
+};
 
 class Item {
-	id;
-	name;
-	description;
-	location;
-	amount;
+	id: number;
+	name: string;
+	description: string | null = null;
+	location: Location;
+	amount: number;
 
-	#saveHandle;
+	#saveHandle: number | undefined = undefined;
 
-	static #makeReactive(item) {
-		const proxy = {
+
+	constructor(props: Props) {
+		this.id = props.id;
+		this.name = props.name;
+		this.description = props.description;
+		this.location = props.location ??
+			new Location(props.cabinet, props.col, props.row);
+		this.amount = props.amount;
+	}
+
+
+	static #makeReactive(item: Item) {
+		const proxy: ProxyHandler<Item> = {
 			set(target, propertyKey, value, receiver) {
-				clearImmediate(target.#saveHandle);
+				clearInterval(target.#saveHandle);
 
-				target.#saveHandle = setImmediate(async () => {
+				target.#saveHandle = setInterval(async () => {
 					const connection = await connectionPromise;
 					await connection.query(
 						`insert into invenfinder.items(id, name, description, cabinet, col, row, amount)
-					                        values (?, ?, ?, ?, ?, ?, ?)
-					                        on duplicate key update name = values(name),
-					                                                description = values(description),
-					                                                cabinet = values(cabinet),
-					                                                col = values(col),
-					                                                row = values(row),
-					                                                amount = values(amount)`,
+						 values (?, ?, ?, ?, ?, ?, ?)
+						 on duplicate key update name = values(name),
+						                         description = values(description),
+						                         cabinet = values(cabinet),
+						                         col = values(col),
+						                         row = values(row),
+						                         amount = values(amount)`,
 						[
 							target.id,
 							target.name,
@@ -46,18 +67,8 @@ class Item {
 		return new Proxy(item, proxy);
 	}
 
-	static #assignItem(item, props) {
-		item.id = props.id;
-		item.name = props.name;
-		item.description = props.description;
-		item.location = props.location ??
-			new Location(props.cabinet, props.col, props.row);
-		item.amount = props.amount;
 
-		return item;
-	}
-
-	static async create(options) {
+	static async create(options: Props) {
 		if (
 			!options.name ||
 			!options.amount
@@ -79,17 +90,17 @@ class Item {
 			return null;
 		}
 
-		const item = this.#assignItem(new Item(), options);
+		const item = new Item(options);
 
 		const connection = await connectionPromise;
 		const res = await connection.query(
 			`insert into invenfinder.items(name,
-		                                                                  description,
-		                                                                  cabinet,
-		                                                                  col,
-		                                                                  row,
-		                                                                  amount)
-		                                    values (?, ?, ?, ?, ?, ?)`,
+			                               description,
+			                               cabinet,
+			                               col,
+			                               row,
+			                               amount)
+			 values (?, ?, ?, ?, ?, ?)`,
 			[
 				item.name,
 				item.description,
@@ -104,7 +115,8 @@ class Item {
 		return this.#makeReactive(item);
 	}
 
-	static async getByID(id) {
+
+	static async getByID(id: number) {
 		if (!id) {
 			return null;
 		}
@@ -112,19 +124,19 @@ class Item {
 		const connection = await connectionPromise;
 		const rows = await connection.query(
 			`select *
-		                                     from invenfinder.items
-		                                     where id=?`,
+			 from invenfinder.items
+			 where id=?`,
 			[id],
 		);
 
 		if (!rows.length) {
 			return null;
 		} else {
-			return this.#makeReactive(this.#assignItem(new Item(), rows[0]));
+			return this.#makeReactive(new Item(rows[0]));
 		}
 	}
 
-	static async getByLocation(location) {
+	static async getByLocation(location: Location) {
 		if (!location) {
 			return null;
 		}
@@ -132,17 +144,17 @@ class Item {
 		const connection = await connectionPromise;
 		const rows = await connection.query(
 			`select *
-		                                     from invenfinder.items
-		                                     where cabinet=?
-				                                   and col=?
-				                                   and row=?`,
+			 from invenfinder.items
+			 where cabinet=?
+				 and col=?
+				 and row=?`,
 			[location.cabinet, location.col, location.row],
 		);
 
 		if (!rows.length) {
 			return null;
 		} else {
-			return this.#makeReactive(this.#assignItem(new Item(), rows[0]));
+			return this.#makeReactive(new Item(rows[0]));
 		}
 	}
 
@@ -154,7 +166,7 @@ class Item {
 		                                     from invenfinder.items`);
 
 		for (const row of rows) {
-			items.push(this.#makeReactive(this.#assignItem(new Item(), row)));
+			items.push(this.#makeReactive(new Item(row)));
 		}
 		return items;
 	}
@@ -163,8 +175,8 @@ class Item {
 		const connection = await connectionPromise;
 		await connection.query(
 			`delete
-		                        from invenfinder.items
-		                        where id=?`,
+			 from invenfinder.items
+			 where id=?`,
 			[this.id],
 		);
 	}
