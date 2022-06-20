@@ -1,10 +1,4 @@
-function colEncode(n) {
-	n = +n;
-
-	if (n === null || n === undefined || Number.isNaN(n) || n < 0) {
-		return null;
-	}
-
+function colEncode(n: number) {
 	let str = '';
 	let col = n + 1;
 
@@ -24,11 +18,7 @@ function colEncode(n) {
 	return str;
 }
 
-function colDecode(str) {
-	if (!str) {
-		return null;
-	}
-
+function colDecode(str: string) {
 	let n = 0;
 
 	for (let i = 0; i < str.length - 1; ++i) {
@@ -40,11 +30,11 @@ function colDecode(str) {
 }
 
 class Location {
-	cabinet;
-	col;
-	row;
+	cabinet: number;
+	col: number;
+	row: number;
 
-	constructor(cabinet, col, row) {
+	constructor(cabinet: number, col: number, row: number) {
 		this.cabinet = cabinet;
 		this.col = col;
 		this.row = row;
@@ -56,17 +46,17 @@ class Location {
 			(this.row + 1);
 	}
 
-	static parse(str) {
-		const location = new Location();
+	static parse(str: string) {
+		const location = new Location(0, 0, 0);
 		const groups = str.match(/^(\d+)-([A-Z]+)(\d+)$/);
 
 		if (!groups) {
 			return null;
 		}
 
-		location.cabinet = groups[1] - 1;
+		location.cabinet = +groups[1] - 1;
 		location.col = colDecode(groups[2]);
-		location.row = groups[3] - 1;
+		location.row = +groups[3] - 1;
 
 		return location;
 	}
