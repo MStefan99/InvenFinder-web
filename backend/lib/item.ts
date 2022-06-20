@@ -26,8 +26,12 @@ class Item {
 		this.id = props.id;
 		this.name = props.name;
 		this.description = props.description;
-		this.location = props.location ??
+		this.location = new Location(0, 0, 0);
+		if (props.location) {
+			this.location = props.location;
+		} else if (props.cabinet !== undefined && props.col !== undefined && props.row !== undefined) {
 			new Location(props.cabinet, props.col, props.row);
+		}
 		this.amount = props.amount;
 	}
 
@@ -69,22 +73,11 @@ class Item {
 
 
 	static async create(options: Props) {
-		if (
-			!options.name ||
-			!options.amount
-		) {
+		if (!options.name || !options.amount) {
 			return null;
 		}
-		if (
-			options.cabinet ||
-			options.col ||
-			options.row
-		) {
-			options.location = new Location(
-				options.cabinet,
-				options.col,
-				options.row,
-			);
+		if (options.cabinet !== undefined && options.col !== undefined && options.row !== undefined) {
+			options.location = new Location(options.cabinet, options.col, options.row);
 		}
 		if (!options.location) {
 			return null;

@@ -4,26 +4,26 @@ import Session from './session.ts';
 import User from './user.ts';
 
 
-async function getSession(ctx: Context) {
+async function getSession(ctx: Context): Promise<Session | null> {
 	if (ctx.state.session) {
 		return ctx.state.session;
 	}
 
 	const id = await ctx.cookies.get('SID') ?? ctx.request.headers.get('api-key');
-	if (!id) {
+	if (typeof id !== 'number') {
 		return null;
 	}
 
 	return ctx.state.session = await Session.getByPublicID(id);
 }
 
-async function getUser(ctx: Context) {
+async function getUser(ctx: Context): Promise<User | null> {
 	if (ctx.state.user) {
 		return ctx.state.user;
 	}
 
 	if (!ctx.state.session) {
-		await getSession(ctx.request);
+		await getSession(ctx);
 	}
 
 	return ctx.state.user = await User.getByID(ctx.state.session.userID);
@@ -35,15 +35,15 @@ type Next = () => Promise<unknown>;
 export default {
 	test: {
 		async authenticated(ctx: Context): Promise<boolean> {
-			const session = await getSession(ctx.request);
+			const session = await getSession(ctx);
 
 			return !!session;
 		},
 
 		async permissions(ctx: Context, permissions: [number]): Promise<boolean> {
-			const user = await getUser(ctx.request);
+			const user = await getUser(ctx);
 
-			return user.hasPermissions(permissions);
+			return user?.hasPermissions(permissions) ?? false;
 		}
 	},
 
