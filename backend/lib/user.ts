@@ -1,43 +1,60 @@
-import Permissions from './permissions.ts';
+import * as Permissions from './permissions.ts';
 import connectionPromise from './db.ts';
-
-const pbkdf2 = util.promisify(crypto.pbkdf2);
+import {PERMISSIONS} from "./permissions.ts";
 
 const PBKDF2ITERATIONS = 100000;
 const DEFAULT_PERMISSIONS = 0;
 
+
+type Props = {
+	id: number,
+	username: string,
+	passwordSalt: string,
+	passwordHash: string,
+	permissions: number | undefined
+}
+
+
 class User {
-	id;
-	username;
-	_passwordSalt;
-	_passwordHash;
-	permissions;
+	id: number;
+	username: string;
+	passwordSalt: string;
+	passwordHash: string;
+	permissions: number;
 
-	#saveHandle;
+	#saveHandle: number | undefined;
 
-	static #makeReactive(user) {
-		const proxy = {
+	constructor(props: Props) {
+		this.id = props.id;
+		this.username = props.username;
+		this.passwordSalt = props.passwordSalt;
+		this.passwordHash = props.passwordHash;
+		this.permissions = props.permissions ?? DEFAULT_PERMISSIONS;
+	}
+
+	static #makeReactive(user: User): User {
+		const proxy: ProxyHandler<User> = {
 			set(target, propertyKey, value, receiver) {
-				clearImmediate(target.#saveHandle);
+				clearInterval(target.#saveHandle);
 
-				target.#saveHandle = setImmediate(async () => {
+				target.#saveHandle = setInterval(async () => {
 					const connection = await connectionPromise;
 					await connection.query(
 						`insert into invenfinder.users(id,
-					                                                      username,
-					                                                      password_salt,
-					                                                      password_hash,
-					                                                      permissions)
-					                        values (?, ?, ?, ?, ?)
-					                        on duplicate key update username = values(username),
-					                                                password_salt = values(password_salt),
-					                                                password_hash = values(password_hash),
-					                                                permissions = values(permissions)`,
+						                               username,
+						                               password_salt,
+						                               password_hash,
+						                               permissions)
+						 values (?, ?, ?, ?, ?)
+						 on duplicate key update username = values(username),
+						                         password_salt = values(password_salt),
+						                         password_hash = values(password_hash),
+						                         permissions = values(permissions)`,
 						[
 							target.id,
 							target.username,
-							target._passwordSalt,
-							target._passwordHash,
+							target.passwordSalt,
+							target.passwordHash,
 							target.permissions,
 						],
 					);
@@ -50,83 +67,56 @@ class User {
 		return new Proxy(user, proxy);
 	}
 
-	static #assignUser(user, props) {
-		user.id = props.id;
-		user.username = props.username;
-		user._passwordSalt = props.password_salt;
-		user._passwordHash = props.password_hash;
-		user.permissions = props.permissions ?? DEFAULT_PERMISSIONS;
-
-		return user;
-	}
-
-	static async create(options) {
-		if (!options.username || !options.password) {
-			return null;
-		}
-
-		const user = this.#assignUser(new User(), options);
-		const salt = crypto.randomBytes(32);
-		const hash = await pbkdf2(
-			options.password,
-			salt,
-			PBKDF2ITERATIONS,
-			64,
-			'sha3-256',
-		);
-
-		user._passwordSalt = salt.toString('base64');
-		user._passwordHash = hash.toString('base64');
+	static async create(username: string, password: string, permissions: number | undefined): Promise<User> {
+		const passwordSalt = 'ab';  // TODO: generate random salt
+		const passwordHash = 'abcd';  // TODO: generate key with PBKDF2
 
 		const connection = await connectionPromise;
 		const res = await connection.query(
 			`insert into invenfinder.users(username,
-		                                                                  password_salt,
-		                                                                  password_hash,
-		                                                                  permissions)
-		                                    values (?, ?, ?, ?)`,
+			                               password_salt,
+			                               password_hash,
+			                               permissions)
+			 values (?, ?, ?, ?)`,
 			[
-				user.username,
-				user._passwordSalt,
-				user._passwordHash,
-				user.permissions,
+				username,
+				passwordSalt,
+				passwordHash,
+				permissions,
 			],
 		);
 
-		user.id = Number(res.insertId);
-		return this.#makeReactive(user);
+		return this.#makeReactive(new User({
+			id: res.insertId,
+			username,
+			passwordSalt,
+			passwordHash,
+			permissions: permissions ?? DEFAULT_PERMISSIONS
+		}));
 	}
 
-	static async getByID(id) {
-		if (!id) {
-			return null;
-		}
-
+	static async getByID(id: number): Promise<User | null> {
 		const connection = await connectionPromise;
 		const rows = await connection.query(
 			`select *
-		                                     from invenfinder.users
-		                                     where id=?`,
+			 from invenfinder.users
+			 where id=?`,
 			[id],
 		);
 
 		if (!rows.length) {
 			return null;
 		} else {
-			return this.#makeReactive(this.#assignUser(new User(), rows[0]));
+			return this.#makeReactive(new User(rows[0]));
 		}
 	}
 
-	static async getByUsername(username) {
-		if (!username) {
-			return null;
-		}
-
+	static async getByUsername(username: string): Promise<User|null> {
 		const connection = await connectionPromise;
 		const rows = await connection.query(
 			`select *
-		                                     from invenfinder.users
-		                                     where username=?`,
+			 from invenfinder.users
+			 where username=?`,
 			[username],
 		);
 
@@ -134,10 +124,10 @@ class User {
 			return null;
 		}
 
-		return this.#makeReactive(this.#assignUser(new User(), rows[0]));
+		return this.#makeReactive(new User(rows[0]));
 	}
 
-	static async getAll() {
+	static async getAll(): Promise<User[]> {
 		const users = [];
 
 		const connection = await connectionPromise;
@@ -145,58 +135,37 @@ class User {
 		                                     from invenfinder.users`);
 
 		for (const row of rows) {
-			users.push(this.#makeReactive(this.#assignUser(new User(), row)));
+			users.push(this.#makeReactive(new User(row)));
 		}
 
 		return users;
 	}
 
-	async verifyPassword(password) {
-		if (!password) {
-			return false;
-		}
-
-		const salt = Buffer.from(this._passwordSalt, 'base64');
-		const hash = Buffer.from(this._passwordHash, 'base64');
-
-		return hash.equals(
-			await pbkdf2(password, salt, PBKDF2ITERATIONS, 64, 'sha3-256'),
-		);
+	async verifyPassword(password: string): Promise<boolean> {
+		await Promise.resolve();
+		// TODO: verify password
+		return true;
 	}
 
-	async setPassword(password) {
-		if (!password) {
-			return this;
-		}
-
-		const salt = crypto.randomBytes(32);
-		const hash = await pbkdf2(
-			password,
-			salt,
-			PBKDF2ITERATIONS,
-			64,
-			'sha3-256',
-		);
-
-		this._passwordSalt = salt.toString('base64');
-		this._passwordHash = hash.toString('base64');
-
-		return this;
+	async setPassword(password: string): Promise<void> {
+		await Promise.resolve();
+		const passwordSalt = 'ab';  // TODO: generate random salt
+		const passwordHash = 'abcd';  // TODO: generate key with PBKDF2
 	}
 
-	hasPermissions(permissions) {
+	hasPermissions(permissions: [Permissions.PERMISSIONS]): boolean {
 		const permissionValue = Permissions.getPermissionValue(permissions);
 
 		// noinspection JSBitwiseOperatorUsage
 		return ((this.permissions & permissionValue) === permissionValue);
 	}
 
-	async delete() {
+	async delete(): Promise<void> {
 		const connection = await connectionPromise;
 		await connection.query(
 			`delete
-		                        from invenfinder.users
-		                        where id=?`,
+			 from invenfinder.users
+			 where id=?`,
 			[this.id],
 		);
 	}

@@ -36,7 +36,7 @@ class Item {
 	}
 
 
-	static #makeReactive(item: Item) {
+	static #makeReactive(item: Item): Item {
 		const proxy: ProxyHandler<Item> = {
 			set(target, propertyKey, value, receiver) {
 				clearInterval(target.#saveHandle);
@@ -72,10 +72,7 @@ class Item {
 	}
 
 
-	static async create(options: Props) {
-		if (!options.name || !options.amount) {
-			return null;
-		}
+	static async create(options: Props): Promise<Item | null> {
 		if (options.cabinet !== undefined && options.col !== undefined && options.row !== undefined) {
 			options.location = new Location(options.cabinet, options.col, options.row);
 		}
@@ -109,11 +106,7 @@ class Item {
 	}
 
 
-	static async getByID(id: number) {
-		if (!id) {
-			return null;
-		}
-
+	static async getByID(id: number): Promise<Item | null> {
 		const connection = await connectionPromise;
 		const rows = await connection.query(
 			`select *
@@ -129,11 +122,7 @@ class Item {
 		}
 	}
 
-	static async getByLocation(location: Location) {
-		if (!location) {
-			return null;
-		}
-
+	static async getByLocation(location: Location): Promise<Item | null> {
 		const connection = await connectionPromise;
 		const rows = await connection.query(
 			`select *
@@ -151,7 +140,7 @@ class Item {
 		}
 	}
 
-	static async getAll() {
+	static async getAll(): Promise<Item[]> {
 		const items = [];
 
 		const connection = await connectionPromise;
@@ -164,7 +153,7 @@ class Item {
 		return items;
 	}
 
-	async delete() {
+	async delete(): Promise<void> {
 		const connection = await connectionPromise;
 		await connection.query(
 			`delete
