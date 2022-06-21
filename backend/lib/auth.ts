@@ -55,7 +55,7 @@ export default {
 				ctx.response.status = 401;
 				ctx.response.body = { error: 'Not authenticated' };
 			} else {
-				next();
+				await next();
 			}
 		};
 	},
@@ -69,7 +69,7 @@ export default {
 				ctx.response.status = 403;
 				ctx.response.body = { error: 'Not authorized' };
 			} else {
-				next();
+				await next();
 			}
 		};
 	},

@@ -1,4 +1,7 @@
-import { Router } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
+import {
+	composeMiddleware,
+	Router,
+} from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 
 import auth from '../lib/auth.ts';
 import User from '../lib/user.ts';
