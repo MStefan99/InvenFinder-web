@@ -96,7 +96,7 @@ class Session {
 		}
 	}
 
-	static async getByPublicID(id: number): Promise<Session | null> {
+	static async getByPublicID(id: string): Promise<Session | null> {
 		const client = await dbClientPromise;
 		const rows = await client.query(
 			`select id,

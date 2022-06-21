@@ -87,4 +87,10 @@ router.post('/register', async (ctx) => {
 	}
 });
 
+router.get('/logout', auth.authenticated(), (ctx) => {
+	ctx.response.body = { message: 'OK' };
+
+	ctx.state.session.delete();
+});
+
 export default router;

@@ -10,7 +10,7 @@ async function getSession(ctx: Context): Promise<Session | null> {
 
 	const id = await ctx.cookies.get('SID') ??
 		ctx.request.headers.get('api-key');
-	if (typeof id !== 'number') {
+	if (id === null) {
 		return null;
 	}
 
