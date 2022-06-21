@@ -21,7 +21,6 @@ class Item {
 
 	#saveHandle: number | undefined = undefined;
 
-
 	constructor(props: Props) {
 		this.id = props.id;
 		this.name = props.name;
@@ -29,12 +28,14 @@ class Item {
 		this.location = new Location(0, 0, 0);
 		if (props.location) {
 			this.location = props.location;
-		} else if (props.cabinet !== undefined && props.col !== undefined && props.row !== undefined) {
+		} else if (
+			props.cabinet !== undefined && props.col !== undefined &&
+			props.row !== undefined
+		) {
 			new Location(props.cabinet, props.col, props.row);
 		}
 		this.amount = props.amount;
 	}
-
 
 	static #makeReactive(item: Item): Item {
 		const proxy: ProxyHandler<Item> = {
@@ -71,10 +72,16 @@ class Item {
 		return new Proxy(item, proxy);
 	}
 
-
 	static async create(options: Props): Promise<Item | null> {
-		if (options.cabinet !== undefined && options.col !== undefined && options.row !== undefined) {
-			options.location = new Location(options.cabinet, options.col, options.row);
+		if (
+			options.cabinet !== undefined && options.col !== undefined &&
+			options.row !== undefined
+		) {
+			options.location = new Location(
+				options.cabinet,
+				options.col,
+				options.row,
+			);
 		}
 		if (!options.location) {
 			return null;
@@ -104,7 +111,6 @@ class Item {
 		item.id = res.lastInsertId ?? 0;
 		return this.#makeReactive(item);
 	}
-
 
 	static async getByID(id: number): Promise<Item | null> {
 		const client = await dbClientPromise;

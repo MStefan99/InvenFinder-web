@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Deno debug" type="DenoConfigurationType" inputPath="$PROJECT_DIR$/backend/index.ts" programParameters="run --allow-net --allow-env">
+    <option name="envs">
+      <entry key="DB_PASSWORD" value="test" />
+      <entry key="DB_URL" value="localhost" />
+      <entry key="DB_USER" value="root" />
+    </option>
+    <method v="2" />
+  </configuration>
+</component>

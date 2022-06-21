@@ -1,4 +1,7 @@
-import {encode as hexEncode, decode as hexDecode} from 'https://deno.land/std@0.144.0/encoding/hex.ts';
+import {
+	decode as hexDecode,
+	encode as hexEncode,
+} from 'https://deno.land/std@0.144.0/encoding/hex.ts';
 
 import * as Permissions from './permissions.ts';
 import dbClientPromise from './db.ts';
@@ -6,20 +9,17 @@ import dbClientPromise from './db.ts';
 const PBKDF2ITERATIONS = 100000;
 const DEFAULT_PERMISSIONS = 0;
 
-
 function buf2hex(buf: Uint8Array): string {
 	const dec = new TextDecoder();
 
 	return dec.decode(hexEncode(buf));
 }
 
-
 function hex2buf(str: string): Uint8Array {
 	const enc = new TextEncoder();
 
 	return hexDecode(enc.encode(str));
 }
-
 
 async function pbkdf2(password: string, salt: string): Promise<string> {
 	const enc = new TextEncoder();
@@ -30,34 +30,34 @@ async function pbkdf2(password: string, salt: string): Promise<string> {
 		enc.encode(password),
 		'PBKDF2',
 		false,
-		['deriveKey']
+		['deriveKey'],
 	);
 	const generatedKey = await crypto.subtle.deriveKey(
 		{
 			name: 'PBKDF2',
 			salt: hex2buf(salt),
 			iterations: PBKDF2ITERATIONS,
-			hash: 'SHA-256'
+			hash: 'SHA-256',
 		},
 		importedKey,
-		{name: 'AES-GCM', length: 64},
+		{ name: 'AES-GCM', length: 64 },
 		true,
-		[]
+		[],
 	);
 
-	const encodedKey = hexEncode(new Uint8Array(await crypto.subtle.exportKey('raw', generatedKey)));
+	const encodedKey = hexEncode(
+		new Uint8Array(await crypto.subtle.exportKey('raw', generatedKey)),
+	);
 	return dec.decode(encodedKey);
 }
 
-
 type Props = {
-	id: number,
-	username: string,
-	passwordSalt: string,
-	passwordHash: string,
-	permissions: number | undefined
-}
-
+	id: number;
+	username: string;
+	passwordSalt: string;
+	passwordHash: string;
+	permissions: number | undefined;
+};
 
 class User {
 	id: number;
@@ -111,8 +111,14 @@ class User {
 		return new Proxy(user, proxy);
 	}
 
-	static async create(username: string, password: string, permissions: number | undefined): Promise<User> {
-		const passwordSalt = buf2hex(crypto.getRandomValues(new Uint8Array(32)));
+	static async create(
+		username: string,
+		password: string,
+		permissions: number | undefined,
+	): Promise<User> {
+		const passwordSalt = buf2hex(
+			crypto.getRandomValues(new Uint8Array(32)),
+		);
 		const passwordHash = await pbkdf2(password, passwordSalt);
 
 		const client = await dbClientPromise;
@@ -130,13 +136,15 @@ class User {
 			],
 		);
 
-		return this.#makeReactive(new User({
-			id: res.lastInsertId ?? 0,
-			username,
-			passwordSalt,
-			passwordHash,
-			permissions: permissions ?? DEFAULT_PERMISSIONS
-		}));
+		return this.#makeReactive(
+			new User({
+				id: res.lastInsertId ?? 0,
+				username,
+				passwordSalt,
+				passwordHash,
+				permissions: permissions ?? DEFAULT_PERMISSIONS,
+			}),
+		);
 	}
 
 	static async getByID(id: number): Promise<User | null> {

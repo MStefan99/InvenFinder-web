@@ -9,7 +9,8 @@
 		"files": {
 			"include": [
 				".",
-				"lib/"
+				"lib/",
+				"routes/"
 			],
 			"exclude": [
 				"node_modules/"
@@ -19,8 +20,7 @@
 			"tags": [
 				"recommended"
 			],
-			"include": [
-			],
+			"include": [],
 			"exclude": [
 				"no-unused-vars"
 			]
@@ -30,7 +30,8 @@
 		"files": {
 			"include": [
 				".",
-				"src/"
+				"lib/",
+				"routes/"
 			],
 			"exclude": [
 				"node_modules/"

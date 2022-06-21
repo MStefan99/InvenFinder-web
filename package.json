@@ -17,7 +17,10 @@
 		"lint:frontend": "echo 'No linter setup'",
 		"lint:backend": "cd ./backend && deno lint",
 		"lint": "run-p lint:*",
-		"precommit": "npm run lint"
+		"fmt:frontend": "echo 'No formatter setup'",
+		"fmt:backend": "cd ./backend && deno fmt --check",
+		"fmt": "run-p fmt:*",
+		"precommit": "run-p fmt lint"
 	},
 	"repository": {
 		"type": "git",

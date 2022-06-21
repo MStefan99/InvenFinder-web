@@ -10,7 +10,6 @@
       <env name="DB_URL" value="localhost" />
       <env name="DB_USER" value="root" />
       <env name="DB_PASSWORD" value="test" />
-      <env name="NODE_ENV" value="development" />
     </envs>
     <method v="2" />
   </configuration>

@@ -1,17 +1,23 @@
-import {Application, Router} from 'https://deno.land/x/oak@v10.6.0/mod.ts';
-import AuthRouter from './routes/auth.ts';
+import { Application, Router } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
+import authRouter from './routes/auth.ts';
+import itemRouter from './routes/items.ts';
 
 const app = new Application();
-const router = new Router();
-
-router.get('/', (ctx) => {
-	ctx.response.body = 'Welcome!';
+const apiRouter = new Router({
+	prefix: '/api',
 });
 
-app.use(router.routes());
-app.use(router.allowedMethods());  // Responds to OPTIONS and 405/501
+apiRouter.get('/', (ctx) => {
+	ctx.response.body = { message: 'Welcome!' };
+});
 
-app.use(AuthRouter.routes());
-app.use(AuthRouter.allowedMethods());
+app.use(apiRouter.routes());
+app.use(apiRouter.allowedMethods()); // Responds to OPTIONS and 405/501
 
-app.listen({port: 3007});
+apiRouter.use(authRouter.routes());
+apiRouter.use(authRouter.allowedMethods());
+
+apiRouter.use(itemRouter.routes());
+apiRouter.use(itemRouter.allowedMethods());
+
+app.listen({ port: 3007 });

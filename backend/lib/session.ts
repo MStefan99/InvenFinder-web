@@ -3,13 +3,13 @@ import User from './user.ts';
 
 function getRandomString(s: number): string {
 	if (s % 2 === 1) {
-		throw new Deno.errors.InvalidData("Only even sizes are supported");
+		throw new Deno.errors.InvalidData('Only even sizes are supported');
 	}
 	const buf = new Uint8Array(s / 2);
 	crypto.getRandomValues(buf);
-	let ret = "";
+	let ret = '';
 	for (let i = 0; i < buf.length; ++i) {
-		ret += ("0" + buf[i].toString(16)).slice(-2);
+		ret += ('0' + buf[i].toString(16)).slice(-2);
 	}
 	return ret;
 }
@@ -22,8 +22,14 @@ class Session {
 	ua: string;
 	time: number;
 
-
-	constructor(id: number, publicID: string, userID: number, ip: string, ua: string, time: number) {
+	constructor(
+		id: number,
+		publicID: string,
+		userID: number,
+		ip: string,
+		ua: string,
+		time: number,
+	) {
 		this.id = id;
 		this.publicID = publicID;
 		this.userID = userID;
@@ -31,7 +37,6 @@ class Session {
 		this.ua = ua;
 		this.time = time;
 	}
-
 
 	static async create(user: User, ip: string, ua: string): Promise<Session> {
 		const publicID = getRandomString(64);
@@ -54,7 +59,14 @@ class Session {
 			],
 		);
 
-		return new Session(res.lastInsertId ?? 0, publicID, user.id, ip, ua, time);
+		return new Session(
+			res.lastInsertId ?? 0,
+			publicID,
+			user.id,
+			ip,
+			ua,
+			time,
+		);
 	}
 
 	static async getByID(id: number): Promise<Session | null> {
@@ -75,7 +87,14 @@ class Session {
 			return null;
 		} else {
 			const row = rows[0];
-			return new Session(row.id, row.publicID, row.userID, row.ip, row.ua, row.time);
+			return new Session(
+				row.id,
+				row.publicID,
+				row.userID,
+				row.ip,
+				row.ua,
+				row.time,
+			);
 		}
 	}
 
@@ -97,7 +116,14 @@ class Session {
 			return null;
 		} else {
 			const row = rows[0];
-			return new Session(row.id, row.publicID, row.userID, row.ip, row.ua, row.time);
+			return new Session(
+				row.id,
+				row.publicID,
+				row.userID,
+				row.ip,
+				row.ua,
+				row.time,
+			);
 		}
 	}
 
@@ -118,7 +144,16 @@ class Session {
 		);
 
 		for (const row of rows) {
-			sessions.push(new Session(row.id, row.publicID, row.userID, row.ip, row.ua, row.time));
+			sessions.push(
+				new Session(
+					row.id,
+					row.publicID,
+					row.userID,
+					row.ip,
+					row.ua,
+					row.time,
+				),
+			);
 		}
 		return sessions;
 	}
