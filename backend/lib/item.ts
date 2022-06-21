@@ -1,15 +1,19 @@
 import Location from './location.ts';
 import dbClientPromise from './db.ts';
 
-type Props = {
-	id: number;
+type PropsBase = {
 	name: string;
 	description: string | null;
-	location: Location | undefined;
+	location: Location | {
+		cabinet: number;
+		col: number;
+		row: number;
+	};
 	amount: number;
-	cabinet: number | undefined;
-	col: number | undefined;
-	row: number | undefined;
+};
+
+type Props = PropsBase & {
+	id: number;
 };
 
 class Item {
@@ -26,13 +30,14 @@ class Item {
 		this.name = props.name;
 		this.description = props.description;
 		this.location = new Location(0, 0, 0);
-		if (props.location) {
+		if (props.location instanceof Location) {
 			this.location = props.location;
-		} else if (
-			props.cabinet !== undefined && props.col !== undefined &&
-			props.row !== undefined
-		) {
-			new Location(props.cabinet, props.col, props.row);
+		} else {
+			this.location = new Location(
+				props.location.cabinet,
+				props.location.col,
+				props.location.row,
+			);
 		}
 		this.amount = props.amount;
 	}
@@ -40,9 +45,9 @@ class Item {
 	static #makeReactive(item: Item): Item {
 		const proxy: ProxyHandler<Item> = {
 			set(target, propertyKey, value, receiver) {
-				clearInterval(target.#saveHandle);
+				clearTimeout(target.#saveHandle);
 
-				target.#saveHandle = setInterval(async () => {
+				target.#saveHandle = setTimeout(async () => {
 					const client = await dbClientPromise;
 					await client.execute(
 						`insert into invenfinder.items(id, name, description, cabinet, col, row, amount)
@@ -72,22 +77,10 @@ class Item {
 		return new Proxy(item, proxy);
 	}
 
-	static async create(options: Props): Promise<Item | null> {
-		if (
-			options.cabinet !== undefined && options.col !== undefined &&
-			options.row !== undefined
-		) {
-			options.location = new Location(
-				options.cabinet,
-				options.col,
-				options.row,
-			);
-		}
+	static async create(options: PropsBase): Promise<Item | null> {
 		if (!options.location) {
 			return null;
 		}
-
-		const item = new Item(options);
 
 		const client = await dbClientPromise;
 		const res = await client.execute(
@@ -99,16 +92,22 @@ class Item {
 			                               amount)
 			 values (?, ?, ?, ?, ?, ?)`,
 			[
-				item.name,
-				item.description,
-				item.location.cabinet,
-				item.location.col,
-				item.location.row,
-				item.amount,
+				options.name,
+				options.description,
+				options.location.cabinet,
+				options.location.col,
+				options.location.row,
+				options.amount,
 			],
 		);
 
-		item.id = res.lastInsertId ?? 0;
+		const item = new Item({
+			id: res.lastInsertId ?? 0,
+			name: options.name,
+			description: options.description,
+			location: options.location,
+			amount: options.amount,
+		});
 		return this.#makeReactive(item);
 	}
 
@@ -124,7 +123,16 @@ class Item {
 		if (!rows.length) {
 			return null;
 		} else {
-			return this.#makeReactive(new Item(rows[0]));
+			const row = rows[0];
+			return this.#makeReactive(
+				new Item({
+					id: row.id,
+					name: row.name,
+					description: row.description,
+					location: new Location(row.cabinet, row.col, row.row),
+					amount: row.amount,
+				}),
+			);
 		}
 	}
 
@@ -142,7 +150,16 @@ class Item {
 		if (!rows.length) {
 			return null;
 		} else {
-			return this.#makeReactive(new Item(rows[0]));
+			const row = rows[0];
+			return this.#makeReactive(
+				new Item({
+					id: row.id,
+					name: row.name,
+					description: row.description,
+					location: new Location(row.cabinet, row.col, row.row),
+					amount: row.amount,
+				}),
+			);
 		}
 	}
 
@@ -154,7 +171,15 @@ class Item {
 		                                     from invenfinder.items`);
 
 		for (const row of rows) {
-			items.push(this.#makeReactive(new Item(row)));
+			items.push(this.#makeReactive(
+				new Item({
+					id: row.id,
+					name: row.name,
+					description: row.description,
+					location: new Location(row.cabinet, row.col, row.row),
+					amount: row.amount,
+				}),
+			));
 		}
 		return items;
 	}

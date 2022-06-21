@@ -75,9 +75,9 @@ class User {
 	static #makeReactive(user: User): User {
 		const proxy: ProxyHandler<User> = {
 			set(target, propertyKey, value, receiver) {
-				clearInterval(target.#saveHandle);
+				clearTimeout(target.#saveHandle);
 
-				target.#saveHandle = setInterval(async () => {
+				target.#saveHandle = setTimeout(async () => {
 					const client = await dbClientPromise;
 					await client.execute(
 						`insert into invenfinder.users(id,
