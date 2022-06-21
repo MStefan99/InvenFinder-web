@@ -1,4 +1,4 @@
-import connectionPromise from './db.ts';
+import dbClientPromise from './db.ts';
 import User from './user.ts';
 
 function getRandomString(s: number): string {
@@ -37,8 +37,8 @@ class Session {
 		const publicID = getRandomString(64);
 		const time = Date.now();
 
-		const connection = await connectionPromise;
-		const res = await connection.query(
+		const client = await dbClientPromise;
+		const res = await client.execute(
 			`insert into invenfinder.sessions(public_id,
 			                                  user_id,
 			                                  ip,
@@ -54,12 +54,12 @@ class Session {
 			],
 		);
 
-		return new Session(res.insertId, publicID, user.id, ip, ua, time);
+		return new Session(res.lastInsertId ?? 0, publicID, user.id, ip, ua, time);
 	}
 
 	static async getByID(id: number): Promise<Session | null> {
-		const connection = await connectionPromise;
-		const rows = await connection.query(
+		const client = await dbClientPromise;
+		const rows = await client.query(
 			`select id,
 			        public_id as publicID,
 			        user_id   as userID,
@@ -80,8 +80,8 @@ class Session {
 	}
 
 	static async getByPublicID(id: number): Promise<Session | null> {
-		const connection = await connectionPromise;
-		const rows = await connection.query(
+		const client = await dbClientPromise;
+		const rows = await client.query(
 			`select id,
 			        public_id as publicID,
 			        user_id   as userID,
@@ -104,8 +104,8 @@ class Session {
 	static async getUserSessions(user: User): Promise<Session[]> {
 		const sessions = [];
 
-		const connection = await connectionPromise;
-		const rows = await connection.query(
+		const client = await dbClientPromise;
+		const rows = await client.query(
 			`select id,
 			        public_id as publicID,
 			        user_id   as userID,
@@ -124,8 +124,8 @@ class Session {
 	}
 
 	static async deleteAllUserSessions(user: User): Promise<void> {
-		const connection = await connectionPromise;
-		await connection.query(
+		const client = await dbClientPromise;
+		await client.execute(
 			`delete
 			 from invenfinder.sessions
 			 where user_id=?`,
@@ -134,8 +134,8 @@ class Session {
 	}
 
 	async delete(): Promise<void> {
-		const connection = await connectionPromise;
-		await connection.query(
+		const client = await dbClientPromise;
+		await client.execute(
 			`delete
 			 from invenfinder.sessions
 			 where id=?`,

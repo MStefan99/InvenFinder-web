@@ -1,5 +1,5 @@
 import Location from './location.ts';
-import connectionPromise from './db.ts';
+import dbClientPromise from './db.ts';
 
 type Props = {
 	id: number;
@@ -42,8 +42,8 @@ class Item {
 				clearInterval(target.#saveHandle);
 
 				target.#saveHandle = setInterval(async () => {
-					const connection = await connectionPromise;
-					await connection.query(
+					const client = await dbClientPromise;
+					await client.execute(
 						`insert into invenfinder.items(id, name, description, cabinet, col, row, amount)
 						 values (?, ?, ?, ?, ?, ?, ?)
 						 on duplicate key update name = values(name),
@@ -82,8 +82,8 @@ class Item {
 
 		const item = new Item(options);
 
-		const connection = await connectionPromise;
-		const res = await connection.query(
+		const client = await dbClientPromise;
+		const res = await client.execute(
 			`insert into invenfinder.items(name,
 			                               description,
 			                               cabinet,
@@ -101,14 +101,14 @@ class Item {
 			],
 		);
 
-		item.id = Number(res.insertId);
+		item.id = res.lastInsertId ?? 0;
 		return this.#makeReactive(item);
 	}
 
 
 	static async getByID(id: number): Promise<Item | null> {
-		const connection = await connectionPromise;
-		const rows = await connection.query(
+		const client = await dbClientPromise;
+		const rows = await client.query(
 			`select *
 			 from invenfinder.items
 			 where id=?`,
@@ -123,8 +123,8 @@ class Item {
 	}
 
 	static async getByLocation(location: Location): Promise<Item | null> {
-		const connection = await connectionPromise;
-		const rows = await connection.query(
+		const client = await dbClientPromise;
+		const rows = await client.query(
 			`select *
 			 from invenfinder.items
 			 where cabinet=?
@@ -143,8 +143,8 @@ class Item {
 	static async getAll(): Promise<Item[]> {
 		const items = [];
 
-		const connection = await connectionPromise;
-		const rows = await connection.query(`select *
+		const client = await dbClientPromise;
+		const rows = await client.query(`select *
 		                                     from invenfinder.items`);
 
 		for (const row of rows) {
@@ -154,8 +154,8 @@ class Item {
 	}
 
 	async delete(): Promise<void> {
-		const connection = await connectionPromise;
-		await connection.query(
+		const client = await dbClientPromise;
+		await client.execute(
 			`delete
 			 from invenfinder.items
 			 where id=?`,

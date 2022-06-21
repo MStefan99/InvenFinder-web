@@ -1,7 +1,7 @@
 import {encode as hexEncode, decode as hexDecode} from 'https://deno.land/std@0.144.0/encoding/hex.ts';
 
 import * as Permissions from './permissions.ts';
-import connectionPromise from './db.ts';
+import dbClientPromise from './db.ts';
 
 const PBKDF2ITERATIONS = 100000;
 const DEFAULT_PERMISSIONS = 0;
@@ -82,8 +82,8 @@ class User {
 				clearInterval(target.#saveHandle);
 
 				target.#saveHandle = setInterval(async () => {
-					const connection = await connectionPromise;
-					await connection.query(
+					const client = await dbClientPromise;
+					await client.execute(
 						`insert into invenfinder.users(id,
 						                               username,
 						                               password_salt,
@@ -115,8 +115,8 @@ class User {
 		const passwordSalt = buf2hex(crypto.getRandomValues(new Uint8Array(32)));
 		const passwordHash = await pbkdf2(password, passwordSalt);
 
-		const connection = await connectionPromise;
-		const res = await connection.query(
+		const client = await dbClientPromise;
+		const res = await client.execute(
 			`insert into invenfinder.users(username,
 			                               password_salt,
 			                               password_hash,
@@ -131,7 +131,7 @@ class User {
 		);
 
 		return this.#makeReactive(new User({
-			id: res.insertId,
+			id: res.lastInsertId ?? 0,
 			username,
 			passwordSalt,
 			passwordHash,
@@ -140,8 +140,8 @@ class User {
 	}
 
 	static async getByID(id: number): Promise<User | null> {
-		const connection = await connectionPromise;
-		const rows = await connection.query(
+		const client = await dbClientPromise;
+		const rows = await client.query(
 			`select *
 			 from invenfinder.users
 			 where id=?`,
@@ -156,8 +156,8 @@ class User {
 	}
 
 	static async getByUsername(username: string): Promise<User | null> {
-		const connection = await connectionPromise;
-		const rows = await connection.query(
+		const client = await dbClientPromise;
+		const rows = await client.query(
 			`select *
 			 from invenfinder.users
 			 where username=?`,
@@ -174,8 +174,8 @@ class User {
 	static async getAll(): Promise<User[]> {
 		const users = [];
 
-		const connection = await connectionPromise;
-		const rows = await connection.query(`select *
+		const client = await dbClientPromise;
+		const rows = await client.query(`select *
 		                                     from invenfinder.users`);
 
 		for (const row of rows) {
@@ -202,8 +202,8 @@ class User {
 	}
 
 	async delete(): Promise<void> {
-		const connection = await connectionPromise;
-		await connection.query(
+		const client = await dbClientPromise;
+		await client.execute(
 			`delete
 			 from invenfinder.users
 			 where id=?`,
