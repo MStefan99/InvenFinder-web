@@ -1,5 +1,6 @@
 import { Context, Middleware } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 
+import { PERMISSIONS } from './permissions.ts';
 import Session from './session.ts';
 import User from './user.ts';
 
@@ -41,7 +42,7 @@ export default {
 
 		async permissions(
 			ctx: Context,
-			permissions: [number],
+			permissions: [PERMISSIONS],
 		): Promise<boolean> {
 			const user = await getUser(ctx);
 
@@ -60,7 +61,7 @@ export default {
 		};
 	},
 
-	permissions(permissions: [number]): Middleware {
+	permissions(permissions: [PERMISSIONS]): Middleware {
 		return async (ctx, next) => {
 			if (!await this.test.authenticated(ctx)) {
 				ctx.response.status = 401;

@@ -2,6 +2,7 @@ import { Router } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 
 import Item from '../lib/item.ts';
 import auth from '../lib/auth.ts';
+import { PERMISSIONS } from '../lib/permissions.ts';
 
 const router = new Router({
 	prefix: '/items',
@@ -21,6 +22,10 @@ router.get('/:id', auth.authenticated(), async (ctx) => {
 	}
 
 	ctx.response.body = await Item.getByID(parsedID);
+});
+
+router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), (ctx) => {
+	ctx.response.status = 418;
 });
 
 export default router;
