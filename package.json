@@ -15,12 +15,12 @@
 		"build:backend": "cd ./backend && deno task build",
 		"preview": "cd ./frontend && npm run preview",
 		"lint:frontend": "echo 'No linter setup'",
-		"lint:backend": "cd ./backend && deno lint",
+		"lint:backend": "cd ./backend && deno lint && deno fmt --check",
 		"lint": "run-p lint:*",
 		"fmt:frontend": "echo 'No formatter setup'",
-		"fmt:backend": "cd ./backend && deno fmt --check",
+		"fmt:backend": "cd ./backend && deno fmt",
 		"fmt": "run-p fmt:*",
-		"precommit": "run-p fmt lint"
+		"precommit": "npm run lint"
 	},
 	"repository": {
 		"type": "git",

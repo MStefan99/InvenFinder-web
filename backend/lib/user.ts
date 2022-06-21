@@ -30,9 +30,9 @@ async function pbkdf2(password: string, salt: string): Promise<string> {
 		enc.encode(password),
 		'PBKDF2',
 		false,
-		['deriveKey'],
+		['deriveBits'],
 	);
-	const generatedKey = await crypto.subtle.deriveKey(
+	const generatedKey = await crypto.subtle.deriveBits(
 		{
 			name: 'PBKDF2',
 			salt: hex2buf(salt),
@@ -40,14 +40,10 @@ async function pbkdf2(password: string, salt: string): Promise<string> {
 			hash: 'SHA-256',
 		},
 		importedKey,
-		{ name: 'AES-GCM', length: 64 },
-		true,
-		[],
+		256,
 	);
 
-	const encodedKey = hexEncode(
-		new Uint8Array(await crypto.subtle.exportKey('raw', generatedKey)),
-	);
+	const encodedKey = hexEncode(new Uint8Array(generatedKey));
 	return dec.decode(encodedKey);
 }
 
@@ -132,7 +128,7 @@ class User {
 				username,
 				passwordSalt,
 				passwordHash,
-				permissions,
+				permissions ?? DEFAULT_PERMISSIONS,
 			],
 		);
 
@@ -150,7 +146,7 @@ class User {
 	static async getByID(id: number): Promise<User | null> {
 		const client = await dbClientPromise;
 		const rows = await client.query(
-			`select *
+			`select id, username, password_salt as passwordSalt, password_hash as passwordHash, permissions
 			 from invenfinder.users
 			 where id=?`,
 			[id],
@@ -166,7 +162,7 @@ class User {
 	static async getByUsername(username: string): Promise<User | null> {
 		const client = await dbClientPromise;
 		const rows = await client.query(
-			`select *
+			`select id, username, password_salt as passwordSalt, password_hash as passwordHash, permissions
 			 from invenfinder.users
 			 where username=?`,
 			[username],
@@ -183,8 +179,10 @@ class User {
 		const users = [];
 
 		const client = await dbClientPromise;
-		const rows = await client.query(`select *
-		                                     from invenfinder.users`);
+		const rows = await client.query(
+			`select id, username, password_salt as passwordSalt, password_hash as passwordHash, permissions
+		                                 from invenfinder.users`,
+		);
 
 		for (const row of rows) {
 			users.push(this.#makeReactive(new User(row)));
@@ -194,7 +192,7 @@ class User {
 	}
 
 	async verifyPassword(password: string): Promise<boolean> {
-		return this.passwordSalt === await pbkdf2(password, this.passwordSalt);
+		return this.passwordHash === await pbkdf2(password, this.passwordSalt);
 	}
 
 	async setPassword(password: string): Promise<void> {

@@ -1,17 +1,15 @@
+import {
+	encode as hexEncode,
+} from 'https://deno.land/std@0.144.0/encoding/hex.ts';
+
 import dbClientPromise from './db.ts';
 import User from './user.ts';
 
-function getRandomString(s: number): string {
-	if (s % 2 === 1) {
-		throw new Deno.errors.InvalidData('Only even sizes are supported');
-	}
-	const buf = new Uint8Array(s / 2);
-	crypto.getRandomValues(buf);
-	let ret = '';
-	for (let i = 0; i < buf.length; ++i) {
-		ret += ('0' + buf[i].toString(16)).slice(-2);
-	}
-	return ret;
+function getRandomString(byteCount: number): string {
+	const dec = new TextDecoder();
+	const data = crypto.getRandomValues(new Uint8Array(byteCount));
+
+	return dec.decode(hexEncode(data));
 }
 
 class Session {
@@ -39,7 +37,7 @@ class Session {
 	}
 
 	static async create(user: User, ip: string, ua: string): Promise<Session> {
-		const publicID = getRandomString(64);
+		const publicID = getRandomString(32);
 		const time = Date.now();
 
 		const client = await dbClientPromise;
