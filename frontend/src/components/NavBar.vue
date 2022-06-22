@@ -10,7 +10,7 @@ nav.text-teal-700.font-semibold
 Transition(name="popup")
 	.popup-wrapper(v-if="state.showLogin" @click.self="state.showLogin = false")
 		.popup
-			h2 Sign in
+			h2.text-3xl.font-bold.mb-3 Sign in
 			form(@submit.prevent="login")
 				section.form-group
 					label(for="login-username") Username
@@ -43,7 +43,7 @@ export default {
 			const password = this.state.password;
 			this.state.password = null;
 
-			fetch(this.appState.backendURL + '/api/login', {
+			fetch(this.appState.backendURL + '/api/auth/login', {
 				method: 'post',
 				headers: {
 					'Content-Type': 'application/json'
@@ -55,14 +55,16 @@ export default {
 			})
 				.then((res) => {
 					if (!res.ok) {
-						console.warn('Could not log in');
-						return;
+						return Promise.reject();
 					}
 					return res.json();
 				})
 				.then((data) => {
 					this.appState.apiKey = data.key;
 					localStorage.setItem('apiKey', data.key);
+				})
+				.catch(() => {
+					console.warn('Could not log in');
 				});
 		},
 		logout() {
@@ -104,5 +106,17 @@ nav:not(:last-child) {
 
 nav .clickable {
 	cursor: pointer;
+}
+
+label {
+	display: block;
+}
+
+input {
+	@apply border-2 border-teal-500 rounded-xl w-full p-2 my-3 shadow;
+}
+
+input[type='submit'] {
+	@apply bg-teal-500 font-bold text-white text-xl shadow-md;
 }
 </style>

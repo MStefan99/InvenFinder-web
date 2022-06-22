@@ -8,8 +8,14 @@ const apiRouter = new Router({
 });
 
 if (Deno.env.get('env') === 'development') {
-	apiRouter.use(async (ctx, next) => {
+	app.use(async (ctx, next) => {
 		ctx.response.headers.set('Access-Control-Allow-Origin', '*');
+		ctx.response.headers.set('Access-Control-Allow-Methods', '*');
+		ctx.response.headers.set('Access-Control-Allow-Headers', '*');
+
+		if (ctx.request.method === 'OPTIONS') {
+			ctx.response.status = 200;
+		}
 		await next();
 	});
 }

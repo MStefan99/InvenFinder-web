@@ -4,6 +4,7 @@
       <entry key="DB_PASSWORD" value="test" />
       <entry key="DB_URL" value="localhost" />
       <entry key="DB_USER" value="root" />
+      <entry key="env" value="development" />
     </option>
     <method v="2" />
   </configuration>
