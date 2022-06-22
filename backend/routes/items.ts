@@ -54,7 +54,7 @@ router.put(
 
 			ctx.response.status = 200;
 			ctx.response.body = item;
-		} catch (e) {
+		} catch {
 			ctx.response.status = 400;
 			ctx.response.body = { error: 'Invalid request body' };
 		}
@@ -125,7 +125,7 @@ router.delete(
 
 			ctx.response.status = 200;
 			ctx.response.body = { message: 'OK' };
-		} catch (e) {
+		} catch {
 			ctx.response.status = 400;
 			ctx.response.body = { error: 'Invalid request body' };
 		}
