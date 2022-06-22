@@ -10,8 +10,8 @@ type Store = {
 	activeTab: Tab;
 	backendURL: string | null;
 	apiKey: string | null;
-	setUrl: (url: string) => void;
-	setApiKey: (key: string) => void;
+	setUrl: (url: string | null) => void;
+	setApiKey: (key: string | null) => void;
 	openTab: (tab: Tab) => void;
 };
 
@@ -21,11 +21,19 @@ export const appState = reactive({
 	apiKey: localStorage.getItem('apiKey') ?? null,
 	setUrl(url) {
 		this.backendURL = url;
-		localStorage.setItem('backendURL', url);
+		if (url !== null) {
+			localStorage.setItem('backendURL', url);
+		} else {
+			localStorage.removeItem('backendURL');
+		}
 	},
 	setApiKey(key) {
 		this.apiKey = key;
-		localStorage.setItem('apiKey', key);
+		if (key !== null) {
+			localStorage.setItem('apiKey', key);
+		} else {
+			localStorage.removeItem('apiKey');
+		}
 	},
 	openTab(tab) {
 		this.activeTab = tab;

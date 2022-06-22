@@ -18,7 +18,7 @@ Transition(name="popup")
 				section.form-group
 					label(for="login-password") Password
 					input#login-password(type="password" placeholder="password" v-model="state.password")
-				input.btn.btn-success(type="submit" value="Sign in")
+				input.btn.btn-success.clickable(type="submit" value="Sign in")
 </template>
 
 <script lang="ts">
@@ -54,34 +54,31 @@ export default {
 				})
 			})
 				.then((res) => {
-					if (!res.ok) {
-						return Promise.reject();
+					if (res.ok) {
+						return res.json();
+					} else {
+						res.json().then((data) => console.warn('Could not log in:', data.error));
 					}
-					return res.json();
 				})
 				.then((data) => {
-					this.appState.apiKey = data.key;
-					localStorage.setItem('apiKey', data.key);
+					this.appState.setApiKey(data.key);
 				})
 				.catch(() => {
-					console.warn('Could not log in');
+					console.warn('Login request failed');
 				});
 		},
 		logout() {
-			fetch(this.appState.backendURL + '/api/logout', {
+			fetch(this.appState.backendURL + '/api/auth/logout', {
 				headers: {
 					'API-Key': this.appState.apiKey
 				}
 			}).then((res) => {
-				if (!res.ok) {
+				if (res.ok) {
+					this.appState.setApiKey(null);
+				} else {
 					console.warn('Could not log out');
-					return;
 				}
-
-				this.appState.apiKey = null;
 			});
-
-			localStorage.removeItem('apiKey');
 		}
 	}
 };
