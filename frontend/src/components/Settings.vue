@@ -30,7 +30,7 @@ export default {
 
 			fetch(this.appState.backendURL)
 				.then((res) => (this.state.connected = res.ok))
-				.catch((err) => (this.state.connected = false));
+				.catch(() => (this.state.connected = false));
 		},
 		getConnectionStatus() {
 			if (this.state.connected === null) {

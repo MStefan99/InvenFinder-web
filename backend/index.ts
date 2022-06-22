@@ -7,6 +7,13 @@ const apiRouter = new Router({
 	prefix: '/api',
 });
 
+if (Deno.env.get('env') === 'development') {
+	apiRouter.use(async (ctx, next) => {
+		ctx.response.headers.set('Access-Control-Allow-Origin', '*');
+		await next();
+	});
+}
+
 apiRouter.get('/', (ctx) => {
 	ctx.response.body = { message: 'Welcome!' };
 });

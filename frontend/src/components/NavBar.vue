@@ -93,11 +93,6 @@ export default {
 </script>
 
 <style lang="sass">
-@tailwind base
-@tailwind components
-@tailwind utilities
-
-
 nav
 	position: sticky
 	top: 0
