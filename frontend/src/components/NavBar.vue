@@ -1,14 +1,14 @@
 <template lang="pug">
 nav.text-teal-700.font-semibold
 	span
-		span.clickable(@click="appState.activeTab = 'inventory'") Inventory
-		span.clickable(@click="appState.activeTab = 'users'") Users
-		span.clickable(@click="appState.activeTab = 'settings'") Settings
+		span.clickable.mr-2(@click="appState.openTab(Tab.Inventory)") Inventory
+		span.clickable.mr-2(@click="appState.openTab(Tab.Users)") Users
+		span.clickable.mr-2(@click="appState.openTab(Tab.Settings)") Settings
 	span
-		span.clickable(v-if="!appState.apiKey" @click="showLogin") Sign in
-		span.clickable(v-else @click="logout") Sign out
+		span.clickable.mr-2(v-if="!appState.apiKey" @click="state.showLogin = true") Sign in
+		span.clickable.mr-2(v-else @click="logout") Sign out
 Transition(name="popup")
-	.popup-wrapper(v-if="state.showLogin" @click="closeLogin")
+	.popup-wrapper(v-if="state.showLogin" @click.self="state.showLogin = false")
 		.popup
 			h2 Sign in
 			form(@submit.prevent="login")
@@ -21,14 +21,15 @@ Transition(name="popup")
 				input.btn.btn-success(type="submit" value="Sign in")
 </template>
 
-<script>
-import appState from '../store.js';
+<script lang="ts">
+import {appState, Tab} from '../store';
 
 export default {
 	name: 'NavBar',
 	data() {
 		return {
 			appState,
+			Tab,
 			state: {
 				username: null,
 				password: null,
@@ -37,14 +38,6 @@ export default {
 		};
 	},
 	methods: {
-		closeLogin(event) {
-			if (!event || event.target.id === 'login-wrapper') {
-				this.state.showLogin = false;
-			}
-		},
-		showLogin() {
-			this.state.showLogin = true;
-		},
 		login() {
 			this.state.showLogin = false;
 			const password = this.state.password;

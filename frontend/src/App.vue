@@ -1,14 +1,14 @@
 <template lang="pug">
 NavBar
 main
-	Inventory(v-if="appState.activeTab === 'inventory'")
-	Users(v-if="appState.activeTab === 'users'")
-	Settings(v-if="appState.activeTab === 'settings'")
+	Inventory(v-if="appState.activeTab === Tab.Inventory")
+	Users(v-if="appState.activeTab === Tab.Users")
+	Settings(v-if="appState.activeTab === Tab.Settings")
 	ConnectionPopup
 </template>
 
 <script lang="ts">
-import appState from './store.js';
+import {appState, Tab} from './store.js';
 
 import NavBar from './components/NavBar.vue';
 import Inventory from './components/Inventory.vue';
@@ -26,7 +26,10 @@ export default {
 		Settings
 	},
 	data() {
-		return {appState};
+		return {
+			appState,
+			Tab
+		};
 	}
 };
 </script>

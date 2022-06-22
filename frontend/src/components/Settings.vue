@@ -4,12 +4,12 @@
 	form(@submit.prevent)
 		label(for="backend-url") Backend URL
 		input#backend-url(type="text" v-model="appState.backendURL" @input="setURL")
-	button(@click="testConnection") Test connection
+	button(@click="testConnection") Save connection
 	p {{getConnectionStatus()}}
 </template>
 
-<script>
-import appState from '../store.js';
+<script lang="ts">
+import appState from '../store';
 
 export default {
 	name: 'Settings',
@@ -21,6 +21,9 @@ export default {
 			}
 		};
 	},
+	mounted() {
+		this.testConnection();
+	},
 	methods: {
 		setURL() {
 			localStorage.setItem('backendURL', this.appState.backendURL);
@@ -28,7 +31,7 @@ export default {
 		testConnection() {
 			this.state.connected = null;
 
-			fetch(this.appState.backendURL)
+			fetch(this.appState.backendURL + '/api')
 				.then((res) => (this.state.connected = res.ok))
 				.catch(() => (this.state.connected = false));
 		},

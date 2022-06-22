@@ -8,13 +8,12 @@ Transition(name="popup")
 				span.mr-2 URL:
 				input(type="text" v-model="state.url")
 			.flex.justify-between.items-center
-				button(@click="checkConnection") Check connection
+				button.font-bold(@click="checkConnection") Check connection
 				span {{state.checking ? 'Checking connection...' : 'Connection failed'}}
 </template>
 
 <script lang="ts">
 import appState from '../store.js';
-import store from '../store.js';
 
 export default {
 	name: 'ConnectionPopup',
@@ -29,19 +28,17 @@ export default {
 		};
 	},
 	mounted() {
-		store.apiKey = localStorage.getItem('apiKey');
-		store.backendURL = localStorage.getItem('backendURL');
-		if (!localStorage.getItem('backendURL')) {
-			this.connected = false;
-		} else {
-			this.checkConnection();
-		}
+		this.checkConnection();
 	},
 	methods: {
 		checkConnection() {
-			const c = new AbortController();
+			if (!this.state.url) {
+				this.state.connected = false;
+				return;
+			}
 
 			this.state.checking = true;
+			const c = new AbortController();
 			const fetchPromise = fetch(this.state.url + '/api', {
 				signal: c.signal
 			});
@@ -56,6 +53,7 @@ export default {
 				.then((res) => {
 					this.state.connected = res.ok;
 					this.state.checking = false;
+					localStorage.setItem('backendURL', this.state.url);
 					clearTimeout(t);
 				})
 				.catch(() => {
