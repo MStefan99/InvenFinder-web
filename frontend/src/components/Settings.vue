@@ -1,21 +1,21 @@
 <template lang="pug">
-div#settings
+#settings
 	h2.text-teal-700.text-2xl.mb-4 Settings
 	form(@submit.prevent)
 		label(for="backend-url") Backend URL
-		input#backend-url(type="text", v-model="appState.backendURL" @input="setURL")
+		input#backend-url(type="text" v-model="appState.backendURL" @input="setURL")
 	button(@click="testConnection") Test connection
 	p {{getConnectionStatus()}}
 </template>
 
 <script>
-import store from '../store.js';
+import appState from '../store.js';
 
 export default {
 	name: 'Settings',
 	data() {
 		return {
-			appState: store,
+			appState,
 			state: {
 				connected: null
 			}
@@ -45,4 +45,4 @@ export default {
 };
 </script>
 
-<style lang="sass" scoped></style>
+<style scoped></style>

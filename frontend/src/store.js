@@ -2,6 +2,6 @@ import {reactive} from 'vue';
 
 export default reactive({
 	activeTab: 'inventory',
-	backendURL: null,
+	backendURL: localStorage.getItem('backendURL') ?? null,
 	apiKey: null
 });

@@ -13,6 +13,7 @@
 		"vue": "^3.2.25"
 	},
 	"devDependencies": {
+		"@prettier/plugin-pug": "^2.1.0",
 		"@typescript-eslint/eslint-plugin": "^5.29.0",
 		"@typescript-eslint/parser": "^5.29.0",
 		"@vitejs/plugin-vue": "^2.3.3",
@@ -22,7 +23,6 @@
 		"eslint-plugin-vue": "^9.1.1",
 		"postcss": "^8.4.14",
 		"prettier": "^2.7.1",
-		"sass": "^1.52.3",
 		"tailwindcss": "^3.0.24",
 		"vite": "^2.9.9",
 		"vite-plugin-pug": "^0.3.1"

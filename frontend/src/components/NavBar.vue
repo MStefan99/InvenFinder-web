@@ -7,9 +7,9 @@ nav.text-teal-700.font-semibold
 	span
 		span.clickable(v-if="!appState.apiKey" @click="showLogin") Sign in
 		span.clickable(v-else @click="logout") Sign out
-Transition
-	div#login-wrapper(v-if="state.showLogin" @click="closeLogin")
-		div#login
+Transition(name="popup")
+	.popup-wrapper(v-if="state.showLogin" @click="closeLogin")
+		.popup
 			h2 Sign in
 			form(@submit.prevent="login")
 				section.form-group
@@ -22,13 +22,13 @@ Transition
 </template>
 
 <script>
-import store from '../store.js';
+import appState from '../store.js';
 
 export default {
 	name: 'NavBar',
 	data() {
 		return {
-			appState: store,
+			appState,
 			state: {
 				username: null,
 				password: null,
@@ -92,49 +92,24 @@ export default {
 };
 </script>
 
-<style lang="sass">
-nav
-	position: sticky
-	top: 0
-	padding: 1em 1.5em
-	display: flex
-	flex-flow: row nowrap
-	justify-content: space-between
-	backdrop-filter: blur(1em)
-	border-radius: 0 0 1em 1em
-	@apply shadow-neutral-300/10 shadow-xl
+<style scoped>
+nav {
+	position: sticky;
+	top: 0;
+	padding: 1em 1.5em;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+	backdrop-filter: blur(1em);
+	border-radius: 0 0 1em 1em;
+	@apply shadow-neutral-300/10 shadow-xl;
+}
 
-	.clickable
-		cursor: pointer
+nav:not(:last-child) {
+	margin-right: 1.5em;
+}
 
-		&:not(:last-child)
-			margin-right: 1.5em
-
-
-#login-wrapper
-	position: fixed
-	left: 0
-	top: 0
-	right: 0
-	bottom: 0
-	background-color: var(--color-overlay)
-	box-shadow: 0 0 3em var(--color-shadow)
-
-	#login
-		position: relative
-		left: 50%
-		top: 50%
-		max-width: 50vw
-		transform: translate(-50%, -50%)
-		padding: 4em
-		border-radius: 1em
-		background-color: var(--color-overlay)
-		box-shadow: 0 1em 3em var(--color-shadow)
-		backdrop-filter: blur(2em)
-
-.v-enter-active, .v-leave-active
-	transition: transform 0.5s ease-in-out
-
-.v-enter-from, .v-leave-to
-	transform: translateY(-100%)
+nav .clickable {
+	cursor: pointer;
+}
 </style>
