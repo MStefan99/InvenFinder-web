@@ -6,7 +6,6 @@ main
 	Settings(v-if="store.activeTab === 'settings'")
 </template>
 
-
 <script>
 import store from './store.js';
 
@@ -14,7 +13,6 @@ import NavBar from './components/NavBar.vue';
 import Inventory from './components/Inventory.vue';
 import Users from './components/Users.vue';
 import Settings from './components/Settings.vue';
-
 
 export default {
 	name: 'App',
@@ -33,7 +31,6 @@ export default {
 	}
 };
 </script>
-
 
 <style lang="sass">
 @tailwind base

@@ -21,10 +21,8 @@ Transition
 				input.btn.btn-success(type="submit" value="Sign in")
 </template>
 
-
 <script>
 import store from '../store.js';
-
 
 export default {
 	name: 'NavBar',
@@ -52,7 +50,6 @@ export default {
 			const password = this.state.password;
 			this.state.password = null;
 
-
 			fetch(this.appState.backendURL + '/api/login', {
 				method: 'post',
 				headers: {
@@ -62,38 +59,38 @@ export default {
 					username: this.state.username,
 					password
 				})
-			}).then(res => {
-				if (!res.ok) {
-					console.warn('Could not log in');
-					return;
-				}
-				return res.json();
-			}).then(data => {
-				this.appState.apiKey = data.key;
-				localStorage.setItem('apiKey', data.key);
-			});
+			})
+				.then((res) => {
+					if (!res.ok) {
+						console.warn('Could not log in');
+						return;
+					}
+					return res.json();
+				})
+				.then((data) => {
+					this.appState.apiKey = data.key;
+					localStorage.setItem('apiKey', data.key);
+				});
 		},
 		logout() {
 			fetch(this.appState.backendURL + '/api/logout', {
 				headers: {
 					'API-Key': this.appState.apiKey
 				}
-			})
-				.then(res => {
-					if (!res.ok) {
-						console.warn('Could not log out');
-						return;
-					}
+			}).then((res) => {
+				if (!res.ok) {
+					console.warn('Could not log out');
+					return;
+				}
 
-					this.appState.apiKey = null;
-				});
+				this.appState.apiKey = null;
+			});
 
 			localStorage.removeItem('apiKey');
 		}
 	}
 };
 </script>
-
 
 <style lang="sass">
 @tailwind base

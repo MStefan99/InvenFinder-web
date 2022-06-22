@@ -8,10 +8,8 @@ div#settings
 	p {{getConnectionStatus()}}
 </template>
 
-
 <script>
 import store from '../store.js';
-
 
 export default {
 	name: 'Settings',
@@ -31,8 +29,8 @@ export default {
 			this.state.connected = null;
 
 			fetch(this.appState.backendURL)
-				.then(res => this.state.connected = res.ok)
-				.catch(err => this.state.connected = false);
+				.then((res) => (this.state.connected = res.ok))
+				.catch((err) => (this.state.connected = false));
 		},
 		getConnectionStatus() {
 			if (this.state.connected === null) {
@@ -47,6 +45,4 @@ export default {
 };
 </script>
 
-
-<style lang="sass" scoped>
-</style>
+<style lang="sass" scoped></style>
