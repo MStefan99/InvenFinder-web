@@ -6,9 +6,7 @@ import Session from '../lib/session.ts';
 
 type Next = () => Promise<unknown>;
 
-const router = new Router({
-	prefix: '/auth',
-});
+const router = new Router();
 
 async function credentialsPresent(ctx: Context, next: Next) {
 	try {
@@ -16,32 +14,40 @@ async function credentialsPresent(ctx: Context, next: Next) {
 
 		if (body.username === undefined) {
 			ctx.response.status = 400;
-			ctx.response.body = { error: 'No username' };
+			ctx.response.body = { error: 'No username', code: 'NO_USERNAME' };
 			return;
 		} else if (body.password === undefined) {
 			ctx.response.status = 400;
-			ctx.response.body = { error: 'No password' };
+			ctx.response.body = { error: 'No password', code: 'NO_PASSWORD' };
 			return;
 		}
 
 		await next();
-	} catch (e) {
+	} catch {
 		ctx.response.status = 400;
-		ctx.response.body = { error: 'Invalid request body' };
+		ctx.response.body = {
+			error: 'Invalid request body',
+			code: 'INVALID_REQUEST',
+		};
 	}
 }
 
 router.post('/login', credentialsPresent, async (ctx) => {
+	// No 'try' because already present in middleware
+
 	const body = await ctx.request.body({ type: 'json' }).value;
 	const user = await User.getByUsername(body.username);
 
 	if (user === null) {
 		ctx.response.status = 400;
-		ctx.response.body = { error: 'User not found' };
+		ctx.response.body = { error: 'User not found', code: 'NO_USER' };
 		return;
-	} else if (!await user.verifyPassword(body.password)) {
+	} else if (!(await user.verifyPassword(body.password))) {
 		ctx.response.status = 400;
-		ctx.response.body = { error: 'Incorrect password' };
+		ctx.response.body = {
+			error: 'Incorrect password',
+			code: 'WRONG_PASSWORD',
+		};
 		return;
 	}
 
@@ -69,10 +75,28 @@ router.post('/register', credentialsPresent, async (ctx) => {
 	ctx.response.body = { key: session.publicID };
 });
 
-router.get('/logout', auth.authenticated(), (ctx) => {
+router.get('/me', auth.authenticated(), async (ctx) => {
+	const user = await auth.methods.getUser(ctx);
+
+	if (!user) {
+		// Should in theory never get here
+		ctx.response.status = 500;
+		ctx.response.body = { error: 'User not found' };
+	} else {
+		ctx.response.status = 200;
+		ctx.response.body = {
+			id: user.id,
+			username: user.username,
+			permissions: user.permissions,
+		};
+	}
+});
+
+router.get('/logout', auth.authenticated(), async (ctx) => {
 	ctx.response.body = { message: 'OK' };
 
-	ctx.state.session.delete();
+	const session = await auth.methods.getSession(ctx);
+	session?.delete(); // await not needed, response may be returned before session is deleted
 });
 
 export default router;

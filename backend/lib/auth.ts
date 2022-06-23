@@ -50,6 +50,11 @@ export default {
 		},
 	},
 
+	methods: {
+		getSession,
+		getUser,
+	},
+
 	authenticated(): Middleware {
 		return async (ctx, next) => {
 			if (!await this.test.authenticated(ctx)) {
