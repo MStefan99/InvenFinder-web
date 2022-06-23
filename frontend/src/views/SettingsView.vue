@@ -9,10 +9,10 @@
 </template>
 
 <script lang="ts">
-import appState from '../store';
+import appState from '../scripts/store';
 
 export default {
-	name: 'Settings',
+	name: 'SettingsView',
 	data() {
 		return {
 			appState,

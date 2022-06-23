@@ -8,12 +8,12 @@ main
 </template>
 
 <script lang="ts">
-import {appState, Tab} from './store.js';
+import {appState, Tab} from './scripts/store';
 
 import NavBar from './components/NavBar.vue';
-import Inventory from './components/Inventory.vue';
-import Users from './components/Users.vue';
-import Settings from './components/Settings.vue';
+import Inventory from './views/InventoryView.vue';
+import Users from './views/UsersView.vue';
+import Settings from './views/SettingsView.vue';
 import ConnectionPopup from './components/ConnectionPopup.vue';
 
 export default {

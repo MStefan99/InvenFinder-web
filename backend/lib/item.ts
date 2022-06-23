@@ -42,6 +42,16 @@ class Item {
 		this.amount = props.amount;
 	}
 
+	toJSON() {
+		return {
+			id: this.id,
+			name: this.name,
+			description: this.description,
+			location: this.location.toString(),
+			amount: this.amount,
+		};
+	}
+
 	static #makeReactive(item: Item): Item {
 		const proxy: ProxyHandler<Item> = {
 			set(target, propertyKey, value, receiver) {

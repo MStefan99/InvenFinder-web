@@ -1,10 +1,18 @@
 <template lang="pug">
-h2.text-teal-700.text-2xl.mb-4 Users
+div
 </template>
 
 <script lang="ts">
 export default {
-	name: 'Users'
+	name: 'ItemsTable',
+	data() {
+		return {
+			items: []
+		};
+	},
+	methods: {
+		loadItems() {}
+	}
 };
 </script>
 

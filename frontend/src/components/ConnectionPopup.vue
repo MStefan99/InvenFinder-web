@@ -13,7 +13,7 @@ Transition(name="popup")
 </template>
 
 <script lang="ts">
-import appState from '../store.js';
+import appState from '../scripts/store';
 
 export default {
 	name: 'ConnectionPopup',

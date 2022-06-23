@@ -72,6 +72,14 @@ class User {
 		this.permissions = props.permissions ?? DEFAULT_PERMISSIONS;
 	}
 
+	toJSON() {
+		return {
+			id: this.id,
+			username: this.username,
+			permissions: this.permissions,
+		};
+	}
+
 	static #makeReactive(user: User): User {
 		const proxy: ProxyHandler<User> = {
 			set(target, propertyKey, value, receiver) {

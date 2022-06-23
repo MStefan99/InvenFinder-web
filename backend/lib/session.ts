@@ -36,6 +36,15 @@ class Session {
 		this.time = time;
 	}
 
+	toJSON() {
+		return {
+			id: this.publicID,
+			ip: this.ip,
+			ua: this.ua,
+			time: this.time,
+		};
+	}
+
 	static async create(user: User, ip: string, ua: string): Promise<Session> {
 		const publicID = getRandomString(32);
 		const time = Date.now();

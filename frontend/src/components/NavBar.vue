@@ -22,7 +22,8 @@ Transition(name="popup")
 </template>
 
 <script lang="ts">
-import {appState, Tab} from '../store';
+import {appState, Tab} from '../scripts/store';
+import Api from '../scripts/api';
 
 export default {
 	name: 'NavBar',
@@ -40,45 +41,12 @@ export default {
 	methods: {
 		login() {
 			this.state.showLogin = false;
-			const password = this.state.password;
-			this.state.password = null;
-
-			fetch(this.appState.backendURL + '/api/auth/login', {
-				method: 'post',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					username: this.state.username,
-					password
-				})
-			})
-				.then((res) => {
-					if (res.ok) {
-						return res.json();
-					} else {
-						res.json().then((data) => console.warn('Could not log in:', data.error));
-					}
-				})
-				.then((data) => {
-					this.appState.setApiKey(data.key);
-				})
-				.catch(() => {
-					console.warn('Login request failed');
-				});
+			Api.login(this.state.username, this.state.password).then((success) =>
+				console.log('Logged in:', success)
+			);
 		},
 		logout() {
-			fetch(this.appState.backendURL + '/api/auth/logout', {
-				headers: {
-					'API-Key': this.appState.apiKey
-				}
-			}).then((res) => {
-				if (res.ok) {
-					this.appState.setApiKey(null);
-				} else {
-					console.warn('Could not log out');
-				}
-			});
+			Api.logout();
 		}
 	}
 };

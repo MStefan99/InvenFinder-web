@@ -84,11 +84,7 @@ router.get('/me', auth.authenticated(), async (ctx) => {
 		ctx.response.body = { error: 'User not found' };
 	} else {
 		ctx.response.status = 200;
-		ctx.response.body = {
-			id: user.id,
-			username: user.username,
-			permissions: user.permissions,
-		};
+		ctx.response.body = user;
 	}
 });
 
