@@ -7,7 +7,7 @@
 	"bracketSpacing": false,
 	"bracketSameLine": true,
 	"pugSingleQuote": false,
-	"pugAttributeSeparator": "as-needed",
+	"pugAttributeSeparator": "none",
 	"pugClassNotation": "literal",
 	"pugIdNotation": "literal",
 	"pugClassLocation": "before-attributes",

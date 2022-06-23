@@ -3,7 +3,8 @@
 	h2.text-teal-700.text-2xl.mb-4 Settings
 	form(@submit.prevent)
 		label(for="backend-url") Backend URL
-		input#backend-url(type="text" v-model="appState.backendURL" @input="setURL")
+		//- TODO: remove v-model
+		input#backend-url(type="text" v-model="appState.data.backendURL" @input="setURL")
 	button(@click="testConnection") Save connection
 	p {{getConnectionStatus()}}
 </template>
@@ -26,7 +27,7 @@ export default {
 	},
 	methods: {
 		setURL() {
-			localStorage.setItem('backendURL', this.appState.backendURL);
+			localStorage.setItem('backendURL', this.appState.data.backendURL);
 		},
 		testConnection() {
 			this.state.connected = null;

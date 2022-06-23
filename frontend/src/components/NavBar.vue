@@ -5,20 +5,8 @@ nav.text-teal-700.font-semibold
 		span.clickable.mr-2(@click="appState.openTab(Tab.Users)") Users
 		span.clickable.mr-2(@click="appState.openTab(Tab.Settings)") Settings
 	span
-		span.clickable.mr-2(v-if="!appState.apiKey" @click="state.showLogin = true") Sign in
+		span.clickable.mr-2(v-if="!appState.data.apiKey" @click="openConnectionDialog") Sign in
 		span.clickable.mr-2(v-else @click="logout") Sign out
-Transition(name="popup")
-	.popup-wrapper(v-if="state.showLogin" @click.self="state.showLogin = false")
-		.popup
-			h2.text-3xl.font-bold.mb-3 Sign in
-			form(@submit.prevent="login")
-				section.form-group
-					label(for="login-username") Username
-					input#login-username(type="text" placeholder="user" v-model="state.username")
-				section.form-group
-					label(for="login-password") Password
-					input#login-password(type="password" placeholder="password" v-model="state.password")
-				input.btn.btn-success.clickable(type="submit" value="Sign in")
 </template>
 
 <script lang="ts">
@@ -30,20 +18,12 @@ export default {
 	data() {
 		return {
 			appState,
-			Tab,
-			state: {
-				username: null,
-				password: null,
-				showLogin: false
-			}
+			Tab
 		};
 	},
 	methods: {
-		login() {
-			this.state.showLogin = false;
-			Api.login(this.state.username, this.state.password).then((success) =>
-				console.log('Logged in:', success)
-			);
+		openConnectionDialog() {
+			this.appState.setConnectionDialogOpen(true);
 		},
 		logout() {
 			Api.logout();

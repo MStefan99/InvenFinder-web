@@ -75,6 +75,11 @@ router.post('/register', credentialsPresent, async (ctx) => {
 	ctx.response.body = { key: session.publicID };
 });
 
+router.get('/auth', auth.authenticated(), (ctx) => {
+	ctx.response.status = 200;
+	ctx.response.body = { message: 'OK' };
+});
+
 router.get('/me', auth.authenticated(), async (ctx) => {
 	const user = await auth.methods.getUser(ctx);
 

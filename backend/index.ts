@@ -7,11 +7,18 @@ const apiRouter = new Router({
 	prefix: '/api',
 });
 
+app.use(async (ctx, next) => {
+	ctx.response.headers.set('Who-Am-I', 'Invenfinder');
+	await next();
+});
+
 if (Deno.env.get('env') === 'development') {
 	app.use(async (ctx, next) => {
 		ctx.response.headers.set('Access-Control-Allow-Origin', '*');
 		ctx.response.headers.set('Access-Control-Allow-Methods', '*');
 		ctx.response.headers.set('Access-Control-Allow-Headers', '*');
+		ctx.response.headers.set('Access-Control-Expose-Headers', '*');
+		ctx.response.headers.set('Access-Control-Max-Age', '86400');
 
 		if (ctx.request.method === 'OPTIONS') {
 			ctx.response.status = 200;

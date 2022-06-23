@@ -7,20 +7,31 @@ export enum Tab {
 }
 
 type Store = {
-	activeTab: Tab;
-	backendURL: string | null;
-	apiKey: string | null;
+	data: {
+		backendURL: string | null;
+		apiKey: string | null;
+	};
+	ui: {
+		activeTab: Tab;
+		connectionDialogOpen: boolean;
+	};
 	setUrl: (url: string | null) => void;
 	setApiKey: (key: string | null) => void;
 	openTab: (tab: Tab) => void;
+	setConnectionDialogOpen: (open: boolean) => void;
 };
 
 export const appState = reactive({
-	activeTab: Tab.Inventory,
-	backendURL: localStorage.getItem('backendURL') ?? null,
-	apiKey: localStorage.getItem('apiKey') ?? null,
+	data: {
+		backendURL: localStorage.getItem('backendURL') ?? null,
+		apiKey: localStorage.getItem('apiKey') ?? null
+	},
+	ui: {
+		activeTab: Tab.Inventory,
+		connectionDialogOpen: false
+	},
 	setUrl(url) {
-		this.backendURL = url;
+		this.data.backendURL = url;
 		if (url !== null) {
 			localStorage.setItem('backendURL', url);
 		} else {
@@ -28,7 +39,7 @@ export const appState = reactive({
 		}
 	},
 	setApiKey(key) {
-		this.apiKey = key;
+		this.data.apiKey = key;
 		if (key !== null) {
 			localStorage.setItem('apiKey', key);
 		} else {
@@ -36,7 +47,10 @@ export const appState = reactive({
 		}
 	},
 	openTab(tab) {
-		this.activeTab = tab;
+		this.ui.activeTab = tab;
+	},
+	setConnectionDialogOpen(open: boolean) {
+		this.ui.connectionDialogOpen = open;
 	}
 } as Store);
 
