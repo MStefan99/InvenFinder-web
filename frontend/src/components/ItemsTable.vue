@@ -18,13 +18,13 @@ export default {
 			items: []
 		};
 	},
+	mounted() {
+		this.loadItems();
+	},
 	methods: {
 		loadItems() {
 			Api.items.getAll().then((items) => (this.items = items));
 		}
-	},
-	mounted() {
-		this.loadItems();
 	}
 };
 </script>

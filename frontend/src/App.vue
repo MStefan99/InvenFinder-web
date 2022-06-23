@@ -1,9 +1,7 @@
 <template lang="pug">
 NavBar
 main
-	Inventory(v-if="appState.ui.activeTab === Tab.Inventory")
-	Users(v-if="appState.ui.activeTab === Tab.Users")
-	Settings(v-if="appState.ui.activeTab === Tab.Settings")
+	RouterView
 	ConnectionDialog
 </template>
 

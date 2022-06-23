@@ -212,3 +212,4 @@ docs/_book
 test/
 
 package-lock.json
+**/*.css

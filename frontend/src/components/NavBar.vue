@@ -1,12 +1,13 @@
 <template lang="pug">
 nav.text-teal-700.font-semibold
 	span
-		span.clickable.mr-2(@click="appState.openTab(Tab.Inventory)") Inventory
-		span.clickable.mr-2(@click="appState.openTab(Tab.Users)") Users
-		span.clickable.mr-2(@click="appState.openTab(Tab.Settings)") Settings
+		RouterLink.clickable(:to="{name: 'inventory'}") Inventory
+		RouterLink.clickable(:to="{name: 'users'}") Users
+		RouterLink.clickable(:to="{name: 'settings'}") Settings
 	span
-		span.clickable.mr-2(v-if="!appState.data.apiKey" @click="openConnectionDialog") Sign in
-		span.clickable.mr-2(v-else @click="logout") Sign out
+		span.clickable(@click="appState.setConnectionDialogOpen(true)") Connection
+		span.clickable(v-if="!appState.data.apiKey" @click="openConnectionDialog") Sign in
+		span.clickable(v-else @click="logout") Sign out
 </template>
 
 <script lang="ts">
@@ -45,12 +46,12 @@ nav {
 	@apply shadow-neutral-300/10 shadow-xl;
 }
 
-nav:not(:last-child) {
-	margin-right: 1.5em;
-}
-
 nav .clickable {
 	cursor: pointer;
+}
+
+nav .clickable:not(:last-child) {
+	@apply mr-4;
 }
 
 label {

@@ -22,7 +22,11 @@ Transition(name="popup")
 				label(for="password-input") Password
 				input#password-input(type="password" placeholder="password" v-model="state.password")
 			.mb-3
-				input(type="button" value="Sign in" :disabled="state.checking" @click="login")
+				input(
+					type="button"
+					value="Sign in"
+					:disabled="state.checking || !state.connected || state.authenticated"
+					@click="login")
 				span.text-gray-500 {{getAuthenticationState()}}
 </template>
 
