@@ -1,5 +1,7 @@
 <template lang="pug">
-h2.text-teal-700.text-2xl.mb-4 Inventory
+#inventory
+	h2.text-teal-700.text-2xl.mb-4 Inventory
+	ItemsTable
 </template>
 
 <script lang="ts">

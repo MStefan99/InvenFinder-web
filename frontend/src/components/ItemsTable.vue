@@ -1,8 +1,16 @@
 <template lang="pug">
-div
+ul
+	li.mb-4(v-for="item in items")
+		.item
+			span.mr-4 {{item.name}}
+			span.mr-4 {{item.description}}
+			span.mr-4 {{item.location}}
+			span.mr-4 {{item.amount}}
 </template>
 
 <script lang="ts">
+import Api from '../scripts/api';
+
 export default {
 	name: 'ItemsTable',
 	data() {
@@ -11,7 +19,12 @@ export default {
 		};
 	},
 	methods: {
-		loadItems() {}
+		loadItems() {
+			Api.items.getAll().then((items) => (this.items = items));
+		}
+	},
+	mounted() {
+		this.loadItems();
 	}
 };
 </script>
