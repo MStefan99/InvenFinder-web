@@ -34,6 +34,7 @@ Transition(name="popup")
 import appState from '../scripts/store';
 import Api from '../scripts/api';
 
+// TODO: reload on open (use watch on appState.connectionDialogOpen)
 export default {
 	name: 'ConnectionPopup',
 	data() {

@@ -6,7 +6,7 @@ main
 </template>
 
 <script lang="ts">
-import {appState, Tab} from './scripts/store';
+import {appState} from './scripts/store';
 
 import NavBar from './components/NavBar.vue';
 import Inventory from './views/InventoryView.vue';
@@ -25,8 +25,7 @@ export default {
 	},
 	data() {
 		return {
-			appState,
-			Tab
+			appState
 		};
 	}
 };

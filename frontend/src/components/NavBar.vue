@@ -6,31 +6,13 @@ nav.text-teal-700.font-semibold
 		RouterLink.clickable(:to="{name: 'settings'}") Settings
 	span
 		span.clickable(@click="appState.setConnectionDialogOpen(true)") Connection
-		span.clickable(v-if="!appState.data.apiKey" @click="openConnectionDialog") Sign in
-		span.clickable(v-else @click="logout") Sign out
+		span.clickable(v-if="!appState.data.apiKey" @click="appState.setConnectionDialogOpen(true)") Sign in
+		span.clickable(v-else @click="Api.logout") Sign out
 </template>
 
-<script lang="ts">
-import {appState, Tab} from '../scripts/store';
+<script setup lang="ts">
+import {appState} from '../scripts/store';
 import Api from '../scripts/api';
-
-export default {
-	name: 'NavBar',
-	data() {
-		return {
-			appState,
-			Tab
-		};
-	},
-	methods: {
-		openConnectionDialog() {
-			this.appState.setConnectionDialogOpen(true);
-		},
-		logout() {
-			Api.logout();
-		}
-	}
-};
 </script>
 
 <style scoped>

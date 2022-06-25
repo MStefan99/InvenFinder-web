@@ -1,12 +1,12 @@
 import appState from './store';
 
-type User = {
+export type User = {
 	id: number;
 	username: string;
 	permissions: number;
 };
 
-type Item = {
+export type Item = {
 	id: number;
 	name: string;
 	description: string | null;
@@ -14,7 +14,7 @@ type Item = {
 	amount: number;
 };
 
-type ApiManager = {
+export type ApiManager = {
 	items: {
 		getAll: () => Promise<Item[]>;
 		getByID: () => Promise<Item | null>;

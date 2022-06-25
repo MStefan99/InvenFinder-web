@@ -8,25 +8,21 @@ ul
 			span.mr-4 {{item.amount}}
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Api from '../scripts/api';
+import appState from '../scripts/store';
+import type {Item} from '../scripts/api';
+import {onMounted, ref, watch} from 'vue';
 
-export default {
-	name: 'ItemsTable',
-	data() {
-		return {
-			items: []
-		};
-	},
-	mounted() {
-		this.loadItems();
-	},
-	methods: {
-		loadItems() {
-			Api.items.getAll().then((items) => (this.items = items));
-		}
-	}
-};
+let items = ref<Item[]>([]);
+
+function loadItems() {
+	Api.items.getAll().then((i) => (items.value = i));
+}
+
+watch(() => appState.data.apiKey, loadItems);
+
+onMounted(loadItems);
 </script>
 
 <style scoped></style>

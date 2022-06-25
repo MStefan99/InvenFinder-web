@@ -1,23 +1,15 @@
 import {reactive} from 'vue';
 
-export enum Tab {
-	Inventory,
-	Users,
-	Settings
-}
-
 type Store = {
 	data: {
 		backendURL: string | null;
 		apiKey: string | null;
 	};
 	ui: {
-		activeTab: Tab;
 		connectionDialogOpen: boolean;
 	};
 	setUrl: (url: string | null) => void;
 	setApiKey: (key: string | null) => void;
-	openTab: (tab: Tab) => void;
 	setConnectionDialogOpen: (open: boolean) => void;
 };
 
@@ -27,7 +19,6 @@ export const appState = reactive({
 		apiKey: localStorage.getItem('apiKey') ?? null
 	},
 	ui: {
-		activeTab: Tab.Inventory,
 		connectionDialogOpen: false
 	},
 	setUrl(url) {
@@ -45,9 +36,6 @@ export const appState = reactive({
 		} else {
 			localStorage.removeItem('apiKey');
 		}
-	},
-	openTab(tab) {
-		this.ui.activeTab = tab;
 	},
 	setConnectionDialogOpen(open: boolean) {
 		this.ui.connectionDialogOpen = open;

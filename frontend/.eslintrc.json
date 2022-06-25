@@ -4,11 +4,7 @@
 		"node": true,
 		"es2021": true
 	},
-	"extends": [
-		"plugin:prettier/recommended",
-		"plugin:vue/recommended",
-		"plugin:@typescript-eslint/recommended"
-	],
+	"extends": ["plugin:prettier/recommended", "plugin:vue/vue3-recommended"],
 	"parser": "vue-eslint-parser",
 	"parserOptions": {
 		"ecmaVersion": "latest",
