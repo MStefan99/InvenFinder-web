@@ -51,15 +51,19 @@ const state = reactive<{
 	authenticated: false
 });
 
-onMounted(() => {
-	checkConnection();
-});
-
-watch(() => appState.ui.connectionDialogOpen, checkConnection);
+watch(
+	() => appState.ui.connectionDialogOpen,
+	() => {
+		if (appState.ui.connectionDialogOpen) {
+			checkConnection();
+		}
+	}
+);
 
 function checkConnection() {
 	Api.auth().then((authenticated) => {
 		state.authenticated = authenticated;
+		state.connected = authenticated;
 		if (!authenticated) {
 			Api.test().then((connected) => {
 				state.connected = connected;
