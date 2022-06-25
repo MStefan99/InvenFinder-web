@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+	--color-background: white;
+	--color-foreground: black;
+	--color-accent: #05a18a;
+	--color-overlay: #fff8;
+	--color-shadow: #0001;
+
+	--color-overlay-dark: #0008;
+	--color-shadow-dark: #fff2;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: sans-serif;
+	margin: 0;
+}
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+main {
+	padding: 2em;
+}
+
+.popup-wrapper {
+	position: fixed;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background-color: var(--color-overlay);
+	box-shadow: 0 0 3em var(--color-shadow);
+}
+
+.popup-wrapper .popup {
+	position: relative;
+	left: 50%;
+	top: 50%;
+	max-width: 50vw;
+	transform: translate(-50%, -50%);
+	padding: 4em;
+	border-radius: 1em;
+	background-color: var(--color-overlay);
+	box-shadow: 0 1em 3em var(--color-shadow);
+	backdrop-filter: blur(2em);
+}
+
+.popup-enter-active,
+.popup-leave-active {
+	transition: transform 0.5s ease-in-out;
+}
+
+.popup-enter-from,
+.popup-leave-to {
+	transform: translateY(-100%);
+}
