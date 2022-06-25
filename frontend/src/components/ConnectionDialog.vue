@@ -30,91 +30,82 @@ Transition(name="popup")
 				span.text-gray-500 {{getAuthenticationState()}}
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import appState from '../scripts/store';
 import Api from '../scripts/api';
+import {onMounted, reactive, watch} from 'vue';
 
-// TODO: reload on open (use watch on appState.connectionDialogOpen)
-export default {
-	name: 'ConnectionPopup',
-	data() {
-		return {
-			appState,
-			state: {
-				url: appState.data.backendURL,
-				username: '',
-				password: '',
-				checking: false,
-				connected: false,
-				authenticated: false
-			}
-		};
-	},
-	mounted() {
-		Api.auth().then((authenticated) => {
-			this.state.authenticated = authenticated;
-			if (!authenticated) {
-				Api.test().then((connected) => {
-					this.state.connected = connected;
-					appState.setConnectionDialogOpen(true);
-				});
-			}
-		});
-	},
-	methods: {
-		getAuthenticationState() {
-			if (this.state.checking) {
-				return 'Checking connection...';
-			} else if (!this.state.connected) {
-				return 'Connection failed';
-			} else if (!this.state.authenticated) {
-				return 'Connected but not signed in';
-			} else {
-				return 'Signed in!';
-			}
-		},
-		checkConnection() {
-			this.state.checking = true;
+const state = reactive<{
+	url: string;
+	username: string;
+	password: string;
+	checking: boolean;
+	connected: boolean;
+	authenticated: boolean;
+}>({
+	url: appState.data.backendURL,
+	username: '',
+	password: '',
+	checking: false,
+	connected: false,
+	authenticated: false
+});
 
+onMounted(() => {
+	checkConnection();
+});
+
+watch(() => appState.ui.connectionDialogOpen, checkConnection);
+
+function checkConnection() {
+	Api.auth().then((authenticated) => {
+		state.authenticated = authenticated;
+		if (!authenticated) {
 			Api.test().then((connected) => {
-				this.state.checking = false;
-				this.state.connected = connected;
-			});
-		},
-		checkAuth() {
-			this.state.checking = true;
-
-			Api.auth().then((authenticated) => {
-				this.state.checking = false;
-				this.state.authenticated = authenticated;
-			});
-		},
-		connect() {
-			this.state.checking = true;
-
-			Api.testURL(this.state.url).then((connected) => {
-				this.state.checking = false;
-				this.state.connected = connected;
-
-				if (connected) {
-					this.appState.setUrl(this.state.url);
-				}
-			});
-		},
-		login() {
-			this.state.checking = true;
-
-			Api.login(this.state.username, this.state.password).then((key) => {
-				this.state.checking = false;
-				this.state.authenticated = key !== null;
-
-				if (key !== null) {
-					this.appState.setApiKey(key);
-				}
+				state.connected = connected;
+				appState.setConnectionDialogOpen(true);
 			});
 		}
+	});
+}
+
+function getAuthenticationState() {
+	if (state.checking) {
+		return 'Checking connection...';
+	} else if (!state.connected) {
+		return 'Connection failed';
+	} else if (!state.authenticated) {
+		return 'Connected but not signed in';
+	} else {
+		return 'Signed in! Click outside this window to close';
 	}
-};
+}
+
+function connect() {
+	state.checking = true;
+
+	Api.testURL(state.url).then((connected) => {
+		state.checking = false;
+		state.connected = connected;
+
+		if (connected) {
+			appState.setUrl(state.url);
+		}
+	});
+}
+
+function login() {
+	state.checking = true;
+
+	Api.login(state.username, state.password).then((key) => {
+		state.checking = false;
+		state.authenticated = key !== null;
+
+		if (key !== null) {
+			appState.setApiKey(key);
+		}
+	});
+}
 </script>
 
 <style scoped>

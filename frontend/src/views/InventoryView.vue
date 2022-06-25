@@ -4,15 +4,8 @@
 	ItemsTable
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import ItemsTable from '../components/ItemsTable.vue';
-
-export default {
-	name: 'InventoryView',
-	components: {
-		ItemsTable
-	}
-};
 </script>
 
 <style scoped></style>
