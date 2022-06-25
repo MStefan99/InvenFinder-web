@@ -59,7 +59,10 @@ export default {
 		return async (ctx, next) => {
 			if (!await this.test.authenticated(ctx)) {
 				ctx.response.status = 401;
-				ctx.response.body = { error: 'Not authenticated' };
+				ctx.response.body = {
+					error: 'Not authenticated',
+					code: 'NOT_AUTHENTICATED',
+				};
 			} else {
 				await next();
 			}
@@ -70,10 +73,16 @@ export default {
 		return async (ctx, next) => {
 			if (!await this.test.authenticated(ctx)) {
 				ctx.response.status = 401;
-				ctx.response.body = { error: 'Not authenticated' };
+				ctx.response.body = {
+					error: 'Not authenticated',
+					code: 'NOT_AUTHENTICATED',
+				};
 			} else if (!await this.test.permissions(ctx, permissions)) {
 				ctx.response.status = 403;
-				ctx.response.body = { error: 'Not authorized' };
+				ctx.response.body = {
+					error: 'Not authorized',
+					code: 'NOT_AUTHORIZED',
+				};
 			} else {
 				await next();
 			}

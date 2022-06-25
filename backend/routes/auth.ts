@@ -32,6 +32,7 @@ async function credentialsPresent(ctx: Context, next: Next) {
 	}
 }
 
+// Log in
 router.post('/login', credentialsPresent, async (ctx) => {
 	// No 'try' because already present in middleware
 
@@ -40,7 +41,7 @@ router.post('/login', credentialsPresent, async (ctx) => {
 
 	if (user === null) {
 		ctx.response.status = 400;
-		ctx.response.body = { error: 'User not found', code: 'NO_USER' };
+		ctx.response.body = { error: 'User not found', code: 'USER_NOT_FOUND' };
 		return;
 	} else if (!(await user.verifyPassword(body.password))) {
 		ctx.response.status = 400;
@@ -61,6 +62,7 @@ router.post('/login', credentialsPresent, async (ctx) => {
 	ctx.response.body = { key: session.publicID };
 });
 
+// Log out
 router.post('/register', credentialsPresent, async (ctx) => {
 	const body = await ctx.request.body({ type: 'json' }).value;
 
@@ -75,24 +77,27 @@ router.post('/register', credentialsPresent, async (ctx) => {
 	ctx.response.body = { key: session.publicID };
 });
 
+// Check authentication status
 router.get('/auth', auth.authenticated(), (ctx) => {
 	ctx.response.status = 200;
 	ctx.response.body = { message: 'OK' };
 });
 
+// Get user currently logged in as
 router.get('/me', auth.authenticated(), async (ctx) => {
 	const user = await auth.methods.getUser(ctx);
 
 	if (!user) {
 		// Should in theory never get here
 		ctx.response.status = 500;
-		ctx.response.body = { error: 'User not found' };
+		ctx.response.body = { error: 'User not found', code: 'USER_NOT_FOUND' };
 	} else {
 		ctx.response.status = 200;
 		ctx.response.body = user;
 	}
 });
 
+// Log out
 router.get('/logout', auth.authenticated(), async (ctx) => {
 	ctx.response.body = { message: 'OK' };
 
