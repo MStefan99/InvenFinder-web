@@ -2,6 +2,7 @@ import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
 import InventoryView from '../views/InventoryView.vue';
 import SettingsView from '../views/SettingsView.vue';
 import UsersView from '../views/UsersView.vue';
+import ItemView from '../views/ItemView.vue';
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -25,6 +26,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/settings',
 		name: 'settings',
 		component: SettingsView
+	},
+	{
+		path: '/items/:id',
+		name: 'item',
+		component: ItemView
 	}
 ];
 

@@ -33,7 +33,7 @@ Transition(name="popup")
 <script setup lang="ts">
 import appState from '../scripts/store';
 import Api from '../scripts/api';
-import {onMounted, reactive, watch} from 'vue';
+import {reactive, watch} from 'vue';
 
 const state = reactive<{
 	url: string;

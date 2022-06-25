@@ -17,8 +17,8 @@ export type Item = {
 export type ApiManager = {
 	items: {
 		getAll: () => Promise<Item[]>;
-		getByID: () => Promise<Item | null>;
-		getByLocation: () => Promise<Item | null>;
+		getByID: (id: number) => Promise<Item | null>;
+		getByLocation: (location: string) => Promise<Item | null>;
 	};
 	login: (username: string, password: string) => Promise<string | null>;
 	logout: () => Promise<boolean>;
@@ -53,15 +53,37 @@ export default {
 					})
 					.then((items) => resolve(items as Item[]))
 					.catch(() => {
+						console.warn('Load items request failed');
+					});
+			});
+		},
+		async getByID(id: number): Promise<Item | null> {
+			if (appState.data.backendURL === null || appState.data.apiKey === null) {
+				return null;
+			}
+
+			return new Promise((resolve, reject) => {
+				fetch(appState.data.backendURL + apiPrefix + '/items/' + id, {
+					headers: {
+						'API-Key': appState.data.apiKey
+					}
+				})
+					.then((res) => {
+						if (res.ok) {
+							return res.json();
+						} else {
+							res.json().then((err) => console.warn('Could not load item:', err.error));
+							reject();
+						}
+					})
+					.then((items) => resolve(items as Item))
+					.catch(() => {
 						console.warn('Load item request failed');
 					});
 			});
 		},
-		async getByID(): Promise<Item | null> {
-			return Promise.resolve(null);
-		},
 		async getByLocation(): Promise<Item | null> {
-			return Promise.resolve(null);
+			return null;
 		}
 	},
 	async login(username: string, password: string): Promise<string | null> {
