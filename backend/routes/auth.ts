@@ -3,6 +3,7 @@ import { Context, Router } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 import auth from '../lib/auth.ts';
 import User from '../lib/user.ts';
 import Session from '../lib/session.ts';
+import { PERMISSIONS } from '../lib/permissions.ts';
 
 type Next = () => Promise<unknown>;
 
@@ -31,6 +32,21 @@ async function credentialsPresent(ctx: Context, next: Next) {
 		};
 	}
 }
+
+// Register
+router.post('/register', credentialsPresent, async (ctx) => {
+	const body = await ctx.request.body({ type: 'json' }).value;
+
+	const user = await User.create(body.username, body.password, undefined);
+	const session = await Session.create(
+		user,
+		ctx.request.ip,
+		ctx.request.headers.get('user-agent') ?? 'Unknown',
+	);
+
+	ctx.response.status = 201;
+	ctx.response.body = { key: session.publicID };
+});
 
 // Log in
 router.post('/login', credentialsPresent, async (ctx) => {
@@ -62,21 +78,6 @@ router.post('/login', credentialsPresent, async (ctx) => {
 	ctx.response.body = { key: session.publicID };
 });
 
-// Log out
-router.post('/register', credentialsPresent, async (ctx) => {
-	const body = await ctx.request.body({ type: 'json' }).value;
-
-	const user = await User.create(body.username, body.password, undefined);
-	const session = await Session.create(
-		user,
-		ctx.request.ip,
-		ctx.request.headers.get('user-agent') ?? 'Unknown',
-	);
-
-	ctx.response.status = 201;
-	ctx.response.body = { key: session.publicID };
-});
-
 // Check authentication status
 router.get('/auth', auth.authenticated(), (ctx) => {
 	ctx.response.status = 200;
@@ -96,6 +97,94 @@ router.get('/me', auth.authenticated(), async (ctx) => {
 		ctx.response.body = user;
 	}
 });
+
+// Edit user currently logged in as
+router.patch('/me', auth.authenticated(), async (ctx) => {
+	try {
+		const body = await ctx.request.body({ type: 'json' }).value;
+
+		const user = await auth.methods.getUser(ctx);
+		if (user === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'User not found',
+				code: 'USER_NOT_FOUND',
+			};
+			return;
+		}
+
+		if (body.password !== undefined) {
+			await user.setPassword(body.password);
+		}
+		if (await auth.test.permissions(ctx, [PERMISSIONS.MANAGE_USERS])) {
+			if (body.username !== undefined) {
+				user.username = body.username;
+			}
+			const permissions = +body.permissions;
+			if (Number.isInteger(permissions)) {
+				user.permissions = permissions;
+			}
+		}
+
+		ctx.response.status = 200;
+		ctx.response.body = user;
+	} catch {
+		ctx.response.status = 400;
+		ctx.response.body = {
+			error: 'Invalid request body',
+			code: 'INVALID_REQUEST',
+		};
+	}
+});
+
+// Edit another user
+router.patch(
+	'/users/:username',
+	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	async (ctx) => {
+		try {
+			const body = await ctx.request.body({ type: 'json' }).value;
+			if (ctx.params.username === undefined) {
+				ctx.response.status = 400;
+				ctx.response.body = {
+					error: 'Username not provided',
+					code: 'NO_USERNAME',
+				};
+				return;
+			}
+
+			const user = await User.getByUsername(ctx.params.username);
+			if (user === null) {
+				ctx.response.status = 400;
+				ctx.response.body = {
+					error: 'User not found',
+					code: 'USER_NOT_FOUND',
+				};
+				return;
+			}
+
+			if (body.username !== undefined) {
+				user.username = body.username;
+			}
+			if (body.password !== undefined) {
+				await user.setPassword(body.password);
+			}
+			const permissions = +body.permissions;
+			if (Number.isInteger(permissions)) {
+				user.permissions = permissions;
+			}
+
+			ctx.response.status = 200;
+			ctx.response.body = user;
+		} catch {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'Invalid request body',
+				code: 'INVALID_REQUEST',
+			};
+		}
+	},
+);
 
 // Log out
 router.get('/logout', auth.authenticated(), async (ctx) => {
