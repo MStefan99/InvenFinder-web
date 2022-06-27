@@ -8,7 +8,7 @@ h2.text-accent.text-2xl.mb-4 Item
 		div
 			.text-right.font-semibold {{item.location}}
 			.text-right.text-gray-500 {{item.amount}}
-	button Take from storage
+	button.mr-4 Take from storage
 	button Put in storage
 </template>
 

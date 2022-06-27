@@ -12,18 +12,18 @@ Transition(name="popup")
 				p You can change your connection settings here
 			.mb-3
 				label(for="url-input") URL
-				input#url-input(type="text" placeholder="https://example.com" v-model="state.url")
+				input#url-input.full(type="text" placeholder="https://example.com" v-model="state.url")
 			.mb-3
-				input(type="button" value="Connect" :disabled="state.checking" @click="connect")
+				button.full(type="button" :disabled="state.checking" @click="connect") Connect
 			div(v-if="state.connected && !state.authenticated")
 				.mb-3
 					label(for="username-input") Username
-					input#username-input(type="text" placeholder="user" v-model="state.username")
+					input#username-input.full(type="text" placeholder="user" v-model="state.username")
 				.mb-3
 					label(for="password-input") Password
-					input#password-input(type="password" placeholder="password" v-model="state.password")
+					input#password-input.full(type="password" placeholder="password" v-model="state.password")
 				.mb-3
-					input(type="button" value="Sign in" :disabled="state.checking" @click="login")
+					button.full(type="button" :disabled="state.checking" @click="login") Sign in
 			span.text-gray-500 {{getAuthenticationState()}}
 </template>
 
@@ -112,26 +112,5 @@ function login() {
 <style scoped>
 label {
 	@apply block mb-2;
-}
-
-input {
-	@apply w-full rounded-xl p-2;
-	transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-}
-
-input:not([type='button']) {
-	@apply border-accent border-2 shadow;
-}
-
-input[type='button'] {
-	@apply text-background my-2 shadow-md;
-}
-
-input[type='button']:not([disabled]) {
-	@apply bg-accent cursor-pointer;
-}
-
-input[type='button'][disabled] {
-	@apply bg-gray-300 cursor-not-allowed;
 }
 </style>

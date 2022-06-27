@@ -3,8 +3,11 @@
 @tailwind utilities;
 
 html {
-	--color-background: white;
-	--color-foreground: black;
+	--color-white: white;
+	--color-black: black;
+
+	--color-background: var(--color-white);
+	--color-foreground: var(--color-black);
 	--color-muted: #ddd;
 	--color-accent: #05a18a;
 
@@ -18,8 +21,8 @@ html {
 
 @media (prefers-color-scheme: dark) {
 	html {
-		--color-background: black;
-		--color-foreground: white;
+		--color-background: var(--color-black);
+		--color-foreground: var(--color-white);
 		--color-muted: #ddd;
 		--color-accent: #067a69;
 
@@ -56,18 +59,43 @@ main {
 	padding: 2em;
 }
 
+input,
 button {
-	@apply border-2 rounded-xl;
-	margin: 0.5em 1em;
+	@apply rounded-xl shadow;
+	border: 0.1em solid var(--color-accent);
+	color: var(--color-foreground);
+	margin: 0.5em 0;
 	padding: 0.5em 1em;
-	border-color: var(--color-accent);
-	color: var(--color-accent);
-	transition: color 0.1s ease-in-out, background-color 0.1s ease-in-out;
+	transition: color 0.1s ease-in-out, background-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out,
+		padding-left 0.1s ease-in-out;
 }
 
-button:hover {
+input:focus-visible {
+	padding-left: 1.5em;
+}
+
+input.full,
+button.full {
+	display: inline-block;
+	@apply w-full;
+}
+
+button {
+	color: var(--color-accent);
+}
+
+button:not([disabled]):not(:active) {
+	@apply shadow-md;
+	@apply cursor-pointer;
+}
+
+button:not([disabled]):hover {
 	background-color: var(--color-accent);
 	color: var(--color-background);
+}
+
+button[disabled] {
+	@apply bg-muted cursor-not-allowed;
 }
 
 .popup-wrapper {
