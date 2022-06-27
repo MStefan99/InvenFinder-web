@@ -27,52 +27,6 @@ router.get('/:id', auth.authenticated(), async (ctx) => {
 	ctx.response.body = await Item.getByID(parsedID);
 });
 
-// Change item amount
-router.put(
-	'/:id/amount',
-	auth.permissions([PERMISSIONS.EDIT_ITEM_AMOUNT]),
-	async (ctx) => {
-		try {
-			const id = +ctx.params.id;
-			if (!Number.isInteger(id)) {
-				ctx.response.status = 400;
-				ctx.response.body = { error: 'Invalid ID', code: 'INVALID_ID' };
-				return;
-			}
-			const body = await ctx.request.body({ type: 'json' }).value;
-			if (body.amount === undefined || +body.amount < 0) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'Invalid amount',
-					code: 'INVALID_AMOUNT',
-				};
-				return;
-			}
-
-			const item = await Item.getByID(id);
-			if (item === null) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'Item not found',
-					code: 'ITEM_NOT_FOUND',
-				};
-				return;
-			}
-
-			item.amount = body.amount;
-
-			ctx.response.status = 200;
-			ctx.response.body = item;
-		} catch {
-			ctx.response.status = 400;
-			ctx.response.body = {
-				error: 'Invalid request body',
-				code: 'INVALID_BODY',
-			};
-		}
-	},
-);
-
 // Add item
 router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 	try {
@@ -123,6 +77,105 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 		};
 	}
 });
+
+// Change item amount
+router.put(
+	'/:id/amount',
+	auth.permissions([PERMISSIONS.EDIT_ITEM_AMOUNT]),
+	async (ctx) => {
+		try {
+			const id = +ctx.params.id;
+			if (!Number.isInteger(id)) {
+				ctx.response.status = 400;
+				ctx.response.body = { error: 'Invalid ID', code: 'INVALID_ID' };
+				return;
+			}
+			const body = await ctx.request.body({ type: 'json' }).value;
+			if (body.amount === undefined || +body.amount < 0) {
+				ctx.response.status = 400;
+				ctx.response.body = {
+					error: 'Invalid amount',
+					code: 'INVALID_AMOUNT',
+				};
+				return;
+			}
+
+			const item = await Item.getByID(id);
+			if (item === null) {
+				ctx.response.status = 400;
+				ctx.response.body = {
+					error: 'Item not found',
+					code: 'ITEM_NOT_FOUND',
+				};
+				return;
+			}
+
+			item.amount = body.amount;
+
+			ctx.response.status = 200;
+			ctx.response.body = item;
+		} catch {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'Invalid request body',
+				code: 'INVALID_BODY',
+			};
+		}
+	},
+);
+
+// Edit item
+router.patch(
+	'/:id',
+	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	async (ctx) => {
+		try {
+			const id = +ctx.params.id;
+			if (!Number.isInteger(id)) {
+				ctx.response.status = 400;
+				ctx.response.body = { error: 'Invalid ID', code: 'INVALID_ID' };
+				return;
+			}
+			const body = await ctx.request.body({ type: 'json' }).value;
+
+			const item = await Item.getByID(id);
+			if (item === null) {
+				ctx.response.status = 400;
+				ctx.response.body = {
+					error: 'Item not found',
+					code: 'ITEM_NOT_FOUND',
+				};
+				return;
+			}
+
+			if (body.name !== undefined) {
+				item.name = body.name;
+			}
+			if (body.description !== undefined) {
+				item.description = body.description;
+			}
+			if (body.location !== undefined) {
+				const location = Location.parse(body.location);
+				if (location !== null) {
+					item.location = location;
+				}
+			}
+			const amount = +body.amount;
+			if (Number.isInteger(amount) && amount >= 0) {
+				item.amount = amount;
+			}
+
+			ctx.response.status = 200;
+			ctx.response.body = item;
+		} catch {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'Invalid request body',
+				code: 'INVALID_BODY',
+			};
+		}
+	},
+);
 
 // Delete item
 router.delete(

@@ -15,19 +15,16 @@ Transition(name="popup")
 				input#url-input(type="text" placeholder="https://example.com" v-model="state.url")
 			.mb-3
 				input(type="button" value="Connect" :disabled="state.checking" @click="connect")
-			.mb-3
-				label(for="username-input") Username
-				input#username-input(type="text" placeholder="user" v-model="state.username")
-			.mb-3
-				label(for="password-input") Password
-				input#password-input(type="password" placeholder="password" v-model="state.password")
-			.mb-3
-				input(
-					type="button"
-					value="Sign in"
-					:disabled="state.checking || !state.connected || state.authenticated"
-					@click="login")
-				span.text-gray-500 {{getAuthenticationState()}}
+			div(v-if="state.connected && !state.authenticated")
+				.mb-3
+					label(for="username-input") Username
+					input#username-input(type="text" placeholder="user" v-model="state.username")
+				.mb-3
+					label(for="password-input") Password
+					input#password-input(type="password" placeholder="password" v-model="state.password")
+				.mb-3
+					input(type="button" value="Sign in" :disabled="state.checking" @click="login")
+			span.text-gray-500 {{getAuthenticationState()}}
 </template>
 
 <script setup lang="ts">
