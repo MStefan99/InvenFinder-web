@@ -1,5 +1,5 @@
 <template lang="pug">
-h2.text-teal-700.text-2xl.mb-4 Users
+h2.text-accent.text-2xl.mb-4 Users
 </template>
 
 <script setup lang="ts"></script>

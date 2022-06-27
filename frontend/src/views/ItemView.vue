@@ -1,5 +1,5 @@
 <template lang="pug">
-h2.text-teal-700.text-2xl.mb-4 Item
+h2.text-accent.text-2xl.mb-4 Item
 #item
 	.flex.justify-between.mb-4
 		div
@@ -8,6 +8,8 @@ h2.text-teal-700.text-2xl.mb-4 Item
 		div
 			.text-right.font-semibold {{item.location}}
 			.text-right.text-gray-500 {{item.amount}}
+	button Take from storage
+	button Put in storage
 </template>
 
 <script setup lang="ts">

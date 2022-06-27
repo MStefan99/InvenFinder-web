@@ -5,12 +5,31 @@
 html {
 	--color-background: white;
 	--color-foreground: black;
+	--color-muted: #ddd;
 	--color-accent: #05a18a;
+
+	--color-separator: #eee;
 	--color-overlay: #fff8;
 	--color-shadow: #0001;
 
-	--color-overlay-dark: #0008;
-	--color-shadow-dark: #fff2;
+	color: var(--color-foreground);
+	background-color: var(--color-background);
+}
+
+@media (prefers-color-scheme: dark) {
+	html {
+		--color-background: black;
+		--color-foreground: white;
+		--color-muted: #ddd;
+		--color-accent: #067a69;
+
+		--color-separator: #333;
+		--color-overlay: #2228;
+		--color-shadow: #0001;
+
+		color: var(--color-foreground);
+		background-color: var(--color-background);
+	}
 }
 
 *,
@@ -29,8 +48,26 @@ a {
 	color: inherit;
 }
 
+input {
+	background-color: inherit;
+}
+
 main {
 	padding: 2em;
+}
+
+button {
+	@apply border-2 rounded-xl;
+	margin: 0.5em 1em;
+	padding: 0.5em 1em;
+	border-color: var(--color-accent);
+	color: var(--color-accent);
+	transition: color 0.1s ease-in-out, background-color 0.1s ease-in-out;
+}
+
+button:hover {
+	background-color: var(--color-accent);
+	color: var(--color-background);
 }
 
 .popup-wrapper {
@@ -47,7 +84,7 @@ main {
 	position: relative;
 	left: 50%;
 	top: 50%;
-	max-width: 50vw;
+	max-width: min(768px, 90vw);
 	transform: translate(-50%, -50%);
 	padding: 4em;
 	border-radius: 1em;

@@ -8,7 +8,7 @@ Transition(name="popup")
 				p.text-red-500.text-2xl You are not signed in
 				p Please check your connection settings
 			.mb-4(v-else)
-				p.text-2xl Connection settings
+				p.text-accent.text-2xl You are signed in!
 				p You can change your connection settings here
 			.mb-3
 				label(for="url-input") URL
@@ -120,15 +120,15 @@ input {
 }
 
 input:not([type='button']) {
-	@apply border-teal-500 border-2 shadow;
+	@apply border-accent border-2 shadow;
 }
 
 input[type='button'] {
-	@apply text-white my-2 shadow-md;
+	@apply text-background my-2 shadow-md;
 }
 
 input[type='button']:not([disabled]) {
-	@apply bg-teal-500 cursor-pointer;
+	@apply bg-accent cursor-pointer;
 }
 
 input[type='button'][disabled] {

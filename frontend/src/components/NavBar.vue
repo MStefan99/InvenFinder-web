@@ -1,5 +1,5 @@
 <template lang="pug">
-nav.text-teal-700.font-semibold
+nav.text-accent.font-semibold
 	span
 		RouterLink.clickable(:to="{name: 'inventory'}") Inventory
 		RouterLink.clickable(:to="{name: 'users'}") Users
@@ -41,10 +41,10 @@ label {
 }
 
 input {
-	@apply border-2 border-teal-500 rounded-xl w-full p-2 my-3 shadow;
+	@apply border-2 border-accent rounded-xl w-full p-2 my-3 shadow;
 }
 
 input[type='submit'] {
-	@apply bg-teal-500 font-bold text-white text-xl shadow-md;
+	@apply bg-accent font-bold text-background text-xl shadow-md;
 }
 </style>
