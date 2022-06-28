@@ -19,6 +19,7 @@ export type ApiManager = {
 		getAll: () => Promise<Item[]>;
 		getByID: (id: number) => Promise<Item | null>;
 		getByLocation: (location: string) => Promise<Item | null>;
+		editAmount: (id: number, amount: number) => Promise<Item | null>;
 	};
 	login: (username: string, password: string) => Promise<string | null>;
 	logout: () => Promise<boolean>;
@@ -37,7 +38,7 @@ export default {
 				return [];
 			}
 
-			return new Promise((resolve, reject) => {
+			return new Promise((resolve) => {
 				fetch(appState.data.backendURL + apiPrefix + '/items', {
 					headers: {
 						'API-Key': appState.data.apiKey
@@ -48,12 +49,13 @@ export default {
 							return res.json();
 						} else {
 							res.json().then((err) => console.warn('Could not load items:', err.error));
-							reject();
+							resolve([]);
 						}
 					})
 					.then((items) => resolve(items as Item[]))
 					.catch(() => {
 						console.warn('Load items request failed');
+						resolve([]);
 					});
 			});
 		},
@@ -62,7 +64,7 @@ export default {
 				return null;
 			}
 
-			return new Promise((resolve, reject) => {
+			return new Promise((resolve) => {
 				fetch(appState.data.backendURL + apiPrefix + '/items/' + id, {
 					headers: {
 						'API-Key': appState.data.apiKey
@@ -73,12 +75,44 @@ export default {
 							return res.json();
 						} else {
 							res.json().then((err) => console.warn('Could not load item:', err.error));
-							reject();
+							resolve(null);
 						}
 					})
 					.then((items) => resolve(items as Item))
 					.catch(() => {
 						console.warn('Load item request failed');
+						resolve(null);
+					});
+			});
+		},
+		async editAmount(id: number, amount: number): Promise<Item | null> {
+			if (appState.data.backendURL === null || appState.data.apiKey === null) {
+				return null;
+			}
+
+			return new Promise((resolve) => {
+				fetch(appState.data.backendURL + apiPrefix + '/items/' + id + '/amount', {
+					method: 'put',
+					headers: {
+						'API-Key': appState.data.apiKey,
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						amount
+					})
+				})
+					.then((res) => {
+						if (res.ok) {
+							return res.json();
+						} else {
+							res.json().then((err) => console.warn('Could not edit item amount:', err.error));
+							resolve(null);
+						}
+					})
+					.then((item) => resolve(item as Item))
+					.catch(() => {
+						console.warn('Load item request failed');
+						resolve(null);
 					});
 			});
 		},

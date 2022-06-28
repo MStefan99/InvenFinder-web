@@ -8,8 +8,8 @@ h2.text-accent.text-2xl.mb-4 Item
 		div
 			.text-right.font-semibold {{item.location}}
 			.text-right.text-gray-500 {{item.amount}}
-	button.mr-4 Take from storage
-	button Put in storage
+	button.mr-4(@click="editAmount(false)") Take from storage
+	button(@click="editAmount(true)") Put in storage
 </template>
 
 <script setup lang="ts">
@@ -37,8 +37,34 @@ onMounted(() => {
 		return;
 	}
 
-	Api.items.getByID(id).then((i) => (item.value = i));
+	Api.items.getByID(id).then((i) => {
+		if (i === null) {
+			return;
+		}
+
+		item.value = i;
+	});
 });
+
+function editAmount(add: boolean = false) {
+	const diff = +prompt('Choose amount');
+
+	if (Number.isNaN(diff)) {
+		return;
+	}
+
+	const oldAmount = item.value.amount;
+	item.value.amount = add ? item.value.amount + diff : item.value.amount - diff;
+
+	Api.items.editAmount(item.value.id, item.value.amount).then((i) => {
+		if (i === null) {
+			item.value.amount = oldAmount;
+			return;
+		}
+
+		item.value.amount = i.amount;
+	});
+}
 </script>
 
 <style scoped></style>
