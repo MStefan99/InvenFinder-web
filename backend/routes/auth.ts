@@ -3,7 +3,7 @@ import { Context, Router } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 import auth from '../lib/auth.ts';
 import User from '../lib/user.ts';
 import Session from '../lib/session.ts';
-import { PERMISSIONS } from '../lib/permissions.ts';
+import { parsePermissions, PERMISSIONS } from '../../common/permissions.ts';
 
 type Next = () => Promise<unknown>;
 
@@ -37,7 +37,7 @@ async function credentialsPresent(ctx: Context, next: Next) {
 router.post('/register', credentialsPresent, async (ctx) => {
 	const body = await ctx.request.body({ type: 'json' }).value;
 
-	const user = await User.create(body.username, body.password, undefined);
+	const user = await User.create(body.username, body.password, []);
 	const session = await Session.create(
 		user,
 		ctx.request.ip,
@@ -122,7 +122,7 @@ router.patch('/me', auth.authenticated(), async (ctx) => {
 			}
 			const permissions = +body.permissions;
 			if (Number.isInteger(permissions)) {
-				user.permissions = permissions;
+				user.permissions = parsePermissions(permissions);
 			}
 		}
 
@@ -171,7 +171,7 @@ router.patch(
 			}
 			const permissions = +body.permissions;
 			if (Number.isInteger(permissions)) {
-				user.permissions = permissions;
+				user.permissions = parsePermissions(permissions);
 			}
 
 			ctx.response.status = 200;

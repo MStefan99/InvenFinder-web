@@ -1,8 +1,8 @@
 import { Context, Middleware } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 
-import { PERMISSIONS } from './permissions.ts';
 import Session from './session.ts';
 import User from './user.ts';
+import { PERMISSIONS } from '../../common/permissions.ts';
 
 async function getSession(ctx: Context): Promise<Session | null> {
 	if (ctx.state.session) {

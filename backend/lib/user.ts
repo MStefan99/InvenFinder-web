@@ -3,11 +3,10 @@ import {
 	encode as hexEncode,
 } from 'https://deno.land/std@0.144.0/encoding/hex.ts';
 
-import * as Permissions from './permissions.ts';
+import * as Permissions from '../../common/permissions.ts';
 import dbClientPromise from './db.ts';
 
 const PBKDF2ITERATIONS = 100000;
-const DEFAULT_PERMISSIONS = 0;
 
 function buf2hex(buf: Uint8Array): string {
 	const dec = new TextDecoder();
@@ -52,7 +51,7 @@ type Props = {
 	username: string;
 	passwordSalt: string;
 	passwordHash: string;
-	permissions: number | undefined;
+	permissions: Permissions.PERMISSIONS[] | number | undefined;
 };
 
 class User {
@@ -60,7 +59,7 @@ class User {
 	username: string;
 	passwordSalt: string;
 	passwordHash: string;
-	permissions: number;
+	permissions: Permissions.PERMISSIONS[];
 
 	#saveHandle: number | undefined;
 
@@ -69,14 +68,14 @@ class User {
 		this.username = props.username;
 		this.passwordSalt = props.passwordSalt;
 		this.passwordHash = props.passwordHash;
-		this.permissions = props.permissions ?? DEFAULT_PERMISSIONS;
+		this.permissions = Permissions.parsePermissions(props.permissions);
 	}
 
 	toJSON() {
 		return {
 			id: this.id,
 			username: this.username,
-			permissions: this.permissions,
+			permissions: Permissions.toNumber(this.permissions),
 		};
 	}
 
@@ -118,7 +117,7 @@ class User {
 	static async create(
 		username: string,
 		password: string,
-		permissions: number | undefined,
+		permissions: Permissions.PERMISSIONS[],
 	): Promise<User> {
 		const passwordSalt = buf2hex(
 			crypto.getRandomValues(new Uint8Array(32)),
@@ -136,7 +135,7 @@ class User {
 				username,
 				passwordSalt,
 				passwordHash,
-				permissions ?? DEFAULT_PERMISSIONS,
+				Permissions.toNumber(permissions),
 			],
 		);
 
@@ -146,7 +145,7 @@ class User {
 				username,
 				passwordSalt,
 				passwordHash,
-				permissions: permissions ?? DEFAULT_PERMISSIONS,
+				permissions,
 			}),
 		);
 	}
@@ -209,10 +208,7 @@ class User {
 	}
 
 	hasPermissions(permissions: [Permissions.PERMISSIONS]): boolean {
-		const permissionValue = Permissions.getPermissionValue(permissions);
-
-		// noinspection JSBitwiseOperatorUsage
-		return ((this.permissions & permissionValue) === permissionValue);
+		return Permissions.hasPermissions(permissions, this.permissions);
 	}
 
 	async delete(): Promise<void> {

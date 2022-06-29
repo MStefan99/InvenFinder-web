@@ -1,9 +1,9 @@
 import { Router } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 
 import auth from '../lib/auth.ts';
-import { PERMISSIONS } from '../lib/permissions.ts';
 import Item from '../lib/item.ts';
 import Location from '../lib/location.ts';
+import { PERMISSIONS } from '../../common/permissions.ts';
 
 const router = new Router({
 	prefix: '/items',

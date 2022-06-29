@@ -2,12 +2,13 @@
 h2.text-accent.text-2xl.mb-4 Item
 #item
 	.flex.justify-between.mb-4
+		//- TODO: editable fields are cool but resizing inputs is pain™
 		div
-			.mr-4.font-light {{item.name}}
-			.mr-4.text-gray-500 {{item.description}}
+			input.plain.mr-4.font-light(v-model="item.name")
+			input.plain.mr-4.text-gray-500(v-model="item.description")
 		div
-			.text-right.font-semibold {{item.location}}
-			.text-right.text-gray-500 {{item.amount}}
+			input.plain.text-right.font-semibold(v-model="item.location")
+			input.plain.text-right.text-gray-500(v-model="item.amount")
 	button.mr-4(@click="editAmount(false)") Take from storage
 	button(@click="editAmount(true)") Put in storage
 </template>
@@ -67,4 +68,8 @@ function editAmount(add: boolean = false) {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+input {
+	@apply block;
+}
+</style>

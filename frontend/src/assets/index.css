@@ -61,17 +61,17 @@ main {
 
 input,
 button {
+	transition: all 0.1s ease-in-out;
+}
+
+input:not(.plain),
+input.plain:focus-visible,
+button {
 	@apply rounded-xl shadow;
 	border: 0.1em solid var(--color-accent);
 	color: var(--color-foreground);
 	margin: 0.5em 0;
 	padding: 0.5em 1em;
-	transition: color 0.1s ease-in-out, background-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out,
-		padding-left 0.1s ease-in-out;
-}
-
-input:focus-visible {
-	padding-left: 1.5em;
 }
 
 input.full,
