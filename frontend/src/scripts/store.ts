@@ -1,9 +1,13 @@
 import {reactive} from 'vue';
 
+import {User} from './api';
+import {PERMISSIONS, hasPermissions} from '../../../common/permissions';
+
 type Store = {
 	data: {
 		backendURL: string | null;
 		apiKey: string | null;
+		user: User | null;
 	};
 	ui: {
 		connectionDialogOpen: boolean;
@@ -11,12 +15,15 @@ type Store = {
 	setUrl: (url: string | null) => void;
 	setApiKey: (key: string | null) => void;
 	setConnectionDialogOpen: (open: boolean) => void;
+	setUser: (user: User | null) => void;
+	hasPermissions: (permissions: PERMISSIONS[]) => boolean;
 };
 
 export const appState = reactive({
 	data: {
 		backendURL: localStorage.getItem('backendURL') ?? null,
-		apiKey: localStorage.getItem('apiKey') ?? null
+		apiKey: localStorage.getItem('apiKey') ?? null,
+		user: null
 	},
 	ui: {
 		connectionDialogOpen: false
@@ -39,6 +46,16 @@ export const appState = reactive({
 	},
 	setConnectionDialogOpen(open: boolean) {
 		this.ui.connectionDialogOpen = open;
+	},
+	setUser(user: User | null): void {
+		this.data.user = user;
+	},
+	hasPermissions(permissions: PERMISSIONS[]): boolean {
+		if (this.data.user === null) {
+			return false;
+		} else {
+			return hasPermissions(permissions, this.data.user.permissions);
+		}
 	}
 } as Store);
 

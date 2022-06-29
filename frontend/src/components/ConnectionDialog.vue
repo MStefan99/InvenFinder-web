@@ -58,10 +58,12 @@ watch(
 );
 
 function checkConnection() {
-	Api.auth().then((authenticated) => {
-		state.authenticated = authenticated;
-		state.connected = authenticated;
-		if (!authenticated) {
+	Api.me().then((user) => {
+		state.authenticated = user !== null;
+		state.connected = user !== null;
+
+		appState.setUser(user);
+		if (user === null) {
 			Api.test().then((connected) => {
 				state.connected = connected;
 				appState.setConnectionDialogOpen(true);

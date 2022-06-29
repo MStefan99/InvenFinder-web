@@ -1,10 +1,19 @@
 import appState from './store';
 
-export type User = {
+import {PERMISSIONS, parsePermissions} from '../../../common/permissions';
+import permissions = Deno.permissions;
+
+export class User {
 	id: number;
 	username: string;
-	permissions: number;
-};
+	permissions: PERMISSIONS[];
+
+	constructor(id: number, username: string, permissions: number) {
+		this.id = id;
+		this.username = username;
+		this.permissions = parsePermissions(permissions);
+	}
+}
 
 export type Item = {
 	id: number;
@@ -223,7 +232,7 @@ export default {
 		}
 
 		return new Promise((resolve) => {
-			fetch(appState.data.backendURL + apiPrefix + '/auth', {
+			fetch(appState.data.backendURL + apiPrefix + '/me', {
 				headers: {
 					'Api-Key': appState.data.apiKey
 				}
@@ -236,7 +245,7 @@ export default {
 						resolve(null);
 					}
 				})
-				.then((user) => resolve(user))
+				.then((user) => resolve(new User(user.id, user.username, user.permissions)))
 				.catch(() => {
 					console.warn('User request failed');
 					resolve(null);

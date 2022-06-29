@@ -1,6 +1,7 @@
 <template lang="pug">
 h2.text-accent.text-2xl.mb-4 Item
 #item
+	span {{appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])}}
 	.flex.justify-between.mb-4
 		//- TODO: editable fields are cool but resizing inputs is pain™
 		div
@@ -15,6 +16,8 @@ h2.text-accent.text-2xl.mb-4 Item
 
 <script setup lang="ts">
 import type {Item} from '../scripts/api';
+import appState from '../scripts/store';
+import {PERMISSIONS} from '../../../common/permissions';
 import Api from '../scripts/api';
 import {onMounted, ref} from 'vue';
 import {useRoute} from 'vue-router';
