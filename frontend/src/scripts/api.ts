@@ -41,12 +41,12 @@ const apiPrefix = '/api';
 
 export default {
 	items: {
-		async getAll(): Promise<Item[]> {
-			if (appState.data.backendURL === null || appState.data.apiKey === null) {
-				return [];
-			}
-
+		getAll(): Promise<Item[]> {
 			return new Promise((resolve) => {
+				if (appState.data.backendURL === null || appState.data.apiKey === null) {
+					resolve([]);
+				}
+
 				fetch(appState.data.backendURL + apiPrefix + '/items', {
 					headers: {
 						'API-Key': appState.data.apiKey
@@ -67,12 +67,12 @@ export default {
 					});
 			});
 		},
-		async getByID(id: number): Promise<Item | null> {
-			if (appState.data.backendURL === null || appState.data.apiKey === null) {
-				return null;
-			}
-
+		getByID(id: number): Promise<Item | null> {
 			return new Promise((resolve) => {
+				if (appState.data.backendURL === null || appState.data.apiKey === null) {
+					resolve(null);
+				}
+
 				fetch(appState.data.backendURL + apiPrefix + '/items/' + id, {
 					headers: {
 						'API-Key': appState.data.apiKey
@@ -93,12 +93,12 @@ export default {
 					});
 			});
 		},
-		async editAmount(id: number, amount: number): Promise<Item | null> {
-			if (appState.data.backendURL === null || appState.data.apiKey === null) {
-				return null;
-			}
-
+		editAmount(id: number, amount: number): Promise<Item | null> {
 			return new Promise((resolve) => {
+				if (appState.data.backendURL === null || appState.data.apiKey === null) {
+					resolve(null);
+				}
+
 				fetch(appState.data.backendURL + apiPrefix + '/items/' + id + '/amount', {
 					method: 'put',
 					headers: {
@@ -124,16 +124,16 @@ export default {
 					});
 			});
 		},
-		async getByLocation(): Promise<Item | null> {
-			return null;
+		getByLocation(): Promise<Item | null> {
+			return Promise.resolve(null);
 		}
 	},
-	async login(username: string, password: string): Promise<string | null> {
-		if (appState.data.backendURL === null) {
-			return null;
-		}
-
+	login(username: string, password: string): Promise<string | null> {
 		return new Promise((resolve) => {
+			if (appState.data.backendURL === null) {
+				resolve(null);
+			}
+
 			fetch(appState.data.backendURL + apiPrefix + '/login', {
 				method: 'post',
 				headers: {
@@ -161,12 +161,12 @@ export default {
 				});
 		});
 	},
-	async logout(): Promise<boolean> {
-		if (appState.data.backendURL === null) {
-			return false;
-		}
-
+	logout(): Promise<boolean> {
 		return new Promise((resolve) => {
+			if (appState.data.backendURL === null) {
+				resolve(false);
+			}
+
 			fetch(appState.data.backendURL + apiPrefix + '/logout', {
 				headers: {
 					'API-Key': appState.data.apiKey
@@ -187,7 +187,7 @@ export default {
 				});
 		});
 	},
-	async testURL(url: string): Promise<boolean> {
+	testURL(url: string): Promise<boolean> {
 		return new Promise((resolve) => {
 			fetch(url + apiPrefix)
 				.then((res) => resolve(res.ok && res.headers.get('who-am-i') === 'Invenfinder'))
@@ -197,7 +197,7 @@ export default {
 				});
 		});
 	},
-	async test(): Promise<boolean> {
+	test(): Promise<boolean> {
 		return new Promise((resolve) => {
 			fetch(appState.data.backendURL + apiPrefix)
 				.then((res) => resolve(res.ok && res.headers.get('who-am-i') === 'Invenfinder'))
@@ -207,12 +207,12 @@ export default {
 				});
 		});
 	},
-	async auth(): Promise<boolean> {
-		if (appState.data.backendURL === null || appState.data.apiKey === null) {
-			return false;
-		}
-
+	auth(): Promise<boolean> {
 		return new Promise((resolve) => {
+			if (appState.data.backendURL === null || appState.data.apiKey === null) {
+				resolve(false);
+			}
+
 			fetch(appState.data.backendURL + apiPrefix + '/auth', {
 				headers: {
 					'Api-Key': appState.data.apiKey
@@ -225,12 +225,12 @@ export default {
 				});
 		});
 	},
-	async me(): Promise<User | null> {
-		if (appState.data.backendURL === null || appState.data.apiKey === null) {
-			return null;
-		}
-
+	me(): Promise<User | null> {
 		return new Promise((resolve) => {
+			if (appState.data.backendURL === null || appState.data.apiKey === null) {
+				resolve(null);
+			}
+
 			fetch(appState.data.backendURL + apiPrefix + '/me', {
 				headers: {
 					'Api-Key': appState.data.apiKey
