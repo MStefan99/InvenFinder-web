@@ -28,8 +28,8 @@ Transition(name="popup")
 </template>
 
 <script setup lang="ts">
-import appState from '../scripts/store';
-import Api from '../scripts/api';
+import appState from '../scripts/store.ts';
+import Api from '../scripts/api.ts';
 import {reactive, watch} from 'vue';
 
 const state = reactive<{

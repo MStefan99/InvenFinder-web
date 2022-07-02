@@ -1,7 +1,6 @@
-import appState from './store';
+import appState from './store.ts';
 
-import {PERMISSIONS, parsePermissions} from '../../../common/permissions';
-import permissions = Deno.permissions;
+import {PERMISSIONS, parsePermissions} from '../../../common/permissions.ts';
 
 export class User {
 	id: number;
