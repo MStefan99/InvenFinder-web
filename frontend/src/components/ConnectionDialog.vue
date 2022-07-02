@@ -102,12 +102,13 @@ function connect() {
 function login() {
 	state.checking = true;
 
-	Api.login(state.username, state.password).then((key) => {
+	Api.login(state.username, state.password).then((auth) => {
 		state.checking = false;
-		state.authenticated = key !== null;
+		state.authenticated = auth !== null;
 
-		if (key !== null) {
-			appState.setApiKey(key);
+		if (auth !== null) {
+			appState.setApiKey(auth.key);
+			appState.setUser(auth.user);
 		}
 	});
 }

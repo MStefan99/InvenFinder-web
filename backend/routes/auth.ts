@@ -75,7 +75,7 @@ router.post('/login', credentialsPresent, async (ctx) => {
 	);
 
 	ctx.response.status = 201;
-	ctx.response.body = { key: session.publicID };
+	ctx.response.body = { key: session.publicID, user: user };
 });
 
 // Check authentication status

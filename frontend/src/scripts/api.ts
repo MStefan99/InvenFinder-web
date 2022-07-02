@@ -9,7 +9,7 @@ export type ApiManager = {
 		getByLocation: (location: string) => Promise<Item | null>;
 		editAmount: (id: number, amount: number) => Promise<Item | null>;
 	};
-	login: (username: string, password: string) => Promise<string | null>;
+	login: (username: string, password: string) => Promise<{key: string; user: User} | null>;
 	logout: () => Promise<boolean>;
 	testURL: (url: string) => Promise<boolean>;
 	test: () => Promise<boolean>;
@@ -108,7 +108,7 @@ export default {
 			return Promise.resolve(null);
 		}
 	},
-	login(username: string, password: string): Promise<string | null> {
+	login(username: string, password: string): Promise<{key: string; user: User} | null> {
 		return new Promise((resolve) => {
 			if (appState.data.backendURL === null) {
 				resolve(null);
@@ -133,7 +133,10 @@ export default {
 					}
 				})
 				.then((data) => {
-					resolve(data.key);
+					resolve({
+						key: data.key,
+						user: new User(data.user.id, data.user.username, data.user.permissions)
+					});
 				})
 				.catch(() => {
 					console.warn('Login request failed');
