@@ -55,7 +55,8 @@ input {
 	background-color: inherit;
 }
 
-main {
+main,
+footer {
 	padding: 2em;
 }
 
@@ -129,4 +130,16 @@ button[disabled] {
 .popup-enter-from,
 .popup-leave-to {
 	transform: translateY(-100%);
+}
+
+@media print {
+	.no-print {
+		display: none;
+	}
+}
+
+@media screen {
+	.print {
+		display: none;
+	}
 }

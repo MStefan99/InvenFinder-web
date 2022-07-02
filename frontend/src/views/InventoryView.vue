@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import Api from '../scripts/api.ts';
 import appState from '../scripts/store.ts';
-import type {Item} from '../scripts/api.ts';
+import type {Item} from '../scripts/types.ts';
 import {onMounted, ref, watch} from 'vue';
 
 let items = ref<Item[]>([]);

@@ -1,7 +1,7 @@
 import {reactive} from 'vue';
 
-import {User} from './api';
-import {PERMISSIONS, hasPermissions} from '../../../common/permissions';
+import {User} from './api.ts';
+import {PERMISSIONS, hasPermissions} from '../../../common/permissions.ts';
 
 type Store = {
 	data: {

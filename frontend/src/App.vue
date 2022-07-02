@@ -1,8 +1,14 @@
 <template lang="pug">
-NavBar
+header.no-print
+	NavBar
+
 main
 	RouterView
 	ConnectionDialog
+
+footer
+	.print
+		p.text-muted Do not edit, this file was generated automatically by InvenFinder
 </template>
 
 <script setup lang="ts">

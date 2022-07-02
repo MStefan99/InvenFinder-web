@@ -3,6 +3,7 @@ import InventoryView from '../views/InventoryView.vue';
 import SettingsView from '../views/SettingsView.vue';
 import UsersView from '../views/UsersView.vue';
 import ItemView from '../views/ItemView.vue';
+import LabelView from '../views/LabelView.vue';
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -31,6 +32,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/items/:id',
 		name: 'item',
 		component: ItemView
+	},
+	{
+		path: '/labels',
+		name: 'labels',
+		component: LabelView
 	}
 ];
 

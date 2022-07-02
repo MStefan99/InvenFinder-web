@@ -1,7 +1,6 @@
 <template lang="pug">
 h2.text-accent.text-2xl.mb-4 Item
 #item
-	span {{appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])}}
 	.flex.justify-between.mb-4
 		//- TODO: editable fields are cool but resizing inputs is pain™
 		div
@@ -10,8 +9,9 @@ h2.text-accent.text-2xl.mb-4 Item
 		div
 			input.plain.text-right.font-semibold(v-model="item.location")
 			input.plain.text-right.text-gray-500(v-model="item.amount")
-	button.mr-4(@click="editAmount(false)") Take from storage
-	button(@click="editAmount(true)") Put in storage
+	div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
+		button.mr-4(@click="editAmount(false)") Take from storage
+		button(@click="editAmount(true)") Put in storage
 </template>
 
 <script setup lang="ts">

@@ -30,7 +30,7 @@ Transition(name="popup")
 <script setup lang="ts">
 import appState from '../scripts/store.ts';
 import Api from '../scripts/api.ts';
-import {reactive, watch} from 'vue';
+import {onMounted, reactive, watch} from 'vue';
 
 const state = reactive<{
 	url: string;
@@ -56,6 +56,8 @@ watch(
 		}
 	}
 );
+
+onMounted(checkConnection);
 
 function checkConnection() {
 	Api.me().then((user) => {
