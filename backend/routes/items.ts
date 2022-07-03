@@ -2,8 +2,9 @@ import { Router } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 
 import auth from '../lib/auth.ts';
 import Item from '../lib/item.ts';
-import Location from '../lib/location.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
+
+const locationRegex = /^[1-9]\d*-[A-Z]+[1-9]\d*$/;
 
 const router = new Router({
 	prefix: '/items',
@@ -50,8 +51,7 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 			};
 			return;
 		}
-		const location = Location.parse(body.location);
-		if (location === null) {
+		if (!body.location.match(locationRegex)) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'Invalid location',
@@ -63,7 +63,8 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 		const item = await Item.create({
 			name: body.name,
 			description: body.description,
-			location,
+			link: body.link,
+			location: body.location,
 			amount: +body.amount,
 		});
 
@@ -147,6 +148,28 @@ router.patch(
 				};
 				return;
 			}
+			const amount = +body.amount;
+			if (body.amount !== undefined) {
+				if (!Number.isInteger(amount) || amount < 0) {
+					ctx.response.status = 400;
+					ctx.response.body = {
+						error: 'Invalid amount',
+						code: 'INVALID_AMOUNT',
+					};
+					return;
+				}
+			}
+			if (
+				body.location !== undefined &&
+				!body.location.match(locationRegex)
+			) {
+				ctx.response.status = 400;
+				ctx.response.body = {
+					error: 'Invalid location',
+					code: 'INVALID_LOCATION',
+				};
+				return;
+			}
 
 			if (body.name !== undefined) {
 				item.name = body.name;
@@ -154,14 +177,13 @@ router.patch(
 			if (body.description !== undefined) {
 				item.description = body.description;
 			}
-			if (body.location !== undefined) {
-				const location = Location.parse(body.location);
-				if (location !== null) {
-					item.location = location;
-				}
+			if (body.link !== undefined) {
+				item.link = body.link;
 			}
-			const amount = +body.amount;
-			if (Number.isInteger(amount) && amount >= 0) {
+			if (body.location !== undefined) {
+				item.location = body.location;
+			}
+			if (body.amount !== undefined) {
 				item.amount = amount;
 			}
 

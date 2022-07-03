@@ -1,14 +1,10 @@
-import Location from './location.ts';
 import dbClientPromise from './db.ts';
 
 type PropsBase = {
 	name: string;
 	description: string | null;
-	location: Location | {
-		cabinet: number;
-		col: number;
-		row: number;
-	};
+	link: string | null;
+	location: string;
 	amount: number;
 };
 
@@ -20,7 +16,8 @@ class Item {
 	id: number;
 	name: string;
 	description: string | null = null;
-	location: Location;
+	link: string | null = null;
+	location: string;
 	amount: number;
 
 	#saveHandle: number | undefined = undefined;
@@ -29,27 +26,9 @@ class Item {
 		this.id = props.id;
 		this.name = props.name;
 		this.description = props.description;
-		this.location = new Location(0, 0, 0);
-		if (props.location instanceof Location) {
-			this.location = props.location;
-		} else {
-			this.location = new Location(
-				props.location.cabinet,
-				props.location.col,
-				props.location.row,
-			);
-		}
+		this.link = props.link;
+		this.location = props.location;
 		this.amount = props.amount;
-	}
-
-	toJSON() {
-		return {
-			id: this.id,
-			name: this.name,
-			description: this.description,
-			location: this.location.toString(),
-			amount: this.amount,
-		};
 	}
 
 	static #makeReactive(item: Item): Item {
@@ -60,21 +39,19 @@ class Item {
 				target.#saveHandle = setTimeout(async () => {
 					const client = await dbClientPromise;
 					await client.execute(
-						`insert into invenfinder.items(id, name, description, cabinet, col, row, amount)
-						 values (?, ?, ?, ?, ?, ?, ?)
+						`insert into invenfinder.items(id, name, description, link, location, amount)
+						 values (?, ?, ?, ?, ?, ?)
 						 on duplicate key update name = values(name),
 						                         description = values(description),
-						                         cabinet = values(cabinet),
-						                         col = values(col),
-						                         row = values(row),
+						                         link = values(link),
+						                         location = values(location),
 						                         amount = values(amount)`,
 						[
 							target.id,
 							target.name,
 							target.description,
-							target.location.cabinet,
-							target.location.col,
-							target.location.row,
+							target.link,
+							target.location,
 							target.amount,
 						],
 					);
@@ -96,17 +73,15 @@ class Item {
 		const res = await client.execute(
 			`insert into invenfinder.items(name,
 			                               description,
-			                               cabinet,
-			                               col,
-			                               row,
+			                               link,
+			                               location,
 			                               amount)
-			 values (?, ?, ?, ?, ?, ?)`,
+			 values (?, ?, ?, ?, ?)`,
 			[
 				options.name,
 				options.description,
-				options.location.cabinet,
-				options.location.col,
-				options.location.row,
+				options.link,
+				options.location,
 				options.amount,
 			],
 		);
@@ -115,6 +90,7 @@ class Item {
 			id: res.lastInsertId ?? 0,
 			name: options.name,
 			description: options.description,
+			link: options.link,
 			location: options.location,
 			amount: options.amount,
 		});
@@ -135,26 +111,18 @@ class Item {
 		} else {
 			const row = rows[0];
 			return this.#makeReactive(
-				new Item({
-					id: row.id,
-					name: row.name,
-					description: row.description,
-					location: new Location(row.cabinet, row.col, row.row),
-					amount: row.amount,
-				}),
+				new Item(row),
 			);
 		}
 	}
 
-	static async getByLocation(location: Location): Promise<Item | null> {
+	static async getByLocation(location: string): Promise<Item | null> {
 		const client = await dbClientPromise;
 		const rows = await client.query(
 			`select *
 			 from invenfinder.items
-			 where cabinet=?
-				 and col=?
-				 and row=?`,
-			[location.cabinet, location.col, location.row],
+			 where location=?`,
+			[location],
 		);
 
 		if (!rows.length) {
@@ -162,13 +130,7 @@ class Item {
 		} else {
 			const row = rows[0];
 			return this.#makeReactive(
-				new Item({
-					id: row.id,
-					name: row.name,
-					description: row.description,
-					location: new Location(row.cabinet, row.col, row.row),
-					amount: row.amount,
-				}),
+				new Item(row),
 			);
 		}
 	}
@@ -182,13 +144,7 @@ class Item {
 
 		for (const row of rows) {
 			items.push(this.#makeReactive(
-				new Item({
-					id: row.id,
-					name: row.name,
-					description: row.description,
-					location: new Location(row.cabinet, row.col, row.row),
-					amount: row.amount,
-				}),
+				new Item(row),
 			));
 		}
 		return items;

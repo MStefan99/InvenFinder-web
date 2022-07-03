@@ -2,20 +2,18 @@ create table invenfinder.items
 (
 	id          int auto_increment
 		primary key,
-	name        varchar(200)  not null,
-	description text          null,
-	cabinet     int default 0 not null,
-	col         int           not null,
-	row         int           not null,
-	amount      int           not null,
+	name        varchar(200) not null,
+	description text         null,
+	link        text         null,
+	location    text         not null,
+	amount      int          not null,
 	constraint components_id_uindex
 		unique (id),
-	constraint components_location
-		unique (cabinet, col, row),
 	constraint components_name_uindex
-		unique (name)
-)
-	engine = InnoDB;
+		unique (name),
+	constraint items_location_uindex
+		unique (location) using hash
+);
 
 create table invenfinder.users
 (
@@ -31,8 +29,7 @@ create table invenfinder.users
 		unique (username),
 	constraint users_username_uindex
 		unique (username)
-)
-	engine = InnoDB;
+);
 
 create table invenfinder.sessions
 (
@@ -50,6 +47,5 @@ create table invenfinder.sessions
 	constraint sessions_users_id_fk
 		foreign key (user_id) references invenfinder.users (id)
 			on update cascade on delete cascade
-)
-	engine = InnoDB;
+);
 

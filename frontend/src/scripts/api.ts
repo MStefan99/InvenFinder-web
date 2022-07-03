@@ -1,5 +1,4 @@
 import appState from './store.ts';
-import {PERMISSIONS, parsePermissions} from '../../../common/permissions.ts';
 import {User, Item} from './types.ts';
 
 export type ApiManager = {
