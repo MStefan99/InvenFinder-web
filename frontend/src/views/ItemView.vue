@@ -15,12 +15,13 @@ h2.text-accent.text-2xl.mb-4 Item
 </template>
 
 <script setup lang="ts">
-import type {Item} from '../scripts/types.ts';
-import appState from '../scripts/store.ts';
-import {PERMISSIONS} from '../../../common/permissions.ts';
-import Api from '../scripts/api.ts';
 import {onMounted, ref} from 'vue';
 import {useRoute} from 'vue-router';
+
+import type {Item} from '../scripts/types.ts';
+import appState from '../scripts/store.ts';
+import Api from '../scripts/api.ts';
+import {PERMISSIONS} from '../../../common/permissions.ts';
 
 const item = ref<Item>({
 	id: 0,

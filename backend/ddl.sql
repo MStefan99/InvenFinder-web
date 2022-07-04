@@ -1,21 +1,21 @@
-create table invenfinder.items
+create table items
 (
 	id          int auto_increment
 		primary key,
 	name        varchar(200) not null,
 	description text         null,
 	link        text         null,
-	location    text         not null,
+	location    varchar(50)  not null,
 	amount      int          not null,
 	constraint components_id_uindex
 		unique (id),
 	constraint components_name_uindex
 		unique (name),
 	constraint items_location_uindex
-		unique (location) using hash
+		unique (location)
 );
 
-create table invenfinder.users
+create table users
 (
 	id            int auto_increment
 		primary key,
@@ -31,7 +31,7 @@ create table invenfinder.users
 		unique (username)
 );
 
-create table invenfinder.sessions
+create table sessions
 (
 	id        int auto_increment
 		primary key,
@@ -45,7 +45,7 @@ create table invenfinder.sessions
 	constraint sessions_public_id_uindex
 		unique (public_id),
 	constraint sessions_users_id_fk
-		foreign key (user_id) references invenfinder.users (id)
+		foreign key (user_id) references users (id)
 			on update cascade on delete cascade
 );
 

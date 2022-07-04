@@ -1,18 +1,26 @@
 <template lang="pug">
-nav.text-accent.font-semibold
-	span
-		RouterLink.clickable(:to="{name: 'inventory'}") Inventory
-		RouterLink.clickable(:to="{name: 'users'}") Users
-		RouterLink.clickable(:to="{name: 'settings'}") Settings
-	span
-		span.clickable(@click="appState.setConnectionDialogOpen(true)") Connection
-		span.clickable(v-if="!appState.data.apiKey" @click="appState.setConnectionDialogOpen(true)") Sign in
-		span.clickable(v-else @click="Api.logout") Sign out
+div
+	nav.text-accent.font-semibold
+		span
+			RouterLink.clickable(:to="{name: 'inventory'}") Inventory
+			RouterLink.clickable(:to="{name: 'users'}") Users
+			RouterLink.clickable(:to="{name: 'settings'}") Settings
+		span
+			span.clickable(@click="connectionDialogOpen = true") Connection
+			span.clickable(v-if="!appState.data.apiKey" @click="connectionDialogOpen = true") Sign in
+			span.clickable(v-else @click="Api.logout") Sign out
+	Transition(name="popup")
+		ConnectionDialog(v-if="connectionDialogOpen" @close="connectionDialogOpen = false")
 </template>
 
 <script setup lang="ts">
+import {ref} from 'vue';
+
 import {appState} from '../scripts/store.ts';
 import Api from '../scripts/api.ts';
+import ConnectionDialog from './ConnectionDialog.vue';
+
+const connectionDialogOpen = ref<boolean>(false);
 </script>
 
 <style scoped>
@@ -21,7 +29,7 @@ nav {
 	top: 0;
 	padding: 1em 1.5em;
 	display: flex;
-	flex-flow: row nowrap;
+	flex-flow: row wrap;
 	justify-content: space-between;
 	backdrop-filter: blur(1em);
 	border-radius: 0 0 1em 1em;

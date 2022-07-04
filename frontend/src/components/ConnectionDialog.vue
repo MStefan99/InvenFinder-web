@@ -1,97 +1,100 @@
 <template lang="pug">
-Transition(name="popup")
-	.popup-wrapper(
-		v-if="appState.ui.connectionDialogOpen"
-		@click.self="appState.setConnectionDialogOpen(false)")
-		.popup
-			.mb-4(v-if="!state.authenticated")
-				p.text-red-500.text-2xl You are not signed in
-				p Please check your connection settings
-			.mb-4(v-else)
-				p.text-accent.text-2xl You are signed in!
-				p You can change your connection settings here
+.popup-wrapper(@click.self="$emit('close')")
+	.popup
+		.mb-4(v-if="state.connection !== ConnectionState.AUTHENTICATED")
+			p.text-red-500.text-2xl You are not signed in
+			p Please check your connection settings below
+		.mb-4(v-else)
+			p.text-accent.text-2xl You are signed in!
+			p You can change your connection settings here
+		.mb-3
+			label(for="url-input") URL
+			input#url-input.full(type="text" placeholder="https://example.com" v-model="state.url")
+		.mb-3
+			button.full(
+				type="button"
+				:disabled="state.connection === ConnectionState.TESTING"
+				@click="connect") Connect
+		div(v-if="state.connection === ConnectionState.NOT_AUTHENTICATED")
 			.mb-3
-				label(for="url-input") URL
-				input#url-input.full(type="text" placeholder="https://example.com" v-model="state.url")
+				label(for="username-input") Username
+				input#username-input.full(type="text" placeholder="user" v-model="state.username")
 			.mb-3
-				button.full(type="button" :disabled="state.checking" @click="connect") Connect
-			div(v-if="state.connected && !state.authenticated")
-				.mb-3
-					label(for="username-input") Username
-					input#username-input.full(type="text" placeholder="user" v-model="state.username")
-				.mb-3
-					label(for="password-input") Password
-					input#password-input.full(type="password" placeholder="password" v-model="state.password")
-				.mb-3
-					button.full(type="button" :disabled="state.checking" @click="login") Sign in
-			span.text-gray-500 {{getAuthenticationState()}}
+				label(for="password-input") Password
+				input#password-input.full(type="password" placeholder="password" v-model="state.password")
+			.mb-3
+				button.full(
+					type="button"
+					:disabled="state.connection === ConnectionState.TESTING"
+					@click="login") Sign in
+		span.text-gray-500 {{getAuthenticationState()}}
 </template>
 
 <script setup lang="ts">
+import {onMounted, reactive} from 'vue';
+
 import appState from '../scripts/store.ts';
 import Api from '../scripts/api.ts';
-import {onMounted, reactive, watch} from 'vue';
+
+enum ConnectionState {
+	NOT_TESTED,
+	NOT_CONNECTED,
+	NOT_AUTHENTICATED,
+	AUTHENTICATED,
+	TESTING
+}
 
 const state = reactive<{
 	url: string;
 	username: string;
 	password: string;
-	checking: boolean;
-	connected: boolean;
-	authenticated: boolean;
+	connection: ConnectionState;
 }>({
 	url: appState.data.backendURL,
 	username: '',
 	password: '',
-	checking: false,
-	connected: false,
-	authenticated: false
+	connection: ConnectionState.NOT_TESTED
 });
-
-watch(
-	() => appState.ui.connectionDialogOpen,
-	() => {
-		if (appState.ui.connectionDialogOpen) {
-			checkConnection();
-		}
-	}
-);
 
 onMounted(checkConnection);
 
 function checkConnection() {
-	Api.me().then((user) => {
-		state.authenticated = user !== null;
-		state.connected = user !== null;
+	state.connection = ConnectionState.TESTING;
 
-		appState.setUser(user);
-		if (user === null) {
+	Api.me().then((user) => {
+		if (user !== null) {
+			state.connection = ConnectionState.AUTHENTICATED;
+		} else {
 			Api.test().then((connected) => {
-				state.connected = connected;
-				appState.setConnectionDialogOpen(true);
+				state.connection = connected
+					? ConnectionState.NOT_AUTHENTICATED
+					: ConnectionState.NOT_CONNECTED;
 			});
 		}
 	});
 }
 
 function getAuthenticationState() {
-	if (state.checking) {
-		return 'Checking connection...';
-	} else if (!state.connected) {
+	if (state.connection === ConnectionState.NOT_TESTED) {
+		return '';
+	} else if (state.connection === ConnectionState.TESTING) {
+		return 'Testing connection...';
+	} else if (state.connection === ConnectionState.NOT_CONNECTED) {
 		return 'Connection failed';
-	} else if (!state.authenticated) {
+	} else if (state.connection === ConnectionState.NOT_AUTHENTICATED) {
 		return 'Connected but not signed in';
-	} else {
+	} else if (state.connection === ConnectionState.AUTHENTICATED) {
 		return 'Signed in! Click outside this window to close';
 	}
 }
 
 function connect() {
-	state.checking = true;
+	state.connection = ConnectionState.TESTING;
 
 	Api.testURL(state.url).then((connected) => {
-		state.checking = false;
-		state.connected = connected;
+		state.connection = connected
+			? ConnectionState.NOT_AUTHENTICATED
+			: ConnectionState.NOT_CONNECTED;
 
 		if (connected) {
 			appState.setUrl(state.url);
@@ -100,11 +103,11 @@ function connect() {
 }
 
 function login() {
-	state.checking = true;
+	state.connection = ConnectionState.TESTING;
 
 	Api.login(state.username, state.password).then((auth) => {
-		state.checking = false;
-		state.authenticated = auth !== null;
+		state.connection =
+			auth !== null ? ConnectionState.AUTHENTICATED : ConnectionState.NOT_AUTHENTICATED;
 
 		if (auth !== null) {
 			appState.setApiKey(auth.key);

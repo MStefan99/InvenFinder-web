@@ -9,9 +9,6 @@ type Store = {
 		apiKey: string | null;
 		user: User | null;
 	};
-	ui: {
-		connectionDialogOpen: boolean;
-	};
 	setUrl: (url: string | null) => void;
 	setApiKey: (key: string | null) => void;
 	setConnectionDialogOpen: (open: boolean) => void;
@@ -24,9 +21,6 @@ export const appState = reactive({
 		backendURL: localStorage.getItem('backendURL') ?? null,
 		apiKey: localStorage.getItem('apiKey') ?? null,
 		user: null
-	},
-	ui: {
-		connectionDialogOpen: false
 	},
 	setUrl(url) {
 		this.data.backendURL = url;

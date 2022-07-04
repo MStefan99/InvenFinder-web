@@ -46,6 +46,11 @@ body {
 	margin: 0;
 }
 
+main {
+	max-width: 1024px;
+	margin: 0 auto;
+}
+
 a {
 	text-decoration: none;
 	color: inherit;
