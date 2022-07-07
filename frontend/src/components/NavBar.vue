@@ -8,7 +8,7 @@ div
 		span
 			span.clickable(@click="connectionDialogOpen = true") Connection
 			span.clickable(v-if="!appState.data.apiKey" @click="connectionDialogOpen = true") Sign in
-			span.clickable(v-else @click="Api.logout") Sign out
+			span.clickable(v-else @click="logout") Sign out
 	Transition(name="popup")
 		ConnectionDialog(v-if="connectionDialogOpen" @close="connectionDialogOpen = false")
 </template>
@@ -21,6 +21,11 @@ import Api from '../scripts/api.ts';
 import ConnectionDialog from './ConnectionDialog.vue';
 
 const connectionDialogOpen = ref<boolean>(false);
+
+function logout() {
+	Api.logout();
+	appState.setApiKey(null);
+}
 </script>
 
 <style scoped>

@@ -5,7 +5,7 @@
 			.mb-4
 				p.text-2xl New item
 			label(for="name-input") Name
-			input#name-input(type="text" placeholder="Some item" v-model="item.name")
+			input#name-input(v-model="item.name" type="text" placeholder="Some item")
 </template>
 
 <script setup lang="ts">

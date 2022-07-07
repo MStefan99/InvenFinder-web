@@ -3,9 +3,9 @@
 	h2.text-accent.text-2xl.mb-4 Inventory
 	#items-table
 		RouterLink.item(
-			:to="{name: 'item', params: {id: item.id}}"
 			v-for="item in items"
-			:key="item.id")
+			:key="item.id"
+			:to="{name: 'item', params: {id: item.id}}")
 			.flex.justify-between
 				div
 					.mr-4.font-light {{item.name}}

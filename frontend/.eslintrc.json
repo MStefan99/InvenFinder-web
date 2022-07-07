@@ -1,17 +1,19 @@
 {
 	"env": {
-		"browser": true,
-		"node": true,
-		"es2021": true
+		"browser": true
 	},
-	"extends": ["plugin:prettier/recommended", "plugin:vue/vue3-recommended"],
-	"parser": "vue-eslint-parser",
+	"extends": [
+		"eslint:recommended",
+		"plugin:prettier/recommended",
+		"plugin:vue/vue3-essential",
+		"plugin:vue-pug/vue3-recommended",
+		"@vue/typescript/recommended"
+	],
 	"parserOptions": {
 		"ecmaVersion": "latest",
 		"parser": "@typescript-eslint/parser",
 		"sourceType": "module"
 	},
-	"plugins": ["vue", "@typescript-eslint", "prettier"],
 	"rules": {
 		"prettier/prettier": "warn"
 	}

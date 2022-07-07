@@ -51,7 +51,7 @@ onMounted(() => {
 	});
 });
 
-function editAmount(add: boolean = false) {
+function editAmount(add = false) {
 	const diff = +prompt('Choose amount');
 
 	if (Number.isNaN(diff)) {

@@ -9,7 +9,7 @@
 			p You can change your connection settings here
 		.mb-3
 			label(for="url-input") URL
-			input#url-input.full(type="text" placeholder="https://example.com" v-model="state.url")
+			input#url-input.full(v-model="state.url" type="text" placeholder="https://example.com")
 		.mb-3
 			button.full(
 				type="button"
@@ -18,10 +18,10 @@
 		div(v-if="state.connection === ConnectionState.NOT_AUTHENTICATED")
 			.mb-3
 				label(for="username-input") Username
-				input#username-input.full(type="text" placeholder="user" v-model="state.username")
+				input#username-input.full(v-model="state.username" type="text" placeholder="user")
 			.mb-3
 				label(for="password-input") Password
-				input#password-input.full(type="password" placeholder="password" v-model="state.password")
+				input#password-input.full(v-model="state.password" type="password" placeholder="password")
 			.mb-3
 				button.full(
 					type="button"
