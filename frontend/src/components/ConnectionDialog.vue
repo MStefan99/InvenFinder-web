@@ -89,8 +89,11 @@ function getAuthenticationState() {
 }
 
 function connect() {
-	state.connection = ConnectionState.TESTING;
+	if (state.url === appState.data.backendURL) {
+		return;
+	}
 
+	state.connection = ConnectionState.TESTING;
 	Api.testURL(state.url).then((connected) => {
 		state.connection = connected
 			? ConnectionState.NOT_AUTHENTICATED

@@ -16,6 +16,7 @@ export type Item = {
 	id: number;
 	name: string;
 	description: string | null;
+	link: string | null;
 	location: string;
 	amount: number;
 };

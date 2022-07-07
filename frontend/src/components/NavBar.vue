@@ -29,26 +29,6 @@ function logout() {
 </script>
 
 <style scoped>
-nav {
-	position: sticky;
-	top: 0;
-	padding: 1em 1.5em;
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: space-between;
-	backdrop-filter: blur(1em);
-	border-radius: 0 0 1em 1em;
-	@apply shadow-neutral-300/10 shadow-xl;
-}
-
-nav .clickable {
-	cursor: pointer;
-}
-
-nav .clickable:not(:last-child) {
-	@apply mr-4;
-}
-
 label {
 	display: block;
 }

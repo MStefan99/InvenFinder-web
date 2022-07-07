@@ -1,14 +1,16 @@
 <template lang="pug">
 h2.text-accent.text-2xl.mb-4 Item
 #item
+	//- TODO: editable fields are cool but resizing inputs is pain™
+	div
+		.location.text-right.font-semibold {{item.location}}
 	.flex.justify-between.mb-4
-		//- TODO: editable fields are cool but resizing inputs is pain™
 		div
-			input.plain.mr-4.font-light(v-model="item.name")
-			input.plain.mr-4.text-gray-500(v-model="item.description")
+			.mr-4 {{item.name}}
+			.mr-4.text-gray-500 {{item.description}}
+			a.mr-4(:href="item.link") {{item.link}}
 		div
-			input.plain.text-right.font-semibold(v-model="item.location")
-			input.plain.text-right.text-gray-500(v-model="item.amount")
+			.text-right.text-gray-500 {{item.amount}}
 	div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
 		button.mr-4(@click="editAmount(false)") Take from storage
 		button(@click="editAmount(true)") Put in storage
@@ -25,9 +27,9 @@ import {PERMISSIONS} from '../../../common/permissions.ts';
 
 const item = ref<Item>({
 	id: 0,
-	name: 'Loading...',
-	description: null,
-	location: 'Loading...',
+	name: '',
+	description: '',
+	location: '',
 	amount: 0
 });
 
@@ -73,6 +75,10 @@ function editAmount(add = false) {
 </script>
 
 <style scoped>
+.location {
+	font-size: 10vh;
+}
+
 input {
 	@apply block;
 }
