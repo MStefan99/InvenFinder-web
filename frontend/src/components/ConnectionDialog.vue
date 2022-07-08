@@ -50,7 +50,7 @@ const state = reactive<{
 	password: string;
 	connection: ConnectionState;
 }>({
-	url: appState.data.backendURL,
+	url: appState.backendURL,
 	username: '',
 	password: '',
 	connection: ConnectionState.NOT_TESTED
@@ -89,7 +89,7 @@ function getAuthenticationState() {
 }
 
 function connect() {
-	if (state.url === appState.data.backendURL) {
+	if (state.url === appState.backendURL) {
 		return;
 	}
 

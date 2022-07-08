@@ -22,13 +22,13 @@ export default {
 	items: {
 		getAll(): Promise<Item[]> {
 			return new Promise((resolve) => {
-				if (!appState.data.backendURL || !appState.data.apiKey) {
+				if (!appState.backendURL || !appState.apiKey) {
 					resolve([]);
 				}
 
-				fetch(appState.data.backendURL + apiPrefix + '/items', {
+				fetch(appState.backendURL + apiPrefix + '/items', {
 					headers: {
-						'API-Key': appState.data.apiKey
+						'API-Key': appState.apiKey
 					}
 				})
 					.then((res) => {
@@ -48,13 +48,13 @@ export default {
 		},
 		getByID(id: number): Promise<Item | null> {
 			return new Promise((resolve) => {
-				if (!appState.data.backendURL || !appState.data.apiKey) {
+				if (!appState.backendURL || !appState.apiKey) {
 					resolve(null);
 				}
 
-				fetch(appState.data.backendURL + apiPrefix + '/items/' + id, {
+				fetch(appState.backendURL + apiPrefix + '/items/' + id, {
 					headers: {
-						'API-Key': appState.data.apiKey
+						'API-Key': appState.apiKey
 					}
 				})
 					.then((res) => {
@@ -74,14 +74,14 @@ export default {
 		},
 		editAmount(id: number, amount: number): Promise<Item | null> {
 			return new Promise((resolve) => {
-				if (!appState.data.backendURL || !appState.data.apiKey) {
+				if (!appState.backendURL || !appState.apiKey) {
 					resolve(null);
 				}
 
-				fetch(appState.data.backendURL + apiPrefix + '/items/' + id + '/amount', {
+				fetch(appState.backendURL + apiPrefix + '/items/' + id + '/amount', {
 					method: 'put',
 					headers: {
-						'API-Key': appState.data.apiKey,
+						'API-Key': appState.apiKey,
 						'Content-Type': 'application/json'
 					},
 					body: JSON.stringify({
@@ -109,11 +109,11 @@ export default {
 	},
 	login(username: string, password: string): Promise<boolean> {
 		return new Promise((resolve) => {
-			if (!appState.data.backendURL) {
+			if (!appState.backendURL) {
 				resolve(null);
 			}
 
-			fetch(appState.data.backendURL + apiPrefix + '/login', {
+			fetch(appState.backendURL + apiPrefix + '/login', {
 				method: 'post',
 				headers: {
 					'Content-Type': 'application/json'
@@ -144,13 +144,13 @@ export default {
 	},
 	logout(): Promise<boolean> {
 		return new Promise((resolve) => {
-			if (!appState.data.backendURL) {
+			if (!appState.backendURL) {
 				resolve(false);
 			}
 
-			fetch(appState.data.backendURL + apiPrefix + '/logout', {
+			fetch(appState.backendURL + apiPrefix + '/logout', {
 				headers: {
-					'API-Key': appState.data.apiKey
+					'API-Key': appState.apiKey
 				}
 			})
 				.then((res) => {
@@ -181,7 +181,7 @@ export default {
 	},
 	test(): Promise<boolean> {
 		return new Promise((resolve) => {
-			fetch(appState.data.backendURL + apiPrefix)
+			fetch(appState.backendURL + apiPrefix)
 				.then((res) => resolve(res.ok && res.headers.get('who-am-i') === 'Invenfinder'))
 				.catch(() => {
 					console.warn('Test request failed');
@@ -191,13 +191,13 @@ export default {
 	},
 	auth(): Promise<boolean> {
 		return new Promise((resolve) => {
-			if (!appState.data.backendURL || !appState.data.apiKey) {
+			if (!appState.backendURL || !appState.apiKey) {
 				resolve(false);
 			}
 
-			fetch(appState.data.backendURL + apiPrefix + '/auth', {
+			fetch(appState.backendURL + apiPrefix + '/auth', {
 				headers: {
-					'Api-Key': appState.data.apiKey
+					'Api-Key': appState.apiKey
 				}
 			})
 				.then((res) => resolve(res.ok && res.headers.get('who-am-i') === 'Invenfinder'))
@@ -209,13 +209,13 @@ export default {
 	},
 	me(): Promise<User | null> {
 		return new Promise((resolve) => {
-			if (!appState.data.backendURL || !appState.data.apiKey) {
+			if (!appState.backendURL || !appState.apiKey) {
 				resolve(null);
 			}
 
-			fetch(appState.data.backendURL + apiPrefix + '/me', {
+			fetch(appState.backendURL + apiPrefix + '/me', {
 				headers: {
-					'Api-Key': appState.data.apiKey
+					'Api-Key': appState.apiKey
 				}
 			})
 				.then((res) => {

@@ -39,7 +39,7 @@ function loadItems() {
 	Api.items.getAll().then((i) => (items.value = i));
 }
 
-watch(() => appState.data.apiKey, loadItems);
+watch(() => appState.apiKey, loadItems);
 
 onMounted(loadItems);
 </script>

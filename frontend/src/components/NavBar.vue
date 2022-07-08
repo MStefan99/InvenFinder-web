@@ -7,7 +7,7 @@ div
 			RouterLink.clickable(:to="{name: 'settings'}") Settings
 		span
 			span.clickable(@click="connectionDialogOpen = true") Connection
-			span.clickable(v-if="!appState.data.apiKey" @click="connectionDialogOpen = true") Sign in
+			span.clickable(v-if="!appState.apiKey" @click="connectionDialogOpen = true") Sign in
 			span.clickable(v-else @click="logout") Sign out
 	Transition(name="popup")
 		ConnectionDialog(v-if="connectionDialogOpen" @close="connectionDialogOpen = false")
