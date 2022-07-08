@@ -8,7 +8,7 @@ export type ApiManager = {
 		getByLocation: (location: string) => Promise<Item | null>;
 		editAmount: (id: number, amount: number) => Promise<Item | null>;
 	};
-	login: (username: string, password: string) => Promise<{key: string; user: User} | null>;
+	login: (username: string, password: string) => Promise<boolean>;
 	logout: () => Promise<boolean>;
 	testURL: (url: string) => Promise<boolean>;
 	test: () => Promise<boolean>;
@@ -22,7 +22,7 @@ export default {
 	items: {
 		getAll(): Promise<Item[]> {
 			return new Promise((resolve) => {
-				if (appState.data.backendURL === null || appState.data.apiKey === null) {
+				if (!appState.data.backendURL || !appState.data.apiKey) {
 					resolve([]);
 				}
 
@@ -48,7 +48,7 @@ export default {
 		},
 		getByID(id: number): Promise<Item | null> {
 			return new Promise((resolve) => {
-				if (appState.data.backendURL === null || appState.data.apiKey === null) {
+				if (!appState.data.backendURL || !appState.data.apiKey) {
 					resolve(null);
 				}
 
@@ -74,7 +74,7 @@ export default {
 		},
 		editAmount(id: number, amount: number): Promise<Item | null> {
 			return new Promise((resolve) => {
-				if (appState.data.backendURL === null || appState.data.apiKey === null) {
+				if (!appState.data.backendURL || !appState.data.apiKey) {
 					resolve(null);
 				}
 
@@ -107,9 +107,9 @@ export default {
 			return Promise.resolve(null);
 		}
 	},
-	login(username: string, password: string): Promise<{key: string; user: User} | null> {
+	login(username: string, password: string): Promise<boolean> {
 		return new Promise((resolve) => {
-			if (appState.data.backendURL === null) {
+			if (!appState.data.backendURL) {
 				resolve(null);
 			}
 
@@ -132,10 +132,9 @@ export default {
 					}
 				})
 				.then((data) => {
-					resolve({
-						key: data.key,
-						user: new User(data.user.id, data.user.username, data.user.permissions)
-					});
+					appState.setApiKey(data.key);
+					appState.setUser(new User(data.user.id, data.user.username, data.user.permissions));
+					resolve(!!data.key);
 				})
 				.catch(() => {
 					console.warn('Login request failed');
@@ -145,7 +144,7 @@ export default {
 	},
 	logout(): Promise<boolean> {
 		return new Promise((resolve) => {
-			if (appState.data.backendURL === null) {
+			if (!appState.data.backendURL) {
 				resolve(false);
 			}
 
@@ -157,6 +156,7 @@ export default {
 				.then((res) => {
 					if (res.ok) {
 						appState.setApiKey(null);
+						appState.setUser(null);
 						resolve(true);
 					} else {
 						res.json().then((err) => console.warn('Could not log out:', err.error));
@@ -191,7 +191,7 @@ export default {
 	},
 	auth(): Promise<boolean> {
 		return new Promise((resolve) => {
-			if (appState.data.backendURL === null || appState.data.apiKey === null) {
+			if (!appState.data.backendURL || !appState.data.apiKey) {
 				resolve(false);
 			}
 
@@ -209,7 +209,7 @@ export default {
 	},
 	me(): Promise<User | null> {
 		return new Promise((resolve) => {
-			if (appState.data.backendURL === null || appState.data.apiKey === null) {
+			if (!appState.data.backendURL || !appState.data.apiKey) {
 				resolve(null);
 			}
 

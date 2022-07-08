@@ -111,11 +111,6 @@ function login() {
 	Api.login(state.username, state.password).then((auth) => {
 		state.connection =
 			auth !== null ? ConnectionState.AUTHENTICATED : ConnectionState.NOT_AUTHENTICATED;
-
-		if (auth !== null) {
-			appState.setApiKey(auth.key);
-			appState.setUser(auth.user);
-		}
 	});
 }
 </script>
