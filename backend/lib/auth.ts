@@ -9,13 +9,14 @@ async function getSession(ctx: Context): Promise<Session | null> {
 		return ctx.state.session;
 	}
 
-	const id = await ctx.cookies.get('SID') ??
+	const id = (await ctx.cookies.get('SID')) ??
 		ctx.request.headers.get('api-key');
+
 	if (id === null) {
 		return null;
 	}
 
-	return ctx.state.session = await Session.getByPublicID(id);
+	return (ctx.state.session = await Session.getByPublicID(id));
 }
 
 async function getUser(ctx: Context): Promise<User | null> {
@@ -27,7 +28,7 @@ async function getUser(ctx: Context): Promise<User | null> {
 		await getSession(ctx);
 	}
 
-	return ctx.state.user = await User.getByID(ctx.state.session.userID);
+	return (ctx.state.user = await User.getByID(ctx.state.session.userID));
 }
 
 type Next = () => Promise<unknown>;
@@ -57,7 +58,7 @@ export default {
 
 	authenticated(): Middleware {
 		return async (ctx, next) => {
-			if (!await this.test.authenticated(ctx)) {
+			if (!(await this.test.authenticated(ctx))) {
 				ctx.response.status = 401;
 				ctx.response.body = {
 					error: 'Not authenticated',
@@ -71,13 +72,13 @@ export default {
 
 	permissions(permissions: [PERMISSIONS]): Middleware {
 		return async (ctx, next) => {
-			if (!await this.test.authenticated(ctx)) {
+			if (!(await this.test.authenticated(ctx))) {
 				ctx.response.status = 401;
 				ctx.response.body = {
 					error: 'Not authenticated',
 					code: 'NOT_AUTHENTICATED',
 				};
-			} else if (!await this.test.permissions(ctx, permissions)) {
+			} else if (!(await this.test.permissions(ctx, permissions))) {
 				ctx.response.status = 403;
 				ctx.response.body = {
 					error: 'Not authorized',

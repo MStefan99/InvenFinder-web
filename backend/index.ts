@@ -40,4 +40,9 @@ apiRouter.use(authRouter.allowedMethods());
 apiRouter.use(itemRouter.routes());
 apiRouter.use(itemRouter.allowedMethods());
 
+app.use((ctx) => {
+	ctx.response.status = 404;
+	ctx.response.body = { error: 'Route not found', code: 'NOT_FOUND' };
+});
+
 app.listen({ port: 3007 });

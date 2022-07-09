@@ -12,6 +12,13 @@ export class User {
 	}
 }
 
+export class Session {
+	id: string;
+	ip: string;
+	ua: string;
+	time: number;
+}
+
 export type Item = {
 	id: number;
 	name: string;

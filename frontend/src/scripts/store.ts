@@ -1,6 +1,6 @@
 import {reactive} from 'vue';
 
-import {User} from './api.ts';
+import {User} from './types.ts';
 import {PERMISSIONS, hasPermissions} from '../../../common/permissions.ts';
 
 type Store = {

@@ -63,11 +63,11 @@ onMounted(checkConnection);
 function checkConnection() {
 	state.connection = ConnectionState.TESTING;
 
-	Api.me().then((user) => {
+	Api.auth.me().then((user) => {
 		if (user !== null) {
 			state.connection = ConnectionState.AUTHENTICATED;
 		} else {
-			Api.test().then((connected) => {
+			Api.connection.test().then((connected) => {
 				state.connection = connected
 					? ConnectionState.NOT_AUTHENTICATED
 					: ConnectionState.NOT_CONNECTED;
@@ -96,7 +96,7 @@ function connect() {
 	}
 
 	state.connection = ConnectionState.TESTING;
-	Api.testURL(state.url).then((connected) => {
+	Api.connection.testURL(state.url).then((connected) => {
 		state.connection = connected
 			? ConnectionState.NOT_AUTHENTICATED
 			: ConnectionState.NOT_CONNECTED;
@@ -110,7 +110,7 @@ function connect() {
 function login() {
 	state.connection = ConnectionState.TESTING;
 
-	Api.login(state.username, state.password).then((auth) => {
+	Api.auth.login(state.username, state.password).then((auth) => {
 		state.connection =
 			auth !== null ? ConnectionState.AUTHENTICATED : ConnectionState.NOT_AUTHENTICATED;
 	});
@@ -119,7 +119,7 @@ function login() {
 function logout() {
 	state.connection = ConnectionState.NOT_AUTHENTICATED;
 
-	Api.logout();
+	Api.auth.logout();
 }
 </script>
 

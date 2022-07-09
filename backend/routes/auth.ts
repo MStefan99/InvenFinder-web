@@ -105,7 +105,7 @@ router.patch('/me', auth.authenticated(), async (ctx) => {
 
 		const user = await auth.methods.getUser(ctx);
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 500;
 			ctx.response.body = {
 				error: 'User not found',
 				code: 'USER_NOT_FOUND',
@@ -185,6 +185,68 @@ router.patch(
 		}
 	},
 );
+
+// Get sessions
+router.get('/sessions', auth.authenticated(), async (ctx) => {
+	const user = await auth.methods.getUser(ctx);
+	if (user === null) {
+		ctx.response.status = 500;
+		ctx.response.body = {
+			error: 'User not found',
+			code: 'USER_NOT_FOUND',
+		};
+		return;
+	}
+
+	ctx.response.body = await Session.getUserSessions(user);
+});
+
+// Log out other session
+router.delete('/sessions/:id', auth.authenticated(), async (ctx) => {
+	const currentSession = await auth.methods.getSession(ctx);
+	const otherSession = await Session.getByPublicID(ctx.params.id);
+
+	if (currentSession === null || otherSession === null) {
+		ctx.response.status = 400;
+		ctx.response.body = {
+			error: 'Session not found',
+			code: 'SESSION_NOT_FOUND',
+		};
+		return;
+	}
+
+	if (currentSession.userID !== otherSession.userID) {
+		ctx.response.status = 403;
+		ctx.response.body = {
+			error: 'Not authorized',
+			code: 'NOT_AUTHORIZED',
+		};
+		return;
+	}
+
+	otherSession.delete();
+
+	ctx.response.status = 200;
+	ctx.response.body = { message: 'OK' };
+});
+
+// Log out all sessions
+router.delete('/sessions', auth.authenticated(), async (ctx) => {
+	const user = await auth.methods.getUser(ctx);
+	if (user === null) {
+		ctx.response.status = 500;
+		ctx.response.body = {
+			error: 'User not found',
+			code: 'USER_NOT_FOUND',
+		};
+		return;
+	}
+
+	Session.deleteAllUserSessions(user);
+
+	ctx.response.status = 200;
+	ctx.response.body = { message: 'OK' };
+});
 
 // Log out
 router.get('/logout', auth.authenticated(), async (ctx) => {

@@ -108,8 +108,11 @@ button.full {
 	@apply w-full;
 }
 
+input[type='button'],
+input[type='submit'],
 button {
 	color: var(--color-accent);
+	user-select: none;
 }
 
 button:not([disabled]):not(:active) {
