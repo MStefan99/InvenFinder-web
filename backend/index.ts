@@ -1,11 +1,14 @@
 import { Application, Router } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 import authRouter from './routes/auth.ts';
 import itemRouter from './routes/items.ts';
+import perf from './lib/performance.ts';
 
 const app = new Application();
 const apiRouter = new Router({
 	prefix: '/api',
 });
+
+app.use(perf());
 
 app.use(async (ctx, next) => {
 	ctx.response.headers.set('Who-Am-I', 'Invenfinder');

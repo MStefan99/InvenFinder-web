@@ -4,6 +4,7 @@ import auth from '../lib/auth.ts';
 import User from '../lib/user.ts';
 import Session from '../lib/session.ts';
 import { parsePermissions, PERMISSIONS } from '../../common/permissions.ts';
+import perf from '../lib/performance.ts';
 
 type Next = () => Promise<unknown>;
 
@@ -86,7 +87,9 @@ router.get('/auth', auth.authenticated(), (ctx) => {
 
 // Get user currently logged in as
 router.get('/me', auth.authenticated(), async (ctx) => {
+	const timeUser = performance.now();
 	const user = await auth.methods.getUser(ctx);
+	perf.add(ctx, 'db', performance.now() - timeUser);
 
 	if (!user) {
 		// Should in theory never get here
