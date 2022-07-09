@@ -3,7 +3,9 @@ header.no-print
 	NavBar
 
 main
-	RouterView
+	RouterView(v-if="appState.user")
+	div(v-else)
+		p.text-red-500.text-xl Please sign in to use the app
 
 footer
 	.print

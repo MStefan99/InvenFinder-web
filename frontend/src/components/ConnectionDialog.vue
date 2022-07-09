@@ -27,6 +27,8 @@
 					type="button"
 					:disabled="state.connection === ConnectionState.TESTING"
 					@click="login") Sign in
+		div(v-if="state.connection === ConnectionState.AUTHENTICATED")
+			button.full.mb-3(type="button" @click="logout") Sign out
 		span.text-gray-500 {{getAuthenticationState()}}
 </template>
 
@@ -112,6 +114,12 @@ function login() {
 		state.connection =
 			auth !== null ? ConnectionState.AUTHENTICATED : ConnectionState.NOT_AUTHENTICATED;
 	});
+}
+
+function logout() {
+	state.connection = ConnectionState.NOT_AUTHENTICATED;
+
+	Api.logout();
 }
 </script>
 

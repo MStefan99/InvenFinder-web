@@ -154,9 +154,10 @@ export default {
 				}
 			})
 				.then((res) => {
+					appState.setApiKey(null);
+					appState.setUser(null);
+
 					if (res.ok) {
-						appState.setApiKey(null);
-						appState.setUser(null);
 						resolve(true);
 					} else {
 						res.json().then((err) => console.warn('Could not log out:', err.error));

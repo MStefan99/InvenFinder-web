@@ -1,14 +1,17 @@
 <template lang="pug">
 div
 	nav.text-accent.font-semibold
-		span
+		span(v-if="appState.user")
 			RouterLink.clickable(:to="{name: 'inventory'}") Inventory
-			RouterLink.clickable(:to="{name: 'users'}") Users
+			RouterLink.clickable(
+				v-if="appState.hasPermissions([PERMISSIONS.MANAGE_USERS])"
+				:to="{name: 'users'}") Users
 			RouterLink.clickable(:to="{name: 'settings'}") Settings
 		span
-			span.clickable(@click="connectionDialogOpen = true") Connection
-			span.clickable(v-if="!appState.apiKey" @click="connectionDialogOpen = true") Sign in
-			span.clickable(v-else @click="logout") Sign out
+			span.clickable(v-if="!appState.user" @click="connectionDialogOpen = true") Sign in
+			div(v-else)
+				span.clickable(@click="connectionDialogOpen = true") Connection
+				span.clickable(@click="Api.logout") Sign out
 	Transition(name="popup")
 		ConnectionDialog(v-if="connectionDialogOpen" @close="connectionDialogOpen = false")
 </template>
@@ -18,14 +21,10 @@ import {ref} from 'vue';
 
 import {appState} from '../scripts/store.ts';
 import Api from '../scripts/api.ts';
+import {PERMISSIONS} from '../../../common/permissions.ts';
 import ConnectionDialog from './ConnectionDialog.vue';
 
 const connectionDialogOpen = ref<boolean>(false);
-
-function logout() {
-	Api.logout();
-	appState.setApiKey(null);
-}
 </script>
 
 <style scoped>
