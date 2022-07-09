@@ -35,18 +35,6 @@ html {
 	}
 }
 
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-body {
-	margin: 0;
-}
-
 main {
 	max-width: 1024px;
 	margin: 0 auto;

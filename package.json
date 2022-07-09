@@ -8,7 +8,7 @@
 		"install:frontend": "cd ./frontend && npm install",
 		"install:backend": "cd ./backend && npm install",
 		"dev": "run-p dev:*",
-		"dev:frontend": "cd ./frontend && npm run dev",
+		"dev:frontend": "cd ./frontend && npm run start",
 		"dev:backend": "cd ./backend && deno task start",
 		"build": "run-p build:*",
 		"build:frontend": "cd ./frontend && npm run build",

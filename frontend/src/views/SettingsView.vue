@@ -1,17 +1,16 @@
 <template lang="pug">
 #settings
 	h2.text-accent.text-2xl.mb-4 Settings
-	.mb-4
-		span.mr-2 You are logged in as:
-		b {{appState.user.username}}
+	span.mr-2 You are logged in as:
+	b {{appState.user.username}}
 	.sessions
+		p.text-xl.my-4 Active sessions
 		table.w-full
 			thead
 				tr
 					th IP
 					th User-Agent
 					th Created at
-					th Sign out
 			tbody
 				tr(v-for="session in sessions" :key="session.id")
 					td {{session.ip}}
