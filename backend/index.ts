@@ -2,6 +2,8 @@ import { Application, Router } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
 import authRouter from './routes/auth.ts';
 import itemRouter from './routes/items.ts';
 
+const port = 3007;
+
 const app = new Application();
 const apiRouter = new Router({
 	prefix: '/api',
@@ -45,4 +47,6 @@ app.use((ctx) => {
 	ctx.response.body = { error: 'Route not found', code: 'NOT_FOUND' };
 });
 
-app.listen({ port: 3007 });
+app.listen({ port }).then(() => {
+	console.log('Deno listening at http://localhost:' + port);
+});

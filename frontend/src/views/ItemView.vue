@@ -3,7 +3,7 @@ h2.text-accent.text-2xl.mb-4 Item
 #item
 	//- TODO: editable fields are cool but resizing inputs is pain™
 	div
-		.location.text-right.font-semibold {{item.location}}
+		TextEditable(v-model="item.location" text-class="text-right text-9xl font-semibold")
 	.flex.justify-between.mb-4
 		div
 			.mr-4 {{item.name}}
@@ -20,6 +20,7 @@ h2.text-accent.text-2xl.mb-4 Item
 import {onMounted, ref} from 'vue';
 import {useRoute} from 'vue-router';
 
+import TextEditable from '../components/TextEditable.vue';
 import type {Item} from '../scripts/types.ts';
 import appState from '../scripts/store.ts';
 import Api from '../scripts/api.ts';
