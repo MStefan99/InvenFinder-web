@@ -7,6 +7,7 @@ export type ApiManager = {
 		getByID: (id: number) => Promise<Item | null>;
 		getByLocation: (location: string) => Promise<Item | null>;
 		editAmount: (id: number, amount: number) => Promise<Item | null>;
+		edit: (item: Item) => Promise<Item | null>;
 	};
 	connection: {
 		testURL: (url: string) => Promise<boolean>;
@@ -79,6 +80,9 @@ export default {
 					});
 			});
 		},
+		getByLocation(): Promise<Item | null> {
+			return Promise.resolve(null);
+		},
 		editAmount(id: number, amount: number): Promise<Item | null> {
 			return new Promise((resolve) => {
 				if (!appState.backendURL || !appState.apiKey) {
@@ -86,7 +90,7 @@ export default {
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/items/' + id + '/amount', {
-					method: 'put',
+					method: 'PUT',
 					headers: {
 						'API-Key': appState.apiKey,
 						'Content-Type': 'application/json'
@@ -105,13 +109,39 @@ export default {
 					})
 					.then((item) => resolve(item as Item))
 					.catch(() => {
-						console.warn('Load item request failed');
+						console.warn('Edit item amount request failed');
 						resolve(null);
 					});
 			});
 		},
-		getByLocation(): Promise<Item | null> {
-			return Promise.resolve(null);
+		edit(item: Item): Promise<Item | null> {
+			return new Promise((resolve) => {
+				if (!appState.backendURL || !appState.apiKey) {
+					resolve(null);
+				}
+
+				fetch(appState.backendURL + apiPrefix + '/items/' + item.id, {
+					method: 'PATCH',
+					headers: {
+						'API-Key': appState.apiKey,
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(item)
+				})
+					.then((res) => {
+						if (res.ok) {
+							return res.json();
+						} else {
+							res.json().then((err) => console.warn('Could not edit item:', err.error));
+							resolve(null);
+						}
+					})
+					.then((item) => resolve(item as Item))
+					.catch(() => {
+						console.warn('Edit item request failed');
+						resolve(null);
+					});
+			});
 		}
 	},
 	connection: {
@@ -144,7 +174,7 @@ export default {
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/login', {
-					method: 'post',
+					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json'
 					},
@@ -249,7 +279,7 @@ export default {
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/sessions/' + id, {
-					method: 'delete',
+					method: 'DELETE',
 					headers: {
 						'Api-Key': appState.apiKey
 					}
@@ -279,7 +309,7 @@ export default {
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/sessions', {
-					method: 'delete',
+					method: 'DELETE',
 					headers: {
 						'API-Key': appState.apiKey
 					}

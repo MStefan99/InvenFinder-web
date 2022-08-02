@@ -2,14 +2,25 @@
 h2.text-accent.text-2xl.mb-4 Item
 #item
 	.flex.justify-end
-		TextEditable(v-model="item.location" text-class="text-9xl font-semibold")
+		TextEditable(
+			v-model="item.location"
+			text-class="text-9xl font-semibold"
+			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
+			@update:modelValue="updateItem")
 	.flex.justify-between.mb-4
-		.grow
-			TextEditable(v-model="item.name")
-			TextEditable(v-model="item.description" text-class="text-gray-500")
+		.grow.mr-2
+			TextEditable(
+				v-model="item.name"
+				:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
+				@update:modelValue="updateItem")
+			TextEditable(
+				v-model="item.description"
+				text-class="text-gray-500"
+				:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
+				@update:modelValue="updateItem")
 			a.mr-4(:href="item.link") {{item.link}}
 		div
-			TextEditable(v-model="item.amount" text-class="text-gray-500")
+			TextEditable(v-model="item.amount" text-class="text-gray-500" @update:modelValue="updateItem")
 	div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
 		button.mr-4(@click="editAmount(false)") Take from storage
 		button(@click="editAmount(true)") Put in storage
@@ -52,6 +63,10 @@ onMounted(() => {
 		item.value = i;
 	});
 });
+
+function updateItem() {
+	Api.items.edit(item.value);
+}
 
 function editAmount(add = false) {
 	const diff = +prompt('Choose amount');

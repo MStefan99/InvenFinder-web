@@ -1,6 +1,6 @@
 <template lang="pug">
-.mx-2
-	span(v-if="!expanded" :class="textClass" @click="expanded = true") {{value}}
+div
+	span(v-if="!expanded || readonly" :class="textClass" @click="expanded = true") {{value}}
 	div(v-else)
 		input(type="text" v-model="value")
 		.mb-4
@@ -11,10 +11,10 @@
 <script setup lang="ts">
 import {defineEmits, defineProps, ref, watch} from 'vue';
 
-const props = defineProps<{modelValue: string; textClass: string}>();
+const props = defineProps<{modelValue: string | number; textClass?: string; readonly?: boolean}>();
 defineEmits(['update:modelValue']);
 
-const value = ref<string>(props.modelValue);
+const value = ref<string | number>(props.modelValue);
 const expanded = ref<boolean>(false);
 
 watch(
