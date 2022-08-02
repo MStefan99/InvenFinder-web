@@ -1,16 +1,15 @@
 <template lang="pug">
 h2.text-accent.text-2xl.mb-4 Item
 #item
-	//- TODO: editable fields are cool but resizing inputs is pain™
-	div
-		TextEditable(v-model="item.location" text-class="text-right text-9xl font-semibold")
+	.flex.justify-end
+		TextEditable(v-model="item.location" text-class="text-9xl font-semibold")
 	.flex.justify-between.mb-4
-		div
-			.mr-4 {{item.name}}
-			.mr-4.text-gray-500 {{item.description}}
+		.grow
+			TextEditable(v-model="item.name")
+			TextEditable(v-model="item.description" text-class="text-gray-500")
 			a.mr-4(:href="item.link") {{item.link}}
 		div
-			.text-right.text-gray-500 {{item.amount}}
+			TextEditable(v-model="item.amount" text-class="text-gray-500")
 	div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
 		button.mr-4(@click="editAmount(false)") Take from storage
 		button(@click="editAmount(true)") Put in storage

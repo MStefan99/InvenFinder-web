@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+.mx-2
 	span(v-if="!expanded" :class="textClass" @click="expanded = true") {{value}}
 	div(v-else)
 		input(type="text" v-model="value")
@@ -25,4 +25,8 @@ watch(
 );
 </script>
 
-<style scoped></style>
+<style scoped>
+input {
+	width: 100%;
+}
+</style>
