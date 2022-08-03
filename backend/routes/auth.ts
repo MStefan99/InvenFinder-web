@@ -15,11 +15,17 @@ async function credentialsPresent(ctx: Context, next: Next) {
 
 		if (body.username === undefined) {
 			ctx.response.status = 400;
-			ctx.response.body = { error: 'No username', code: 'NO_USERNAME' };
+			ctx.response.body = {
+				error: 'NO_USERNAME',
+				message: 'No username',
+			};
 			return;
 		} else if (body.password === undefined) {
 			ctx.response.status = 400;
-			ctx.response.body = { error: 'No password', code: 'NO_PASSWORD' };
+			ctx.response.body = {
+				error: 'NO_PASSWORD',
+				message: 'No password',
+			};
 			return;
 		}
 
@@ -27,8 +33,8 @@ async function credentialsPresent(ctx: Context, next: Next) {
 	} catch {
 		ctx.response.status = 400;
 		ctx.response.body = {
-			error: 'Invalid request body',
-			code: 'INVALID_REQUEST',
+			error: 'INVALID_REQUEST',
+			message: 'Invalid request body',
 		};
 	}
 }
@@ -57,13 +63,16 @@ router.post('/login', credentialsPresent, async (ctx) => {
 
 	if (user === null) {
 		ctx.response.status = 400;
-		ctx.response.body = { error: 'User not found', code: 'USER_NOT_FOUND' };
+		ctx.response.body = {
+			error: 'USER_NOT_FOUND',
+			message: 'User not found',
+		};
 		return;
 	} else if (!(await user.verifyPassword(body.password))) {
 		ctx.response.status = 400;
 		ctx.response.body = {
-			error: 'Incorrect password',
-			code: 'WRONG_PASSWORD',
+			error: 'WRONG_PASSWORD',
+			message: 'Incorrect password',
 		};
 		return;
 	}
@@ -91,7 +100,10 @@ router.get('/me', auth.authenticated(), async (ctx) => {
 	if (!user) {
 		// Should in theory never get here
 		ctx.response.status = 500;
-		ctx.response.body = { error: 'User not found', code: 'USER_NOT_FOUND' };
+		ctx.response.body = {
+			error: 'USER_NOT_FOUND',
+			message: 'User not found',
+		};
 	} else {
 		ctx.response.status = 200;
 		ctx.response.body = user;
@@ -107,8 +119,8 @@ router.patch('/me', auth.authenticated(), async (ctx) => {
 		if (user === null) {
 			ctx.response.status = 500;
 			ctx.response.body = {
-				error: 'User not found',
-				code: 'USER_NOT_FOUND',
+				error: 'USER_NOT_FOUND',
+				message: 'User not found',
 			};
 			return;
 		}
@@ -131,8 +143,8 @@ router.patch('/me', auth.authenticated(), async (ctx) => {
 	} catch {
 		ctx.response.status = 400;
 		ctx.response.body = {
-			error: 'Invalid request body',
-			code: 'INVALID_REQUEST',
+			error: 'INVALID_REQUEST',
+			message: 'Invalid request body',
 		};
 	}
 });
@@ -147,8 +159,8 @@ router.patch(
 			if (ctx.params.username === undefined) {
 				ctx.response.status = 400;
 				ctx.response.body = {
-					error: 'Username not provided',
-					code: 'NO_USERNAME',
+					error: 'NO_USERNAME',
+					message: 'Username not provided',
 				};
 				return;
 			}
@@ -157,8 +169,8 @@ router.patch(
 			if (user === null) {
 				ctx.response.status = 400;
 				ctx.response.body = {
-					error: 'User not found',
-					code: 'USER_NOT_FOUND',
+					error: 'USER_NOT_FOUND',
+					message: 'User not found',
 				};
 				return;
 			}
@@ -179,8 +191,8 @@ router.patch(
 		} catch {
 			ctx.response.status = 400;
 			ctx.response.body = {
-				error: 'Invalid request body',
-				code: 'INVALID_REQUEST',
+				error: 'INVALID_REQUEST',
+				message: 'Invalid request body',
 			};
 		}
 	},
@@ -192,8 +204,8 @@ router.get('/sessions', auth.authenticated(), async (ctx) => {
 	if (user === null) {
 		ctx.response.status = 500;
 		ctx.response.body = {
-			error: 'User not found',
-			code: 'USER_NOT_FOUND',
+			error: 'USER_NOT_FOUND',
+			message: 'User not found',
 		};
 		return;
 	}
@@ -209,8 +221,8 @@ router.delete('/sessions/:id', auth.authenticated(), async (ctx) => {
 	if (currentSession === null || otherSession === null) {
 		ctx.response.status = 400;
 		ctx.response.body = {
-			error: 'Session not found',
-			code: 'SESSION_NOT_FOUND',
+			error: 'SESSION_NOT_FOUND',
+			message: 'Session not found',
 		};
 		return;
 	}
@@ -218,8 +230,8 @@ router.delete('/sessions/:id', auth.authenticated(), async (ctx) => {
 	if (currentSession.userID !== otherSession.userID) {
 		ctx.response.status = 403;
 		ctx.response.body = {
-			error: 'Not authorized',
-			code: 'NOT_AUTHORIZED',
+			error: 'NOT_AUTHORIZED',
+			message: 'Not authorized',
 		};
 		return;
 	}
@@ -236,8 +248,8 @@ router.delete('/sessions', auth.authenticated(), async (ctx) => {
 	if (user === null) {
 		ctx.response.status = 500;
 		ctx.response.body = {
-			error: 'User not found',
-			code: 'USER_NOT_FOUND',
+			error: 'USER_NOT_FOUND',
+			message: 'User not found',
 		};
 		return;
 	}

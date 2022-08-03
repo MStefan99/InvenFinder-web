@@ -25,13 +25,15 @@ export type ApiManager = {
 };
 
 const apiPrefix = '/api';
+const notAuthenticated = {error: 'NO_AUTH', message: 'Not Authenticated'};
+const requestFailed = {error: 'REQ_FAILED', message: 'Request failed'};
 
 export default {
 	items: {
 		getAll(): Promise<Item[]> {
-			return new Promise((resolve) => {
+			return new Promise((resolve, reject) => {
 				if (!appState.backendURL || !appState.apiKey) {
-					resolve([]);
+					reject(notAuthenticated);
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/items', {
@@ -43,21 +45,19 @@ export default {
 						if (res.ok) {
 							return res.json();
 						} else {
-							res.json().then((err) => console.warn('Could not load items:', err.error));
-							resolve([]);
+							res.json().then((err) => reject(err));
 						}
 					})
 					.then((items) => resolve(items as Item[]))
 					.catch(() => {
-						console.warn('Load items request failed');
-						resolve([]);
+						reject(requestFailed);
 					});
 			});
 		},
 		getByID(id: number): Promise<Item | null> {
-			return new Promise((resolve) => {
+			return new Promise((resolve, reject) => {
 				if (!appState.backendURL || !appState.apiKey) {
-					resolve(null);
+					reject(notAuthenticated);
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/items/' + id, {
@@ -69,14 +69,12 @@ export default {
 						if (res.ok) {
 							return res.json();
 						} else {
-							res.json().then((err) => console.warn('Could not load item:', err.error));
-							resolve(null);
+							res.json().then((err) => reject(err));
 						}
 					})
 					.then((items) => resolve(items as Item))
 					.catch(() => {
-						console.warn('Load item request failed');
-						resolve(null);
+						reject(requestFailed);
 					});
 			});
 		},
@@ -84,9 +82,9 @@ export default {
 			return Promise.resolve(null);
 		},
 		editAmount(id: number, amount: number): Promise<Item | null> {
-			return new Promise((resolve) => {
+			return new Promise((resolve, reject) => {
 				if (!appState.backendURL || !appState.apiKey) {
-					resolve(null);
+					reject(notAuthenticated);
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/items/' + id + '/amount', {
@@ -103,21 +101,19 @@ export default {
 						if (res.ok) {
 							return res.json();
 						} else {
-							res.json().then((err) => console.warn('Could not edit item amount:', err.error));
-							resolve(null);
+							res.json().then((err) => reject(err));
 						}
 					})
 					.then((item) => resolve(item as Item))
 					.catch(() => {
-						console.warn('Edit item amount request failed');
-						resolve(null);
+						reject(requestFailed);
 					});
 			});
 		},
 		edit(item: Item): Promise<Item | null> {
-			return new Promise((resolve) => {
+			return new Promise((resolve, reject) => {
 				if (!appState.backendURL || !appState.apiKey) {
-					resolve(null);
+					reject(notAuthenticated);
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/items/' + item.id, {
@@ -132,45 +128,41 @@ export default {
 						if (res.ok) {
 							return res.json();
 						} else {
-							res.json().then((err) => console.warn('Could not edit item:', err.error));
-							resolve(null);
+							res.json().then((err) => reject(err));
 						}
 					})
 					.then((item) => resolve(item as Item))
 					.catch(() => {
-						console.warn('Edit item request failed');
-						resolve(null);
+						reject(requestFailed);
 					});
 			});
 		}
 	},
 	connection: {
 		testURL(url: string): Promise<boolean> {
-			return new Promise((resolve) => {
+			return new Promise((resolve, reject) => {
 				fetch(url + apiPrefix)
 					.then((res) => resolve(res.ok && res.headers.get('who-am-i') === 'Invenfinder'))
 					.catch(() => {
-						console.warn('URL test request failed');
-						resolve(false);
+						reject(requestFailed);
 					});
 			});
 		},
 		test(): Promise<boolean> {
-			return new Promise((resolve) => {
+			return new Promise((resolve, reject) => {
 				fetch(appState.backendURL + apiPrefix)
 					.then((res) => resolve(res.ok && res.headers.get('who-am-i') === 'Invenfinder'))
 					.catch(() => {
-						console.warn('Test request failed');
-						resolve(false);
+						reject(requestFailed);
 					});
 			});
 		}
 	},
 	auth: {
 		login(username: string, password: string): Promise<boolean> {
-			return new Promise((resolve) => {
+			return new Promise((resolve, reject) => {
 				if (!appState.backendURL) {
-					resolve(null);
+					reject(notAuthenticated);
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/login', {
@@ -187,8 +179,7 @@ export default {
 						if (res.ok) {
 							return res.json();
 						} else {
-							res.json().then((err) => console.warn('Could not log in:', err.error));
-							resolve(null);
+							res.json().then((err) => reject(err));
 						}
 					})
 					.then((data) => {
@@ -197,15 +188,14 @@ export default {
 						resolve(!!data.key);
 					})
 					.catch(() => {
-						console.warn('Login request failed');
-						resolve(null);
+						reject(requestFailed);
 					});
 			});
 		},
 		test(): Promise<boolean> {
-			return new Promise((resolve) => {
+			return new Promise((resolve, reject) => {
 				if (!appState.backendURL || !appState.apiKey) {
-					resolve(false);
+					reject(notAuthenticated);
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/auth', {
@@ -215,15 +205,14 @@ export default {
 				})
 					.then((res) => resolve(res.ok && res.headers.get('who-am-i') === 'Invenfinder'))
 					.catch(() => {
-						console.warn('Auth request failed');
-						resolve(false);
+						reject(requestFailed);
 					});
 			});
 		},
 		me(): Promise<User | null> {
-			return new Promise((resolve) => {
+			return new Promise((resolve, reject) => {
 				if (!appState.backendURL || !appState.apiKey) {
-					resolve(null);
+					reject(notAuthenticated);
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/me', {
@@ -235,21 +224,19 @@ export default {
 						if (res.ok) {
 							return res.json();
 						} else {
-							res.json().then((err) => console.warn('Could not get current user:', err.error));
-							resolve(null);
+							res.json().then((err) => reject(err));
 						}
 					})
 					.then((user) => resolve(new User(user.id, user.username, user.permissions)))
 					.catch(() => {
-						console.warn('User request failed');
-						resolve(null);
+						reject(requestFailed);
 					});
 			});
 		},
 		getSessions(): Promise<Session[]> {
-			return new Promise((resolve) => {
+			return new Promise((resolve, reject) => {
 				if (!appState.backendURL || !appState.apiKey) {
-					resolve(null);
+					reject(notAuthenticated);
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/sessions', {
@@ -261,21 +248,19 @@ export default {
 						if (res.ok) {
 							return res.json();
 						} else {
-							res.json().then((err) => console.warn('Could not get sessions:', err.error));
-							resolve(null);
+							res.json().then((err) => reject(err));
 						}
 					})
 					.then((session) => resolve(session as Session))
 					.catch(() => {
-						console.warn('Session request failed');
-						resolve(null);
+						reject(requestFailed);
 					});
 			});
 		},
 		logoutSession(id: string): Promise<boolean> {
-			return new Promise((resolve) => {
+			return new Promise((resolve, reject) => {
 				if (!appState.backendURL || !appState.apiKey) {
-					resolve(false);
+					reject(notAuthenticated);
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/sessions/' + id, {
@@ -292,20 +277,18 @@ export default {
 							}
 							resolve(true);
 						} else {
-							res.json().then((err) => console.warn('Could not delete session:', err.error));
-							resolve(false);
+							res.json().then((err) => reject(err));
 						}
 					})
 					.catch(() => {
-						console.warn('Session request failed');
-						resolve(false);
+						reject(requestFailed);
 					});
 			});
 		},
 		logoutAll(): Promise<boolean> {
-			return new Promise((resolve) => {
-				if (!appState.backendURL) {
-					resolve(false);
+			return new Promise((resolve, reject) => {
+				if (!appState.backendURL || !appState.apiKey) {
+					reject(notAuthenticated);
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/sessions', {
@@ -321,20 +304,18 @@ export default {
 						if (res.ok) {
 							resolve(true);
 						} else {
-							res.json().then((err) => console.warn('Could not log out all:', err.error));
-							resolve(false);
+							res.json().then((err) => reject(err));
 						}
 					})
 					.catch(() => {
-						console.warn('Logout request failed');
-						resolve(false);
+						reject(requestFailed);
 					});
 			});
 		},
 		logout(): Promise<boolean> {
-			return new Promise((resolve) => {
-				if (!appState.backendURL) {
-					resolve(false);
+			return new Promise((resolve, reject) => {
+				if (!appState.backendURL || !appState.apiKey) {
+					reject(notAuthenticated);
 				}
 
 				fetch(appState.backendURL + apiPrefix + '/logout', {
@@ -349,13 +330,11 @@ export default {
 						if (res.ok) {
 							resolve(true);
 						} else {
-							res.json().then((err) => console.warn('Could not log out:', err.error));
-							resolve(false);
+							res.json().then((err) => reject(err));
 						}
 					})
 					.catch(() => {
-						console.warn('Logout request failed');
-						resolve(false);
+						reject(requestFailed);
 					});
 			});
 		}

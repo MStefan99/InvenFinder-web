@@ -22,9 +22,12 @@ import appState from './scripts/store.ts';
 onMounted(checkConnection);
 
 function checkConnection() {
-	Api.auth.me().then((user) => {
-		appState.setUser(user);
-	});
+	Api.auth
+		.me()
+		.then((user) => {
+			appState.setUser(user);
+		})
+		.catch(() => null);
 }
 </script>
 

@@ -21,7 +21,7 @@ router.get('/:id', auth.authenticated(), async (ctx) => {
 
 	if (Number.isNaN(parsedID)) {
 		ctx.response.status = 400;
-		ctx.response.body = { error: 'ID must be a number', code: 'ID_NAN' };
+		ctx.response.body = { error: 'ID_NAN', message: 'ID must be a number' };
 		return;
 	}
 
@@ -35,27 +35,30 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 
 		if (body.name === undefined) {
 			ctx.response.status = 400;
-			ctx.response.body = { error: 'No name', code: 'NO_NAME' };
+			ctx.response.body = { error: 'NO_NAME', message: 'No name' };
 			return;
 		}
 		if (body.location === undefined) {
 			ctx.response.status = 400;
-			ctx.response.body = { error: 'No location', code: 'NO_LOCATION' };
+			ctx.response.body = {
+				error: 'NO_LOCATION',
+				message: 'No location',
+			};
 			return;
 		}
 		if (body.amount === undefined || !Number.isInteger(body.amount)) {
 			ctx.response.status = 400;
 			ctx.response.body = {
-				error: 'No or invalid amount',
-				code: 'INVALID_AMOUNT',
+				error: 'INVALID_AMOUNT',
+				message: 'No or invalid amount',
 			};
 			return;
 		}
 		if (!body.location.match(locationRegex)) {
 			ctx.response.status = 400;
 			ctx.response.body = {
-				error: 'Invalid location',
-				code: 'INVALID_LOCATION',
+				error: 'INVALID_LOCATION',
+				message: 'Invalid location',
 			};
 			return;
 		}
@@ -73,8 +76,8 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 	} catch {
 		ctx.response.status = 400;
 		ctx.response.body = {
-			error: 'Invalid request body',
-			code: 'INVALID_BODY',
+			error: 'INVALID_BODY',
+			message: 'Invalid request body',
 		};
 	}
 });
@@ -88,15 +91,18 @@ router.put(
 			const id = +ctx.params.id;
 			if (!Number.isInteger(id)) {
 				ctx.response.status = 400;
-				ctx.response.body = { error: 'Invalid ID', code: 'INVALID_ID' };
+				ctx.response.body = {
+					error: 'INVALID_ID',
+					message: 'Invalid ID',
+				};
 				return;
 			}
 			const body = await ctx.request.body({ type: 'json' }).value;
 			if (body.amount === undefined || +body.amount < 0) {
 				ctx.response.status = 400;
 				ctx.response.body = {
-					error: 'Invalid amount',
-					code: 'INVALID_AMOUNT',
+					error: 'INVALID_AMOUNT',
+					message: 'Invalid amount',
 				};
 				return;
 			}
@@ -105,8 +111,8 @@ router.put(
 			if (item === null) {
 				ctx.response.status = 400;
 				ctx.response.body = {
-					error: 'Item not found',
-					code: 'ITEM_NOT_FOUND',
+					error: 'ITEM_NOT_FOUND',
+					message: 'Item not found',
 				};
 				return;
 			}
@@ -118,8 +124,8 @@ router.put(
 		} catch {
 			ctx.response.status = 400;
 			ctx.response.body = {
-				error: 'Invalid request body',
-				code: 'INVALID_BODY',
+				error: 'INVALID_BODY',
+				message: 'Invalid request body',
 			};
 		}
 	},
@@ -134,7 +140,10 @@ router.patch(
 			const id = +ctx.params.id;
 			if (!Number.isInteger(id)) {
 				ctx.response.status = 400;
-				ctx.response.body = { error: 'Invalid ID', code: 'INVALID_ID' };
+				ctx.response.body = {
+					error: 'INVALID_ID',
+					message: 'Invalid ID',
+				};
 				return;
 			}
 			const body = await ctx.request.body({ type: 'json' }).value;
@@ -143,8 +152,8 @@ router.patch(
 			if (item === null) {
 				ctx.response.status = 400;
 				ctx.response.body = {
-					error: 'Item not found',
-					code: 'ITEM_NOT_FOUND',
+					error: 'ITEM_NOT_FOUND',
+					message: 'Item not found',
 				};
 				return;
 			}
@@ -153,8 +162,8 @@ router.patch(
 				if (!Number.isInteger(amount) || amount < 0) {
 					ctx.response.status = 400;
 					ctx.response.body = {
-						error: 'Invalid amount',
-						code: 'INVALID_AMOUNT',
+						error: 'INVALID_AMOUNT',
+						message: 'Invalid amount',
 					};
 					return;
 				}
@@ -165,8 +174,8 @@ router.patch(
 			) {
 				ctx.response.status = 400;
 				ctx.response.body = {
-					error: 'Invalid location',
-					code: 'INVALID_LOCATION',
+					error: 'INVALID_LOCATION',
+					message: 'Invalid location',
 				};
 				return;
 			}
@@ -192,8 +201,8 @@ router.patch(
 		} catch {
 			ctx.response.status = 400;
 			ctx.response.body = {
-				error: 'Invalid request body',
-				code: 'INVALID_BODY',
+				error: 'INVALID_BODY',
+				message: 'Invalid request body',
 			};
 		}
 	},
@@ -208,7 +217,10 @@ router.delete(
 			const id = +ctx.params.id;
 			if (!Number.isInteger(id)) {
 				ctx.response.status = 400;
-				ctx.response.body = { error: 'Invalid ID', code: 'INVALID_ID' };
+				ctx.response.body = {
+					error: 'INVALID_ID',
+					message: 'Invalid ID',
+				};
 				return;
 			}
 
@@ -216,8 +228,8 @@ router.delete(
 			if (item === null) {
 				ctx.response.status = 400;
 				ctx.response.body = {
-					error: 'Item not found',
-					code: 'ITEM_NOT_FOUND',
+					error: 'ITEM_NOT_FOUND',
+					message: 'Item not found',
 				};
 				return;
 			}
@@ -229,8 +241,8 @@ router.delete(
 		} catch {
 			ctx.response.status = 400;
 			ctx.response.body = {
-				error: 'Invalid request body',
-				code: 'INVALID_BODY',
+				error: 'INVALID_BODY',
+				message: 'Invalid request body',
 			};
 		}
 	},

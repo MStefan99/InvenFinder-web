@@ -63,17 +63,17 @@ onMounted(checkConnection);
 function checkConnection() {
 	state.connection = ConnectionState.TESTING;
 
-	Api.auth.me().then((user) => {
-		if (user !== null) {
+	Api.auth
+		.me()
+		.then(() => {
 			state.connection = ConnectionState.AUTHENTICATED;
-		} else {
-			Api.connection.test().then((connected) => {
-				state.connection = connected
-					? ConnectionState.NOT_AUTHENTICATED
-					: ConnectionState.NOT_CONNECTED;
-			});
-		}
-	});
+		})
+		.catch(() =>
+			Api.connection
+				.test()
+				.then(() => (state.connection = ConnectionState.NOT_AUTHENTICATED))
+				.catch(() => (state.connection = ConnectionState.NOT_CONNECTED))
+		);
 }
 
 function getAuthenticationState() {
@@ -96,24 +96,22 @@ function connect() {
 	}
 
 	state.connection = ConnectionState.TESTING;
-	Api.connection.testURL(state.url).then((connected) => {
-		state.connection = connected
-			? ConnectionState.NOT_AUTHENTICATED
-			: ConnectionState.NOT_CONNECTED;
-
-		if (connected) {
+	Api.connection
+		.testURL(state.url)
+		.then(() => {
+			state.connection = ConnectionState.NOT_AUTHENTICATED;
 			appState.setUrl(state.url);
-		}
-	});
+		})
+		.catch(() => (state.connection = ConnectionState.NOT_CONNECTED));
 }
 
 function login() {
 	state.connection = ConnectionState.TESTING;
 
-	Api.auth.login(state.username, state.password).then((auth) => {
-		state.connection =
-			auth !== null ? ConnectionState.AUTHENTICATED : ConnectionState.NOT_AUTHENTICATED;
-	});
+	Api.auth
+		.login(state.username, state.password)
+		.then(() => (state.connection = ConnectionState.AUTHENTICATED))
+		.catch(() => (state.connection = ConnectionState.NOT_AUTHENTICATED));
 }
 
 function logout() {

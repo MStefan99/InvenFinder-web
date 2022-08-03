@@ -65,7 +65,7 @@ onMounted(() => {
 });
 
 function updateItem() {
-	Api.items.edit(item.value);
+	Api.items.edit(item.value).then((i) => (item.value = i));
 }
 
 function editAmount(add = false) {
