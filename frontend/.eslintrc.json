@@ -15,6 +15,7 @@
 		"sourceType": "module"
 	},
 	"rules": {
-		"prettier/prettier": "warn"
+		"prettier/prettier": "warn",
+		"@vue/multi-word-components": "off"
 	}
 }
