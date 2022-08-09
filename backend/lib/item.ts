@@ -31,37 +31,35 @@ class Item {
 		this.amount = props.amount;
 	}
 
-	static #makeReactive(item: Item): Item {
-		const proxy: ProxyHandler<Item> = {
-			set(target, propertyKey, value, receiver) {
-				clearTimeout(target.#saveHandle);
+	save(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			clearTimeout(this.#saveHandle);
 
-				target.#saveHandle = setTimeout(async () => {
-					const client = await dbClientPromise;
-					await client.execute(
-						`insert into invenfinder.items(id, name, description, link, location, amount)
+			this.#saveHandle = setTimeout(() => {
+				dbClientPromise
+					.then((client) =>
+						client.execute(
+							`insert into invenfinder.items(id, name, description, link, location, amount)
 						 values (?, ?, ?, ?, ?, ?)
 						 on duplicate key update name = values(name),
 						                         description = values(description),
 						                         link = values(link),
 						                         location = values(location),
 						                         amount = values(amount)`,
-						[
-							target.id,
-							target.name,
-							target.description,
-							target.link,
-							target.location,
-							target.amount,
-						],
-					);
-				});
-
-				return Reflect.set(target, propertyKey, value, receiver);
-			},
-		};
-
-		return new Proxy(item, proxy);
+							[
+								this.id,
+								this.name,
+								this.description,
+								this.link,
+								this.location,
+								this.amount,
+							],
+						)
+					)
+					.then(() => resolve())
+					.catch((err) => reject(err));
+			});
+		});
 	}
 
 	static async create(options: PropsBase): Promise<Item | null> {
@@ -94,7 +92,7 @@ class Item {
 			location: options.location,
 			amount: options.amount,
 		});
-		return this.#makeReactive(item);
+		return item;
 	}
 
 	static async getByID(id: number): Promise<Item | null> {
@@ -110,9 +108,7 @@ class Item {
 			return null;
 		} else {
 			const row = rows[0];
-			return this.#makeReactive(
-				new Item(row),
-			);
+			return new Item(row);
 		}
 	}
 
@@ -129,9 +125,7 @@ class Item {
 			return null;
 		} else {
 			const row = rows[0];
-			return this.#makeReactive(
-				new Item(row),
-			);
+			return new Item(row);
 		}
 	}
 
@@ -140,12 +134,10 @@ class Item {
 
 		const client = await dbClientPromise;
 		const rows = await client.query(`select *
-		                                     from invenfinder.items`);
+		                                 from invenfinder.items`);
 
 		for (const row of rows) {
-			items.push(this.#makeReactive(
-				new Item(row),
-			));
+			items.push(new Item(row));
 		}
 		return items;
 	}

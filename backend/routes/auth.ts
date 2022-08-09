@@ -138,6 +138,8 @@ router.patch('/me', auth.authenticated(), async (ctx) => {
 			}
 		}
 
+		user.save();
+
 		ctx.response.status = 200;
 		ctx.response.body = user;
 	} catch {
@@ -185,6 +187,8 @@ router.patch(
 			if (Number.isInteger(permissions)) {
 				user.permissions = parsePermissions(permissions);
 			}
+
+			user.save();
 
 			ctx.response.status = 200;
 			ctx.response.body = user;
@@ -265,7 +269,7 @@ router.get('/logout', auth.authenticated(), async (ctx) => {
 	ctx.response.body = { message: 'OK' };
 
 	const session = await auth.methods.getSession(ctx);
-	session?.delete(); // await not needed, response may be returned before session is deleted
+	session?.delete();
 });
 
 export default router;

@@ -54,6 +54,8 @@ type Props = {
 	permissions: Permissions.PERMISSIONS[] | number | undefined;
 };
 
+type Save = { save: () => Promise<void> };
+
 class User {
 	id: number;
 	username: string;
@@ -79,39 +81,37 @@ class User {
 		};
 	}
 
-	static #makeReactive(user: User): User {
-		const proxy: ProxyHandler<User> = {
-			set(target, propertyKey, value, receiver) {
-				clearTimeout(target.#saveHandle);
+	save(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			clearTimeout(this.#saveHandle);
 
-				target.#saveHandle = setTimeout(async () => {
-					const client = await dbClientPromise;
-					await client.execute(
-						`insert into invenfinder.users(id,
-						                               username,
-						                               password_salt,
-						                               password_hash,
-						                               permissions)
-						 values (?, ?, ?, ?, ?)
-						 on duplicate key update username = values(username),
-						                         password_salt = values(password_salt),
-						                         password_hash = values(password_hash),
-						                         permissions = values(permissions)`,
-						[
-							target.id,
-							target.username,
-							target.passwordSalt,
-							target.passwordHash,
-							target.permissions,
-						],
-					);
-				});
-
-				return Reflect.set(target, propertyKey, value, receiver);
-			},
-		};
-
-		return new Proxy(user, proxy);
+			this.#saveHandle = setTimeout(() => {
+				dbClientPromise.then((client) =>
+					client
+						.execute(
+							`insert into invenfinder.users(id,
+									                               username,
+									                               password_salt,
+									                               password_hash,
+									                               permissions)
+									 values (?, ?, ?, ?, ?)
+									 on duplicate key update username = values(username),
+									                         password_salt = values(password_salt),
+									                         password_hash = values(password_hash),
+									                         permissions = values(permissions)`,
+							[
+								this.id,
+								this.username,
+								this.passwordSalt,
+								this.passwordHash,
+								this.permissions,
+							],
+						)
+				)
+					.then(() => resolve())
+					.catch((err) => reject(err));
+			});
+		});
 	}
 
 	static async create(
@@ -139,15 +139,13 @@ class User {
 			],
 		);
 
-		return this.#makeReactive(
-			new User({
-				id: res.lastInsertId ?? 0,
-				username,
-				passwordSalt,
-				passwordHash,
-				permissions,
-			}),
-		);
+		return new User({
+			id: res.lastInsertId ?? 0,
+			username,
+			passwordSalt,
+			passwordHash,
+			permissions,
+		});
 	}
 
 	static async getByID(id: number): Promise<User | null> {
@@ -162,7 +160,7 @@ class User {
 		if (!rows.length) {
 			return null;
 		} else {
-			return this.#makeReactive(new User(rows[0]));
+			return new User(rows[0]);
 		}
 	}
 
@@ -179,7 +177,7 @@ class User {
 			return null;
 		}
 
-		return this.#makeReactive(new User(rows[0]));
+		return new User(rows[0]);
 	}
 
 	static async getAll(): Promise<User[]> {
@@ -188,18 +186,19 @@ class User {
 		const client = await dbClientPromise;
 		const rows = await client.query(
 			`select id, username, password_salt as passwordSalt, password_hash as passwordHash, permissions
-		                                 from invenfinder.users`,
+			 from invenfinder.users`,
 		);
 
 		for (const row of rows) {
-			users.push(this.#makeReactive(new User(row)));
+			users.push(new User(row));
 		}
 
 		return users;
 	}
 
 	async verifyPassword(password: string): Promise<boolean> {
-		return this.passwordHash === await pbkdf2(password, this.passwordSalt);
+		return this.passwordHash ===
+			(await pbkdf2(password, this.passwordSalt));
 	}
 
 	async setPassword(password: string): Promise<void> {

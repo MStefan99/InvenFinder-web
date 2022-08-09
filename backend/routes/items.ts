@@ -118,6 +118,7 @@ router.put(
 			}
 
 			item.amount = body.amount;
+			item.save();
 
 			ctx.response.status = 200;
 			ctx.response.body = item;
@@ -195,6 +196,7 @@ router.patch(
 			if (body.amount !== undefined) {
 				item.amount = amount;
 			}
+			item.save();
 
 			ctx.response.status = 200;
 			ctx.response.body = item;
@@ -234,7 +236,7 @@ router.delete(
 				return;
 			}
 
-			await item.delete();
+			item.delete();
 
 			ctx.response.status = 200;
 			ctx.response.body = { message: 'OK' };
