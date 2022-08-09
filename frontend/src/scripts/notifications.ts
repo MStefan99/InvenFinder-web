@@ -1,32 +1,59 @@
-import {reactive} from 'vue';
+import {reactive, ref} from 'vue';
 
-type Notification = {
+enum AlertType {
+	Info,
+	Notice,
+	Warning
+}
+
+type Alert = {
+	id: number;
 	title: string;
 	details?: string;
-	type: 'info' | 'alert' | 'warning';
+	type: AlertType;
 };
 
-type Prompt = {
+type Confirm = {
 	title: string;
 	details?: string;
 };
 
-export const notifications = reactive<{n: Notification; p: Promise<void>}[]>([]);
-export const prompts = reactive<{n: Prompt; p: Promise<string>}[]>([]);
+let lastID = 0;
 
-export function alert(notification: Notification): Promise<void> {
-	const promise = new Promise<void>((resolve) =>
+export const activeAlerts = reactive<Alert[]>([]);
+export const activeConfirm = ref<{
+	confirm: Confirm;
+	resolve: (boolean) => void;
+} | null>(null);
+
+export function alert(title: string, type: AlertType, details?: string): Promise<void> {
+	return new Promise<void>((resolve) => {
+		const id = ++lastID;
+		console.log('id', id);
+
 		setTimeout(() => {
-			notifications.splice(
-				notifications.findIndex((n) => n.n.title === notification.title),
+			activeAlerts.splice(
+				activeAlerts.findIndex((n) => n.id === id),
 				1
 			);
 			resolve();
-		}, 1000)
-	);
+		}, 1000);
 
-	notifications.push({n: notification, p: promise});
-	return promise;
+		const alert = {id, title, details, type} as Alert;
+
+		activeAlerts.push(alert);
+	});
 }
 
-alert({title: 'title', details: 'details', type: 'info'});
+export function confirm(title: string, details?: string): Promise<boolean> {
+	return new Promise<boolean>(
+		(resolve) => (activeConfirm.value = {confirm: {title, details}, resolve})
+	);
+}
+
+export function prompt() {
+	null;
+}
+
+alert('Title', AlertType.Info, 'details');
+confirm('Title', 'details').then((res) => console.log('confirm', res));

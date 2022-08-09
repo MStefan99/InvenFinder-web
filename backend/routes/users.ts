@@ -8,7 +8,28 @@ const router = new Router({
 	prefix: '/users',
 });
 
-// Edit another user
+// Get a list of all users
+router.get('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
+	const users = await User.getAll();
+
+	ctx.response.status = 200;
+	ctx.response.body = users;
+});
+
+router.post('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
+	const body = await ctx.request.body({ type: 'json' }).value;
+
+	const user = await User.create(
+		body.username,
+		body.password,
+		parsePermissions(body.permissions),
+	);
+
+	ctx.response.status = 201;
+	ctx.response.body = user;
+});
+
+// Edit user
 router.patch(
 	'/:username',
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
@@ -46,6 +67,45 @@ router.patch(
 			}
 
 			user.save();
+
+			ctx.response.status = 200;
+			ctx.response.body = user;
+		} catch {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'INVALID_REQUEST',
+				message: 'Invalid request body',
+			};
+		}
+	},
+);
+
+// Delete user
+router.delete(
+	'/:username',
+	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	async (ctx) => {
+		try {
+			if (ctx.params.username === undefined) {
+				ctx.response.status = 400;
+				ctx.response.body = {
+					error: 'NO_USERNAME',
+					message: 'Username not provided',
+				};
+				return;
+			}
+
+			const user = await User.getByUsername(ctx.params.username);
+			if (user === null) {
+				ctx.response.status = 400;
+				ctx.response.body = {
+					error: 'USER_NOT_FOUND',
+					message: 'User not found',
+				};
+				return;
+			}
+
+			user.delete();
 
 			ctx.response.status = 200;
 			ctx.response.body = user;

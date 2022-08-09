@@ -6,7 +6,6 @@
 	"scripts": {
 		"postinstall": "run-p install:* && husky install",
 		"install:frontend": "cd ./frontend && npm install",
-		"install:backend": "cd ./backend && npm install",
 		"dev": "run-p dev:*",
 		"dev:frontend": "cd ./frontend && npm run start",
 		"dev:backend": "cd ./backend && deno task start",
@@ -16,9 +15,11 @@
 		"preview": "cd ./frontend && npm run preview",
 		"lint:frontend": "cd ./frontend && npm run lint",
 		"lint:backend": "cd ./backend && deno task lint",
+		"lint:common": "eslint ./common/{*,**/*}.ts --max-warnings=0 && prettier --check ./common",
 		"lint": "run-p lint:*",
 		"fmt:frontend": "cd ./frontend && npm run fmt",
 		"fmt:backend": "cd ./backend && deno task fmt",
+		"fmt:common": "eslint ./common{*,**/*}.{ts,vue} --fix && prettier -w ./common",
 		"fmt": "run-p fmt:*",
 		"precommit": "npm run lint"
 	},
@@ -36,5 +37,13 @@
 	"devDependencies": {
 		"husky": "^8.0.1",
 		"npm-run-all": "^4.1.5"
+	},
+	"dependencies": {
+		"@typescript-eslint/eslint-plugin": "^5.33.0",
+		"@typescript-eslint/parser": "^5.33.0",
+		"eslint": "^8.21.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"prettier": "^2.7.1"
 	}
 }

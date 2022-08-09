@@ -1,16 +1,23 @@
 <template lang="pug">
 .notifications
 	TransitionGroup(name="notification")
-		.notification(
-			v-for="notification in notifications"
-			:key="notification.n.title"
-			:class="notification.n.type")
-			.title {{notification.n.title}}
-			.info {{notification.n.details}}
+		.notification(v-for="notification in activeAlerts" :key="notification.title")
+			.title {{notification.title}}
+			.details {{notification.details}}
+	.confirm(v-if="activeConfirm")
+		.title {{activeConfirm.confirm.title}}
+		.details {{activeConfirm.confirm.details}}
+		button(@click="resolveConfirm(true)") Yes
+		button(@click="resolveConfirm(false)") No
 </template>
 
 <script setup lang="ts">
-import {notifications} from '../scripts/notifications.ts';
+import {activeAlerts, activeConfirm} from '../scripts/notifications.ts';
+
+function resolveConfirm(value: boolean) {
+	activeConfirm.value.resolve(value);
+	activeConfirm.value = null;
+}
 </script>
 
 <style scoped>
@@ -23,7 +30,6 @@ import {notifications} from '../scripts/notifications.ts';
 .notification {
 	border-radius: 1ch;
 	padding: 1em;
-	color: var(--color-background);
 }
 
 .notification .title {
@@ -31,6 +37,7 @@ import {notifications} from '../scripts/notifications.ts';
 }
 
 .notification.info {
+	color: var(--color-background);
 	background-color: #179e74;
 }
 

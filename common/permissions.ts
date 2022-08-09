@@ -2,9 +2,8 @@ export const enum PERMISSIONS {
 	EDIT_ITEM_AMOUNT,
 	MANAGE_ITEMS,
 	LOAN_ITEMS,
-	MANAGE_USERS,
+	MANAGE_USERS
 }
-
 
 export function toNumber(permissions: PERMISSIONS[]): number {
 	let val = 0;
@@ -15,7 +14,6 @@ export function toNumber(permissions: PERMISSIONS[]): number {
 
 	return val;
 }
-
 
 export function fromNumber(value: number): PERMISSIONS[] {
 	const permissions = new Array<PERMISSIONS>();
@@ -31,23 +29,25 @@ export function fromNumber(value: number): PERMISSIONS[] {
 	return permissions;
 }
 
-
 export function parsePermissions(p: number | PERMISSIONS[] | undefined): PERMISSIONS[] {
-	if (p === undefined || !Number.isInteger(p)) {
+	if (!p) {
 		return [];
-	} else if (typeof p === 'number') {
+	} else if (Array.isArray(p)) {
+		return p;
+	} else if (Number.isInteger(p)) {
 		return fromNumber(p);
 	} else {
-		return p;
+		return [];
 	}
 }
 
-
-
-export function hasPermissions(requestedPermissions: PERMISSIONS[], grantedPermissions: PERMISSIONS[]): boolean {
+export function hasPermissions(
+	requestedPermissions: PERMISSIONS[],
+	grantedPermissions: PERMISSIONS[]
+): boolean {
 	const requestedValue = toNumber(requestedPermissions);
 	const grantedValue = toNumber(grantedPermissions);
 
 	// noinspection JSBitwiseOperatorUsage
-	return ((grantedValue & requestedValue) === requestedValue);
+	return (grantedValue & requestedValue) === requestedValue;
 }

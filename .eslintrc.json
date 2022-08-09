@@ -6,9 +6,7 @@
 	"extends": [
 		"eslint:recommended",
 		"plugin:prettier/recommended",
-		"plugin:vue/vue3-essential",
-		"plugin:vue-pug/vue3-recommended",
-		"@vue/typescript/recommended"
+		"plugin:@typescript-eslint/recommended"
 	],
 	"parserOptions": {
 		"ecmaVersion": "latest",
@@ -16,7 +14,6 @@
 		"sourceType": "module"
 	},
 	"rules": {
-		"prettier/prettier": "warn",
-		"@vue/multi-word-components": "off"
+		"prettier/prettier": "warn"
 	}
 }

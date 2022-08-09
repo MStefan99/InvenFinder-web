@@ -1,43 +1,12 @@
-import { Context, Router } from '../deps.ts';
+import { Router } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
 import User from '../lib/user.ts';
 import Session from '../lib/session.ts';
 import { parsePermissions, PERMISSIONS } from '../../common/permissions.ts';
-
-type Next = () => Promise<unknown>;
+import { credentialsPresent } from './middleware.ts';
 
 const router = new Router();
-
-async function credentialsPresent(ctx: Context, next: Next) {
-	try {
-		const body = await ctx.request.body({ type: 'json' }).value;
-
-		if (body.username === undefined) {
-			ctx.response.status = 400;
-			ctx.response.body = {
-				error: 'NO_USERNAME',
-				message: 'No username',
-			};
-			return;
-		} else if (body.password === undefined) {
-			ctx.response.status = 400;
-			ctx.response.body = {
-				error: 'NO_PASSWORD',
-				message: 'No password',
-			};
-			return;
-		}
-
-		await next();
-	} catch {
-		ctx.response.status = 400;
-		ctx.response.body = {
-			error: 'INVALID_REQUEST',
-			message: 'Invalid request body',
-		};
-	}
-}
 
 // Register
 router.post('/register', credentialsPresent, async (ctx) => {

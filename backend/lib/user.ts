@@ -1,7 +1,4 @@
-import {
-	decode as hexDecode,
-	encode as hexEncode,
-} from 'https://deno.land/std@0.144.0/encoding/hex.ts';
+import { decode as hexDecode, encode as hexEncode } from '../deps.ts';
 
 import * as Permissions from '../../common/permissions.ts';
 import dbClientPromise from './db.ts';
