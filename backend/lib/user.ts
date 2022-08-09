@@ -104,7 +104,7 @@ class User {
 								this.username,
 								this.passwordSalt,
 								this.passwordHash,
-								this.permissions,
+								Permissions.toNumber(this.permissions),
 							],
 						)
 				)

@@ -1,6 +1,8 @@
-import { Application, Router } from 'https://deno.land/x/oak@v10.6.0/mod.ts';
+import { Application, Router } from './deps.ts';
 import authRouter from './routes/auth.ts';
+import sessionRouter from './routes/sessions.ts';
 import itemRouter from './routes/items.ts';
+import userRouter from './routes/users.ts';
 
 const port = 3007;
 
@@ -39,8 +41,14 @@ app.use(apiRouter.allowedMethods()); // Responds to OPTIONS and 405/501
 apiRouter.use(authRouter.routes());
 apiRouter.use(authRouter.allowedMethods());
 
+apiRouter.use(sessionRouter.routes());
+apiRouter.use(sessionRouter.allowedMethods());
+
 apiRouter.use(itemRouter.routes());
 apiRouter.use(itemRouter.allowedMethods());
+
+apiRouter.use(userRouter.routes());
+apiRouter.use(userRouter.allowedMethods());
 
 app.use((ctx) => {
 	ctx.response.status = 404;
