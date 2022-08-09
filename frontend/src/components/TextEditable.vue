@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-	span(v-if="!expanded || readonly" :class="textClass" @click="expanded = true") {{value}}
+	span(v-if="!expanded || readonly" :class="textClass" @contextmenu.prevent="expanded = true") {{value}}
 	div(v-else)
 		input(type="text" v-model="value")
 		.mb-4

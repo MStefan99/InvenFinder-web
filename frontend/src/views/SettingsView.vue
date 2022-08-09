@@ -8,8 +8,8 @@
 		table.w-full
 			thead
 				tr
-					th IP
-					th User-Agent
+					th Location
+					th Device
 					th Created at
 			tbody
 				tr(v-for="session in sessions" :key="session.id")
