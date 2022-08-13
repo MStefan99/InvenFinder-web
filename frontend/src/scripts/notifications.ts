@@ -29,7 +29,6 @@ export const activeConfirm = ref<{
 export function alert(title: string, type: AlertType, details?: string): Promise<void> {
 	return new Promise<void>((resolve) => {
 		const id = ++lastID;
-		console.log('id', id);
 
 		setTimeout(() => {
 			activeAlerts.splice(

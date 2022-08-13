@@ -20,7 +20,11 @@ h2.text-accent.text-2xl.mb-4 Item
 				@update:modelValue="updateItem")
 			a.mr-4(:href="item.link") {{item.link}}
 		div
-			TextEditable(v-model="item.amount" text-class="text-gray-500" @update:modelValue="updateItem")
+			TextEditable(
+				v-model="item.amount"
+				text-class="text-gray-500"
+				@update:modelValue="updateItem"
+				:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 	span.text-gray-500(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])") Right-click to edit
 	div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
 		button.mr-4(@click="editAmount(false)") Take from storage
