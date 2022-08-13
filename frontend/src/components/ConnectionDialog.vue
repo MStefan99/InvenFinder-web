@@ -15,7 +15,7 @@
 				type="button"
 				:disabled="state.connection === ConnectionState.TESTING"
 				@click="connect") Connect
-		div(v-if="state.connection === ConnectionState.NOT_AUTHENTICATED")
+		div(v-if="state.connection === ConnectionState.CONNECTED")
 			.mb-3
 				label(for="username-input") Username
 				input#username-input.full(v-model="state.username" type="text" placeholder="user")
@@ -39,11 +39,10 @@ import appState from '../scripts/store.ts';
 import Api from '../scripts/api.ts';
 
 enum ConnectionState {
-	NOT_TESTED,
+	TESTING,
 	NOT_CONNECTED,
-	NOT_AUTHENTICATED,
-	AUTHENTICATED,
-	TESTING
+	CONNECTED,
+	AUTHENTICATED
 }
 
 const state = reactive<{
@@ -55,7 +54,7 @@ const state = reactive<{
 	url: appState.backendURL,
 	username: '',
 	password: '',
-	connection: ConnectionState.NOT_TESTED
+	connection: ConnectionState.TESTING
 });
 
 onMounted(checkConnection);
@@ -71,19 +70,22 @@ function checkConnection() {
 		.catch(() =>
 			Api.connection
 				.test()
-				.then(() => (state.connection = ConnectionState.NOT_AUTHENTICATED))
+				.then(
+					(connected) =>
+						(state.connection = connected
+							? ConnectionState.CONNECTED
+							: ConnectionState.NOT_CONNECTED)
+				)
 				.catch(() => (state.connection = ConnectionState.NOT_CONNECTED))
 		);
 }
 
 function getAuthenticationState() {
-	if (state.connection === ConnectionState.NOT_TESTED) {
-		return '';
-	} else if (state.connection === ConnectionState.TESTING) {
+	if (state.connection === ConnectionState.TESTING) {
 		return 'Testing connection...';
 	} else if (state.connection === ConnectionState.NOT_CONNECTED) {
 		return 'Connection failed';
-	} else if (state.connection === ConnectionState.NOT_AUTHENTICATED) {
+	} else if (state.connection === ConnectionState.CONNECTED) {
 		return 'Connected but not signed in';
 	} else if (state.connection === ConnectionState.AUTHENTICATED) {
 		return 'Signed in! Click outside this window to close';
@@ -98,9 +100,13 @@ function connect() {
 	state.connection = ConnectionState.TESTING;
 	Api.connection
 		.testURL(state.url)
-		.then(() => {
-			state.connection = ConnectionState.NOT_AUTHENTICATED;
-			appState.setUrl(state.url);
+		.then((connected) => {
+			if (connected) {
+				state.connection = ConnectionState.CONNECTED;
+				appState.setUrl(state.url);
+			} else {
+				state.connection = ConnectionState.NOT_CONNECTED;
+			}
 		})
 		.catch(() => (state.connection = ConnectionState.NOT_CONNECTED));
 }
@@ -111,11 +117,11 @@ function login() {
 	Api.auth
 		.login(state.username, state.password)
 		.then(() => (state.connection = ConnectionState.AUTHENTICATED))
-		.catch(() => (state.connection = ConnectionState.NOT_AUTHENTICATED));
+		.catch(() => (state.connection = ConnectionState.CONNECTED));
 }
 
 function logout() {
-	state.connection = ConnectionState.NOT_AUTHENTICATED;
+	state.connection = ConnectionState.CONNECTED;
 
 	Api.auth.logout();
 }
