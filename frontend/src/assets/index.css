@@ -86,7 +86,7 @@ button {
 	@apply rounded-xl shadow;
 	border: 0.1em solid var(--color-accent);
 	color: var(--color-foreground);
-	margin: 0.5em 0;
+	background-color: var(--color-background);
 	padding: 0.5em 1em;
 }
 
@@ -106,6 +106,7 @@ button {
 button:not([disabled]):not(:active) {
 	@apply shadow-md;
 	@apply cursor-pointer;
+	background-color: var(--color-background);
 }
 
 button:not([disabled]):hover {

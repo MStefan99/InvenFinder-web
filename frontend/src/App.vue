@@ -17,7 +17,7 @@ footer
 import {onMounted} from 'vue';
 
 import NavBar from './components/NavBar.vue';
-import NotificationContainer from './components/NotificationContainer.vue';
+import NotificationContainer from './components/PopupContainer.vue';
 import Api from './scripts/api.ts';
 import appState from './scripts/store.ts';
 

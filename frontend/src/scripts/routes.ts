@@ -4,6 +4,7 @@ import SettingsView from '../views/SettingsView.vue';
 import UsersView from '../views/UsersView.vue';
 import ItemView from '../views/ItemView.vue';
 import LabelView from '../views/LabelView.vue';
+import {clearPopups} from './popups.ts';
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -44,5 +45,7 @@ const router = createRouter({
 	history: createWebHistory('/'),
 	routes
 });
+
+router.beforeEach(() => clearPopups());
 
 export default router;
