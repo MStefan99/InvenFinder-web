@@ -2,13 +2,6 @@ import appState from './store.ts';
 import {User, Session, Item} from './types.ts';
 
 export type ApiManager = {
-	items: {
-		getAll: () => Promise<Item[]>;
-		getByID: (id: number) => Promise<Item | null>;
-		getByLocation: (location: string) => Promise<Item | null>;
-		editAmount: (id: number, amount: number) => Promise<Item | null>;
-		edit: (item: Item) => Promise<Item | null>;
-	};
 	connection: {
 		testURL: (url: string) => Promise<boolean>;
 		test: () => Promise<boolean>;
@@ -22,11 +15,74 @@ export type ApiManager = {
 		logoutAll: () => Promise<boolean>;
 		logout: () => Promise<boolean>;
 	};
+	items: {
+		getAll: () => Promise<Item[]>;
+		getByID: (id: number) => Promise<Item | null>;
+		getByLocation: (location: string) => Promise<Item | null>;
+		editAmount: (id: number, amount: number) => Promise<Item | null>;
+		edit: (item: Item) => Promise<Item | null>;
+	};
 };
 
 const apiPrefix = '/api';
 const notAuthenticated = {error: 'NO_AUTH', message: 'Not Authenticated'};
 const requestFailed = {error: 'REQ_FAILED', message: 'Request failed'};
+const notImplemented = {error: 'NOT_IMPLEMENTED', message: 'Not implemented'};
+
+enum RequestMethod {
+	GET = 'GET',
+	POST = 'POST',
+	PATCH = 'PATCH',
+	PUT = 'PUT'
+}
+
+type RequestParams = {
+	auth?: boolean;
+	method?: RequestMethod;
+	body?: unknown;
+};
+
+function request<T>(path: string, params: RequestParams): Promise<T> {
+	return new Promise((resolve, reject) => {
+		if ((params.auth && !appState.backendURL) || !appState.apiKey) {
+			reject(notAuthenticated);
+		}
+
+		fetch(appState.backendURL + apiPrefix + path, {
+			method: params.method ?? 'GET',
+			headers: {
+				...(params.auth && {
+					'API-Key': appState.apiKey
+				}),
+				...(params.method !== RequestMethod.GET && {
+					'Content-Type': 'application/json'
+				})
+			},
+			...(params.body && {body: JSON.stringify(params.body)})
+		})
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					res.json().then((err) => reject(err));
+				}
+			})
+			.then((data) => resolve(data as T))
+			.catch((err) => reject(err));
+	});
+}
+
+export const items = {
+	getAll: () => request<Item[]>('/items', {auth: true}),
+	getById: (id: number) => request<Item>('/items/' + id, {auth: true}),
+	getByLocation: () => Promise.reject(notImplemented),
+	editAmount: (id: number, amount: number) =>
+		request<Item>('/items/' + id, {
+			auth: true,
+			method: RequestMethod.PUT,
+			body: {amount}
+		})
+};
 
 export default {
 	items: {

@@ -15,6 +15,7 @@
 	},
 	"rules": {
 		"prettier/prettier": "warn",
-		"@vue/multi-word-components": "off"
+		"@vue/multi-word-components": "off",
+		"@typescript-eslint/no-inferrable-types": "off"
 	}
 }

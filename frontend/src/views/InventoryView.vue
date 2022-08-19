@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from 'vue';
 
-import Api from '../scripts/api.ts';
+import {items as ItemsApi} from '../scripts/api.ts';
 import appState from '../scripts/store.ts';
 import {PERMISSIONS} from '../../../common/permissions.ts';
 import type {Item} from '../scripts/types.ts';
@@ -36,7 +36,7 @@ const addingItem = ref<boolean>(false);
 const editedItem = ref<Item | null>({});
 
 function loadItems() {
-	Api.items.getAll().then((i) => (items.value = i));
+	ItemsApi.getAll().then((i) => (items.value = i));
 }
 
 watch(() => appState.apiKey, loadItems);
