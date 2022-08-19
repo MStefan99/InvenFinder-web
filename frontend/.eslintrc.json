@@ -1,11 +1,9 @@
 {
-	"root": true,
 	"env": {
 		"browser": true
 	},
 	"extends": [
-		"eslint:recommended",
-		"plugin:prettier/recommended",
+		"../.eslintrc.json",
 		"plugin:vue/vue3-essential",
 		"plugin:vue-pug/vue3-recommended",
 		"@vue/typescript/recommended"

@@ -3,7 +3,7 @@ div
 	span(v-if="!expanded || readonly" :class="textClass" @contextmenu.prevent="expanded = true") {{value}}
 	div(v-else)
 		input(type="text" v-model="value")
-		.mb-4
+		.my-4
 			button.mr-4(type="button" @click="value = props.modelValue; expanded = false") Cancel
 			button(type="button" @click="$emit('update:modelValue', value); expanded = false") Save
 </template>
