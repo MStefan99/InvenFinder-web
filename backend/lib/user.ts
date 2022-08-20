@@ -1,7 +1,11 @@
 import { decode as hexDecode, encode as hexEncode } from '../deps.ts';
 
-import * as Permissions from '../../common/permissions.ts';
 import dbClientPromise from './db.ts';
+import {
+	encodePermissions,
+	hasPermissions,
+	PERMISSIONS,
+} from '../../common/permissions.ts';
 
 const PBKDF2ITERATIONS = 100000;
 
@@ -48,7 +52,7 @@ type Props = {
 	username: string;
 	passwordSalt: string;
 	passwordHash: string;
-	permissions: Permissions.PERMISSIONS[] | number | undefined;
+	permissions?: PERMISSIONS[] | number;
 };
 
 type Save = { save: () => Promise<void> };
@@ -58,7 +62,7 @@ class User {
 	username: string;
 	passwordSalt: string;
 	passwordHash: string;
-	permissions: Permissions.PERMISSIONS[];
+	permissions: number;
 
 	#saveHandle: number | undefined;
 
@@ -67,15 +71,7 @@ class User {
 		this.username = props.username;
 		this.passwordSalt = props.passwordSalt;
 		this.passwordHash = props.passwordHash;
-		this.permissions = Permissions.parsePermissions(props.permissions);
-	}
-
-	toJSON() {
-		return {
-			id: this.id,
-			username: this.username,
-			permissions: Permissions.toNumber(this.permissions),
-		};
+		this.permissions = encodePermissions(props.permissions);
 	}
 
 	save(): Promise<void> {
@@ -101,7 +97,7 @@ class User {
 								this.username,
 								this.passwordSalt,
 								this.passwordHash,
-								Permissions.toNumber(this.permissions),
+								encodePermissions(this.permissions),
 							],
 						)
 				)
@@ -114,7 +110,7 @@ class User {
 	static async create(
 		username: string,
 		password: string,
-		permissions: Permissions.PERMISSIONS[],
+		permissions: PERMISSIONS[] | number,
 	): Promise<User> {
 		const passwordSalt = buf2hex(
 			crypto.getRandomValues(new Uint8Array(32)),
@@ -132,7 +128,7 @@ class User {
 				username,
 				passwordSalt,
 				passwordHash,
-				Permissions.toNumber(permissions),
+				encodePermissions(permissions),
 			],
 		);
 
@@ -203,8 +199,8 @@ class User {
 		this.passwordHash = await pbkdf2(password, this.passwordSalt);
 	}
 
-	hasPermissions(permissions: [Permissions.PERMISSIONS]): boolean {
-		return Permissions.hasPermissions(permissions, this.permissions);
+	hasPermissions(permissions: [PERMISSIONS] | number): boolean {
+		return hasPermissions(permissions, this.permissions);
 	}
 
 	async delete(): Promise<void> {

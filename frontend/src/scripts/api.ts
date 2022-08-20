@@ -1,5 +1,5 @@
 import appState from './store';
-import {User, Session, Item} from './types';
+import type {User, Session, Item} from './types';
 
 type MessageResponse = {
 	code: string;
@@ -14,31 +14,6 @@ type ErrorResponse = {
 type AuthResult = {
 	user: User;
 	key: string;
-};
-
-export type ApiManager = {
-	connection: {
-		testURL: (url: string | null) => Promise<boolean>;
-		test: () => Promise<boolean>;
-	};
-	sessions: {
-		getAll: () => Promise<Session[]>;
-		logout: (id: string) => Promise<boolean>;
-		logoutAll: () => Promise<boolean>;
-	};
-	auth: {
-		login: (username: string, password: string) => Promise<User>;
-		test: () => Promise<boolean>;
-		me: () => Promise<User>;
-		logout: () => Promise<boolean>;
-	};
-	items: {
-		getAll: () => Promise<Item[]>;
-		getByID: (id: number) => Promise<Item>;
-		getByLocation: (location: string) => Promise<Item>;
-		editAmount: (id: number, amount: number) => Promise<Item>;
-		edit: (item: Item) => Promise<Item>;
-	};
 };
 
 const apiPrefix = '/api';
@@ -124,7 +99,7 @@ export const ConnectionAPI = {
 };
 
 export const AuthAPI = {
-	login: (username: string, password: string) =>
+	login: (username: User['username'], password: string) =>
 		new Promise<User>((resolve) => {
 			request<AuthResult>('/login', {method: RequestMethod.POST, body: {username, password}}).then(
 				(data) => {
@@ -150,7 +125,7 @@ export const AuthAPI = {
 
 export const SessionAPI = {
 	getAll: () => request<Session[]>('/sessions', {auth: true}),
-	logout: (id: string) =>
+	logout: (id: Session['id']) =>
 		booleanify(
 			request<MessageResponse>('/sessions/' + id, {
 				auth: true,
@@ -163,21 +138,40 @@ export const SessionAPI = {
 
 export const ItemAPI = {
 	getAll: () => request<Item[]>('/items', {auth: true}),
-	getByID: (id: number) => request<Item>('/items/' + id, {auth: true}),
+	getByID: (id: Item['id']) => request<Item>('/items/' + id, {auth: true}),
 	getByLocation: () => Promise.reject<Item>(notImplemented),
-	editAmount: (id: number, amount: number) =>
+	editAmount: (id: Item['id'], amount: Item['amount']) =>
 		request<Item>('/items/' + id, {
 			auth: true,
 			method: RequestMethod.PUT,
 			body: {amount}
 		}),
 	edit: (item: Item) =>
-		request<Item>('/items/' + item.id, {auth: true, method: RequestMethod.PATCH, body: item})
+		request<Item>('/items/' + item.id, {auth: true, method: RequestMethod.PATCH, body: item}),
+	delete: (item: Item) =>
+		booleanify(request<Item>('/items' + item.id, {auth: true, method: RequestMethod.DELETE}))
+};
+
+export const UserAPI = {
+	getAll: () => request<User[]>('/users', {auth: true}),
+	getByUsername: (username: User['username']) => request<User>('/users/' + username, {auth: true}),
+	create: (user: User) =>
+		request<User>('/users', {auth: true, method: RequestMethod.POST, body: user}),
+	edit: (user: User) =>
+		request<User>('/users/' + user.username, {auth: true, method: RequestMethod.PATCH, body: user}),
+	delete: (user: User) =>
+		booleanify(
+			request<User>('/users/' + user.username, {
+				auth: true,
+				method: RequestMethod.DELETE
+			})
+		)
 };
 
 export default {
 	connection: ConnectionAPI,
 	sessions: SessionAPI,
 	auth: AuthAPI,
-	items: ItemAPI
-} as ApiManager;
+	items: ItemAPI,
+	users: UserAPI
+};

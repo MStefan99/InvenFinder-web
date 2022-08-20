@@ -26,7 +26,7 @@ import {onMounted, ref} from 'vue';
 
 import appState from '../scripts/store';
 import Api from '../scripts/api';
-import {Session} from '../scripts/types';
+import type {Session} from '../scripts/types';
 
 const sessions = ref<Session[]>([]);
 

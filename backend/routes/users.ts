@@ -16,17 +16,54 @@ router.get('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
 	ctx.response.body = users;
 });
 
+// Get a user by username
+router.get(
+	'/:username',
+	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	async (ctx) => {
+		if (ctx.params.username === undefined) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'NO_USERNAME',
+				message: 'Username not provided',
+			};
+			return;
+		}
+
+		const user = await User.getByUsername(ctx.params.username);
+		if (user === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'USER_NOT_FOUND',
+				message: 'User not found',
+			};
+			return;
+		}
+
+		ctx.response.body = user;
+	},
+);
+
+// Add a new user
 router.post('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
-	const body = await ctx.request.body({ type: 'json' }).value;
+	try {
+		const body = await ctx.request.body({ type: 'json' }).value;
 
-	const user = await User.create(
-		body.username,
-		body.password,
-		parsePermissions(body.permissions),
-	);
+		const user = await User.create(
+			body.username,
+			body.password,
+			parsePermissions(body.permissions),
+		);
 
-	ctx.response.status = 201;
-	ctx.response.body = user;
+		ctx.response.status = 201;
+		ctx.response.body = user;
+	} catch {
+		ctx.response.status = 400;
+		ctx.response.body = {
+			error: 'INVALID_REQUEST',
+			message: 'Invalid request body',
+		};
+	}
 });
 
 // Edit user
@@ -63,7 +100,7 @@ router.patch(
 			}
 			const permissions = +body.permissions;
 			if (Number.isInteger(permissions)) {
-				user.permissions = parsePermissions(permissions);
+				user.permissions = permissions;
 			}
 
 			user.save();

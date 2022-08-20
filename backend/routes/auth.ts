@@ -3,7 +3,7 @@ import { Router } from '../deps.ts';
 import auth from '../lib/auth.ts';
 import User from '../lib/user.ts';
 import Session from '../lib/session.ts';
-import { parsePermissions, PERMISSIONS } from '../../common/permissions.ts';
+import { PERMISSIONS } from '../../common/permissions.ts';
 import { credentialsPresent } from './middleware.ts';
 
 const router = new Router();
@@ -103,7 +103,7 @@ router.patch('/me', auth.authenticated(), async (ctx) => {
 			}
 			const permissions = +body.permissions;
 			if (Number.isInteger(permissions)) {
-				user.permissions = parsePermissions(permissions);
+				user.permissions = permissions;
 			}
 		}
 

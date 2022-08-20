@@ -1,34 +1,35 @@
 <template lang="pug">
 #item
 	h2.text-accent.text-2xl.mb-4 Item details
-	.flex.justify-end
-		TextEditable(
-			v-model="item.location"
-			text-class="text-9xl font-semibold"
-			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-			@update:modelValue="updateItem")
-	.flex.justify-between
-		.grow.mr-2
+	div(v-if="item")
+		.flex.justify-end
 			TextEditable(
-				v-model="item.name"
+				v-model="item.location"
+				text-class="text-9xl font-semibold"
 				:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 				@update:modelValue="updateItem")
-			TextEditable(
-				v-model="item.description"
-				text-class="text-gray-500"
-				:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-				@update:modelValue="updateItem")
-			a.mr-4(:href="item.link") {{item.link}}
-		div
-			TextEditable(
-				v-model="item.amount"
-				text-class="text-gray-500"
-				@update:modelValue="updateItem"
-				:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
-	p.text-gray-500.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])") Right-click to edit
-	div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
-		button.mr-4(@click="editAmount(false)") Take from storage
-		button(@click="editAmount(true)") Put in storage
+		.flex.justify-between
+			.grow.mr-2
+				TextEditable(
+					v-model="item.name"
+					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
+					@update:modelValue="updateItem")
+				TextEditable(
+					v-model="item.description"
+					text-class="text-gray-500"
+					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
+					@update:modelValue="updateItem")
+				a.mr-4(:href="item.link") {{item.link}}
+			div
+				TextEditable(
+					v-model="item.amount"
+					text-class="text-gray-500"
+					@update:modelValue="updateItem"
+					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
+		p.text-gray-500.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])") Right-click to edit
+		div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
+			button.mr-4(@click="editAmount(false)") Take from storage
+			button(@click="editAmount(true)") Put in storage
 </template>
 
 <script setup lang="ts">

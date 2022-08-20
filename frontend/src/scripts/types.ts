@@ -1,16 +1,8 @@
-import {parsePermissions, PERMISSIONS} from '../../../common/permissions';
-
-export class User {
+export type User = {
 	id: number;
 	username: string;
-	permissions: PERMISSIONS[];
-
-	constructor(id: number, username: string, permissions: number) {
-		this.id = id;
-		this.username = username;
-		this.permissions = parsePermissions(permissions);
-	}
-}
+	permissions: number;
+};
 
 export type Session = {
 	id: string;
