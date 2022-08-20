@@ -1,4 +1,4 @@
-import {parsePermissions, PERMISSIONS} from '../../../common/permissions.ts';
+import {parsePermissions, PERMISSIONS} from '../../../common/permissions';
 
 export class User {
 	id: number;

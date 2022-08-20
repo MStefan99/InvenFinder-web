@@ -1,7 +1,7 @@
 import {reactive} from 'vue';
 
-import {User} from './types.ts';
-import {PERMISSIONS, hasPermissions} from '../../../common/permissions.ts';
+import {User} from './types';
+import {PERMISSIONS, hasPermissions} from '../../../common/permissions';
 
 type Store = {
 	backendURL: string | null;

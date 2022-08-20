@@ -1,8 +1,13 @@
 {
 	"compilerOptions": {
-		"module": "CommonJS",
-		"target": "ES6",
-		"sourceMap": true
+		"module": "ESNext",
+		"target": "ESNext",
+		"moduleResolution": "NodeNext",
+		"sourceMap": true,
+		"isolatedModules": true,
+		"skipLibCheck": true,
+		"types": ["vite/client"]
 	},
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules"],
+	"include": ["src/**/*.ts"]
 }

@@ -19,9 +19,9 @@ div
 <script setup lang="ts">
 import {ref} from 'vue';
 
-import {appState} from '../scripts/store.ts';
-import Api from '../scripts/api.ts';
-import {PERMISSIONS} from '../../../common/permissions.ts';
+import {appState} from '../scripts/store';
+import Api from '../scripts/api';
+import {PERMISSIONS} from '../../../common/permissions';
 import ConnectionDialog from './ConnectionDialog.vue';
 
 const connectionDialogOpen = ref<boolean>(false);

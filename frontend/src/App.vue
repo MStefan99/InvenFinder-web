@@ -18,8 +18,8 @@ import {onMounted} from 'vue';
 
 import NavBar from './components/NavBar.vue';
 import NotificationContainer from './components/PopupContainer.vue';
-import Api from './scripts/api.ts';
-import appState from './scripts/store.ts';
+import Api from './scripts/api';
+import appState from './scripts/store';
 
 onMounted(checkConnection);
 

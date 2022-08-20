@@ -24,9 +24,9 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
 
-import appState from '../scripts/store.ts';
-import Api from '../scripts/api.ts';
-import {Session} from '../scripts/types.ts';
+import appState from '../scripts/store';
+import Api from '../scripts/api';
+import {Session} from '../scripts/types';
 
 const sessions = ref<Session[]>([]);
 

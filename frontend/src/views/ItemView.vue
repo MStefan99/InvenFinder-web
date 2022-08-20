@@ -36,19 +36,12 @@ import {onMounted, ref} from 'vue';
 import {useRoute} from 'vue-router';
 
 import TextEditable from '../components/TextEditable.vue';
-import type {Item} from '../scripts/types.ts';
-import appState from '../scripts/store.ts';
-import Api from '../scripts/api.ts';
-import {PERMISSIONS} from '../../../common/permissions.ts';
+import type {Item} from '../scripts/types';
+import appState from '../scripts/store';
+import Api from '../scripts/api';
+import {PERMISSIONS} from '../../../common/permissions';
 
-const item = ref<Item>({
-	id: 0,
-	name: '',
-	description: '',
-	location: '',
-	amount: 0
-});
-
+const item = ref<Item | null>(null);
 const route = useRoute();
 
 onMounted(() => {

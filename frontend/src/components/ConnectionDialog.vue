@@ -35,8 +35,8 @@
 <script setup lang="ts">
 import {onMounted, reactive} from 'vue';
 
-import appState from '../scripts/store.ts';
-import Api from '../scripts/api.ts';
+import appState from '../scripts/store';
+import Api from '../scripts/api';
 
 enum ConnectionState {
 	TESTING,

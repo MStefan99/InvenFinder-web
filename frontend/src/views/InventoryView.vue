@@ -26,17 +26,17 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from 'vue';
 
-import {items as ItemsApi} from '../scripts/api.ts';
-import appState from '../scripts/store.ts';
-import {PERMISSIONS} from '../../../common/permissions.ts';
-import type {Item} from '../scripts/types.ts';
+import {ItemAPI} from '../scripts/api';
+import appState from '../scripts/store';
+import {PERMISSIONS} from '../../../common/permissions';
+import type {Item} from '../scripts/types';
 
 const items = ref<Item[]>([]);
 const addingItem = ref<boolean>(false);
-const editedItem = ref<Item | null>({});
+const editedItem = ref<Item | null>(null);
 
 function loadItems() {
-	ItemsApi.getAll().then((i) => (items.value = i));
+	ItemAPI.getAll().then((i) => (items.value = i));
 }
 
 watch(() => appState.apiKey, loadItems);

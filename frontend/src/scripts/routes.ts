@@ -4,7 +4,7 @@ import SettingsView from '../views/SettingsView.vue';
 import UsersView from '../views/UsersView.vue';
 import ItemView from '../views/ItemView.vue';
 import LabelView from '../views/LabelView.vue';
-import {clearPopups} from './popups.ts';
+import {clearPopups} from './popups';
 
 const routes: Array<RouteRecordRaw> = [
 	{

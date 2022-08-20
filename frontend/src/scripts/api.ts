@@ -1,5 +1,10 @@
-import appState from './store.ts';
-import {User, Session, Item} from './types.ts';
+import appState from './store';
+import {User, Session, Item} from './types';
+
+type AuthResult = {
+	user: User;
+	key: string;
+};
 
 export type ApiManager = {
 	connection: {
@@ -25,7 +30,8 @@ export type ApiManager = {
 };
 
 const apiPrefix = '/api';
-const notAuthenticated = {error: 'NO_AUTH', message: 'Not Authenticated'};
+const notConfigured = {error: 'NOT_CONFIGURED', message: 'Not configured'};
+const notAuthenticated = {error: 'NOT_AUTHENTICATED', message: 'Not authenticated'};
 const requestFailed = {error: 'REQ_FAILED', message: 'Request failed'};
 const notImplemented = {error: 'NOT_IMPLEMENTED', message: 'Not implemented'};
 
@@ -44,7 +50,11 @@ type RequestParams = {
 
 function request<T>(path: string, params: RequestParams): Promise<T> {
 	return new Promise((resolve, reject) => {
-		if ((params.auth && !appState.backendURL) || !appState.apiKey) {
+		if (!appState.backendURL) {
+			reject(notConfigured);
+		}
+
+		if (params.auth || !appState.apiKey) {
 			reject(notAuthenticated);
 		}
 
@@ -72,7 +82,35 @@ function request<T>(path: string, params: RequestParams): Promise<T> {
 	});
 }
 
-export const items = {
+function connect(host: string): Promise<boolean> {
+	return new Promise<boolean>((resolve, reject) => {
+		fetch(host + apiPrefix)
+			.then((res) => resolve(res.ok && res.headers.get('who-am-i') === 'Invenfinder'))
+			.catch(() => {
+				reject(requestFailed);
+			});
+	});
+}
+
+export const ConnectionAPI = {
+	testURL: (host: string) => connect(host),
+	test: () => connect(appState.backendURL)
+};
+
+export const AuthAPI = {
+	login: (username: string, password: string): Promise<User> =>
+		new Promise<User>((resolve, reject) => {
+			request<AuthResult>('/login', {method: RequestMethod.POST, body: {username, password}})
+				.then((data) => {
+					appState.setApiKey(data.key);
+					appState.setUser(data.user);
+					resolve(data.user);
+				})
+				.catch((err) => reject(err));
+		})
+};
+
+export const ItemAPI = {
 	getAll: () => request<Item[]>('/items', {auth: true}),
 	getById: (id: number) => request<Item>('/items/' + id, {auth: true}),
 	getByLocation: () => Promise.reject(notImplemented),
@@ -307,7 +345,7 @@ export default {
 							res.json().then((err) => reject(err));
 						}
 					})
-					.then((session) => resolve(session as Session))
+					.then((session) => resolve(session as Session[]))
 					.catch(() => {
 						reject(requestFailed);
 					});

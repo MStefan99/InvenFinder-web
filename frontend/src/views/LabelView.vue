@@ -12,8 +12,8 @@ div
 <script setup lang="ts">
 import {ref} from 'vue';
 
-import Api from '../scripts/api.ts';
-import type {Item} from '../scripts/types.ts';
+import Api from '../scripts/api';
+import type {Item} from '../scripts/types';
 
 const items = ref<Item[]>();
 const fontSize = ref<number>(1);

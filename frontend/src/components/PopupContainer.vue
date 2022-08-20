@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import {activeAlerts, activeConfirm, activePrompt} from '../scripts/popups.ts';
+import {activeAlerts, activeConfirm, activePrompt} from '../scripts/popups';
 import {ref} from 'vue';
 
 const promptValue = ref<string>('');
