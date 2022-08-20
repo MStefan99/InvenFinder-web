@@ -3,6 +3,10 @@
 		"lib": [
 			"deno.window"
 		],
+		"alwaysStrict": true,
+		"noImplicitAny": true,
+		"noImplicitOverride": true,
+		"noImplicitThis": true,
 		"strict": true
 	},
 	"lint": {

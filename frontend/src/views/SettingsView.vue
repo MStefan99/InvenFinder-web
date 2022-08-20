@@ -30,31 +30,31 @@ import {Session} from '../scripts/types';
 
 const sessions = ref<Session[]>([]);
 
-function parseUA(ua: string): string {
+function parseUA(ua: string): string | null {
 	const res = ua.match(/.*? \((.*?); (.*?)([;)]).*/);
-	let os: string;
+	let os: string | null;
 
-	if (!res) os = ua;
-	else if (res[1] === 'Linux') os = res[2];
-	else if (res[2] === 'Win64') os = res[1].replace('NT ', '').replace('.0', '');
+	if (!res) os = ua ?? null;
+	else if (res[1] === 'Linux') os = res[2] ?? null;
+	else if (res[2] === 'Win64') os = res[1]?.replace('NT ', '')?.replace('.0', '') ?? null;
 	else if (res[1] === 'Macintosh')
-		os = 'macOS ' + res[2].replace(/.*Mac OS X (.*?)$/, '$1').replace(/_/g, '.');
+		os = 'macOS ' + res[2]?.replace(/.*Mac OS X (.*?)$/, '$1')?.replace(/_/g, '.') ?? null;
 	else if (res[1] === 'iPhone')
-		os = 'iPhone (iOS ' + res[2].replace(/.*OS (.*?) like.*/, '$1)').replace(/_/g, '.');
+		os = 'iPhone (iOS ' + res[2]?.replace(/.*OS (.*?) like.*/, '$1)')?.replace(/_/g, '.') ?? null;
 	else if (res[1] === 'iPad')
-		os = 'iPad (iPadOS ' + res[2].replace(/.*OS (.*?) like.*/, '$1)').replace(/_/g, '.');
-	else os = res[1];
+		os = 'iPad (iPadOS ' + res[2]?.replace(/.*OS (.*?) like.*/, '$1)')?.replace(/_/g, '.') ?? null;
+	else os = res[1] ?? null;
 
 	return os;
 }
 
 function logout(session: Session) {
 	sessions.value.splice(sessions.value.indexOf(session), 1);
-	Api.auth.logoutSession(session.id);
+	Api.sessions.logout(session.id);
 }
 
 onMounted(() => {
-	Api.auth.getSessions().then((s) => (sessions.value = s));
+	Api.sessions.getAll().then((s) => (sessions.value = s));
 });
 </script>
 

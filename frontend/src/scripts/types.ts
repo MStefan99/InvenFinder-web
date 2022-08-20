@@ -12,12 +12,12 @@ export class User {
 	}
 }
 
-export class Session {
+export type Session = {
 	id: string;
 	ip: string;
 	ua: string;
 	time: number;
-}
+};
 
 export type Item = {
 	id: number;

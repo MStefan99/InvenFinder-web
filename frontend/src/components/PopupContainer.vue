@@ -26,11 +26,11 @@ import {ref} from 'vue';
 const promptValue = ref<string>('');
 
 function resolveConfirm(value: boolean) {
-	activeConfirm.value.resolve(value);
+	activeConfirm.value?.resolve(value);
 }
 
 function resolvePrompt() {
-	activePrompt.value.resolve(promptValue.value);
+	activePrompt.value?.resolve(promptValue.value);
 	promptValue.value = '';
 }
 </script>

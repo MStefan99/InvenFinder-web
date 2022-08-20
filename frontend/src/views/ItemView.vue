@@ -54,36 +54,32 @@ onMounted(() => {
 	}
 
 	Api.items.getByID(id).then((i) => {
-		if (i === null) {
-			return;
-		}
-
 		item.value = i;
 	});
 });
 
 function updateItem() {
-	Api.items.edit(item.value).then((i) => (item.value = i));
+	item.value && Api.items.edit(item.value).then((i) => (item.value = i));
 }
 
 function editAmount(add = false) {
-	const diff = +prompt('Choose amount');
+	const diff = +(prompt('Choose amount') ?? 0);
 
 	if (Number.isNaN(diff)) {
+		return;
+	}
+
+	if (!item.value) {
 		return;
 	}
 
 	const oldAmount = item.value.amount;
 	item.value.amount = add ? item.value.amount + diff : item.value.amount - diff;
 
-	Api.items.editAmount(item.value.id, item.value.amount).then((i) => {
-		if (i === null) {
-			item.value.amount = oldAmount;
-			return;
-		}
-
-		item.value.amount = i.amount;
-	});
+	Api.items
+		.editAmount(item.value.id, item.value.amount)
+		.then((i) => (item.value.amount = i.amount))
+		.catch(() => (item.value.amount = oldAmount));
 }
 </script>
 

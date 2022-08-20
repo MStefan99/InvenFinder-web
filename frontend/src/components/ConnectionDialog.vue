@@ -46,7 +46,7 @@ enum ConnectionState {
 }
 
 const state = reactive<{
-	url: string;
+	url: string | null;
 	username: string;
 	password: string;
 	connection: ConnectionState;

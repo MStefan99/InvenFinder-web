@@ -3,10 +3,17 @@
 		"module": "ESNext",
 		"target": "ESNext",
 		"moduleResolution": "NodeNext",
-		"sourceMap": true,
 		"isolatedModules": true,
+		"sourceMap": true,
+		"alwaysStrict": true,
+		"noImplicitAny": true,
+		"noImplicitOverride": true,
+		"noImplicitThis": true,
+		"strict": true,
+		"strictNullChecks": false,
 		"skipLibCheck": true,
-		"types": ["vite/client"]
+		"types": ["vite/client"],
+		"lib": ["ESNext"]
 	},
 	"exclude": ["node_modules"],
 	"include": ["src/**/*.ts"]

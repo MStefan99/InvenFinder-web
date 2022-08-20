@@ -30,11 +30,11 @@ let lastID = 0;
 export const activeAlerts = reactive<Alert[]>([]);
 export const activeConfirm = ref<{
 	confirm: Confirm;
-	resolve: (boolean) => void;
+	resolve: (res: boolean) => void;
 } | null>(null);
 export const activePrompt = ref<{
 	prompt: Prompt;
-	resolve: (string) => void;
+	resolve: (res: string) => void;
 } | null>(null);
 
 export function alert(title: string, type: PopupType, details?: string): Promise<void> {
