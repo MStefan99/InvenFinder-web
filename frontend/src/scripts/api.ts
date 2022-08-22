@@ -89,8 +89,10 @@ function connect(host: string | null): Promise<boolean> {
 	});
 }
 
-function booleanify(val: Promise<unknown>): Promise<boolean> {
-	return new Promise((resolve) => val.then((res) => resolve(!!res)));
+function booleanify(promise: Promise<unknown>): Promise<boolean> {
+	return new Promise((resolve, reject) =>
+		promise.then((res) => resolve(!!res)).catch((err) => reject(err))
+	);
 }
 
 export const ConnectionAPI = {
@@ -100,26 +102,28 @@ export const ConnectionAPI = {
 
 export const AuthAPI = {
 	login: (username: User['username'], password: string) =>
-		new Promise<User>((resolve) => {
-			request<AuthResult>('/login', {method: RequestMethod.POST, body: {username, password}}).then(
-				(data) => {
+		new Promise<User>((resolve, reject) => {
+			request<AuthResult>('/login', {method: RequestMethod.POST, body: {username, password}})
+				.then((data) => {
 					appState.setApiKey(data.key);
 					appState.setUser(data.user);
 					resolve(data.user);
-				}
-			);
+				})
+				.catch((err) => reject(err));
 		}),
 	test: () => booleanify(request('/auth', {auth: true})),
 	me: () => request<User>('/me', {auth: true}),
 	logout: () =>
-		new Promise<boolean>((resolve) => {
+		new Promise<boolean>((resolve, reject) => {
 			request<MessageResponse>('/logout', {
 				auth: true
-			}).then(() => {
-				appState.setApiKey(null);
-				appState.setUser(null);
-				resolve(true);
-			});
+			})
+				.then(() => {
+					appState.setApiKey(null);
+					appState.setUser(null);
+					resolve(true);
+				})
+				.catch((err) => reject(err));
 		})
 };
 
@@ -141,7 +145,7 @@ export const ItemAPI = {
 	getByID: (id: Item['id']) => request<Item>('/items/' + id, {auth: true}),
 	getByLocation: () => Promise.reject<Item>(notImplemented),
 	editAmount: (id: Item['id'], amount: Item['amount']) =>
-		request<Item>('/items/' + id, {
+		request<Item>('/items/' + id + '/amount', {
 			auth: true,
 			method: RequestMethod.PUT,
 			body: {amount}

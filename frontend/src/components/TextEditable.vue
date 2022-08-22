@@ -1,11 +1,11 @@
 <template lang="pug">
 div
 	span(v-if="!expanded || readonly" :class="textClass" @contextmenu.prevent="expanded = true") {{value}}
-	div(v-else)
+	form(v-else @submit.prevent="$emit('update:modelValue', value); expanded = false")
 		input(type="text" v-model="value")
 		.my-4
 			button.mr-4(type="button" @click="value = props.modelValue; expanded = false") Cancel
-			button(type="button" @click="$emit('update:modelValue', value); expanded = false") Save
+			button(type="submit") Save
 </template>
 
 <script setup lang="ts">
