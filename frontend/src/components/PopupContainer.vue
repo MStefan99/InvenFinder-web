@@ -70,7 +70,17 @@ function resolvePrompt() {
 
 .info {
 	color: var(--color-background);
-	background-color: #179e74;
+	background-color: #157c5f;
+}
+
+.notice {
+	color: var(--color-background);
+	background-color: #7a7714;
+}
+
+.warning {
+	color: var(--color-background);
+	background-color: #b44614;
 }
 
 form input {

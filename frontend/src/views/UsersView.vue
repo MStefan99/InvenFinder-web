@@ -14,8 +14,16 @@ import {ref} from 'vue';
 
 import type {User} from '../scripts/types';
 import {UserAPI} from '../scripts/api';
+import appState from '../scripts/store';
+import {PERMISSIONS} from '../../../common/permissions';
+import {alert, PopupType} from '../scripts/popups';
 
 const users = ref<User[]>();
+
+if (!appState.hasPermissions([PERMISSIONS.MANAGE_USERS])) {
+	console.log('not allowed');
+	alert('Not allowed', PopupType.Warning, 'You do not have permissions to view this page');
+}
 
 UserAPI.getAll().then((u) => (users.value = u));
 </script>

@@ -37,6 +37,7 @@ type RequestParams = {
 	auth?: boolean;
 	method?: RequestMethod;
 	body?: unknown;
+	query?: Record<string, string>;
 };
 
 function request<T>(path: string, params: RequestParams): Promise<T> {
@@ -51,7 +52,9 @@ function request<T>(path: string, params: RequestParams): Promise<T> {
 			return;
 		}
 
-		fetch(appState.backendURL + apiPrefix + path, {
+		const query = params?.query ? '?' + new URLSearchParams(params.query).toString() : '';
+
+		fetch(appState.backendURL + apiPrefix + path + query, {
 			method: params.method ?? 'GET',
 			headers: {
 				...(!!params.auth && {
@@ -79,6 +82,7 @@ function connect(host: string | null): Promise<boolean> {
 	return new Promise<boolean>((resolve, reject) => {
 		if (!host) {
 			reject(notConfigured);
+			return;
 		}
 
 		fetch(host + apiPrefix)

@@ -26,7 +26,7 @@ const routes: Array<RouteRecordRaw> = [
 		component: UsersView
 	},
 	{
-		path: '/user/:username',
+		path: '/users/:username',
 		name: 'user',
 		component: UserView
 	},

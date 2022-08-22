@@ -1,6 +1,6 @@
 import {reactive, ref} from 'vue';
 
-enum PopupType {
+export enum PopupType {
 	Info = 'info',
 	Notice = 'notice',
 	Warning = 'warning'

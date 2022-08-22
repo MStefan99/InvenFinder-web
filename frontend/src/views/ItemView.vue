@@ -41,6 +41,7 @@ import type {Item} from '../scripts/types';
 import appState from '../scripts/store';
 import Api from '../scripts/api';
 import {PERMISSIONS} from '../../../common/permissions';
+import {PopupType, prompt} from '../scripts/popups';
 
 const item = ref<Item | null>(null);
 const route = useRoute();
@@ -63,8 +64,8 @@ function updateItem() {
 	item.value && Api.items.edit(item.value).then((i) => (item.value = i));
 }
 
-function editAmount(add = false) {
-	const diff = +(prompt('Choose amount') ?? 0);
+async function editAmount(add = false) {
+	const diff = +((await prompt('Choose amount', PopupType.Info)) ?? 0);
 
 	if (Number.isNaN(diff)) {
 		return;
