@@ -2,7 +2,7 @@
 #users
 	h2.text-accent.text-2xl.mb-4 Users
 	#users-table
-		RouterLink.item(
+		RouterLink.list-item(
 			v-for="user in users"
 			:key="user.id"
 			:to="{name: 'user', params: {username: user.username}}")

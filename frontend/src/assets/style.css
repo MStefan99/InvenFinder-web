@@ -141,6 +141,12 @@ button[disabled] {
 	backdrop-filter: blur(2em);
 }
 
+.list-item {
+	display: block;
+	border-bottom: 1px solid var(--color-separator);
+	padding: 1em 0;
+}
+
 .popup-enter-active,
 .popup-leave-active {
 	transition: transform 0.5s ease-in-out;

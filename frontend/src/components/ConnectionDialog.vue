@@ -1,7 +1,7 @@
 <template lang="pug">
 .popup-wrapper(@click.self="$emit('close')")
 	.popup
-		p.text-2xl.mb-4 Sign in using the settings below
+		p.text-2xl.mb-4.font-semibold Sign in
 		form(@submit.prevent="connect")
 			.mb-3
 				label(for="url-input") URL

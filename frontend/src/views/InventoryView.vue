@@ -2,7 +2,7 @@
 #inventory
 	h2.text-accent.text-2xl.mb-4 Inventory
 	#items-table
-		RouterLink.item(
+		RouterLink.list-item(
 			v-for="item in items"
 			:key="item.id"
 			:to="{name: 'item', params: {id: item.id}}")
@@ -44,10 +44,4 @@ watch(() => appState.apiKey, loadItems);
 onMounted(loadItems);
 </script>
 
-<style scoped>
-.item {
-	display: block;
-	border-bottom: 1px solid var(--color-separator);
-	padding: 1em 0;
-}
-</style>
+<style scoped></style>
