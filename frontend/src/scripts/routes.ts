@@ -1,6 +1,7 @@
 import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
 import InventoryView from '../views/InventoryView.vue';
 import SettingsView from '../views/SettingsView.vue';
+import UsersView from '../views/UsersView.vue';
 import UserView from '../views/UserView.vue';
 import ItemView from '../views/ItemView.vue';
 import LabelView from '../views/LabelView.vue';
@@ -22,6 +23,11 @@ const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/users',
 		name: 'users',
+		component: UsersView
+	},
+	{
+		path: '/user/:username',
+		name: 'user',
 		component: UserView
 	},
 	{
