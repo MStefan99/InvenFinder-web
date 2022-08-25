@@ -41,7 +41,7 @@ import type {Item} from '../scripts/types';
 import appState from '../scripts/store';
 import Api from '../scripts/api';
 import {PERMISSIONS} from '../../../common/permissions';
-import {PopupColor, prompt} from '../scripts/popups';
+import {PopupColor, alert, prompt} from '../scripts/popups';
 
 const item = ref<Item | null>(null);
 const route = useRoute();
@@ -77,6 +77,16 @@ async function editAmount(add = false) {
 
 	const oldAmount = item.value.amount;
 	item.value.amount = add ? item.value.amount + diff : item.value.amount - diff;
+
+	if (item.value.amount < 0) {
+		alert(
+			'Invalid amount',
+			PopupColor.Red,
+			'You have entered an invalid amount ' +
+				'as the number of items would turn negatige. Please try again.'
+		);
+		return;
+	}
 
 	Api.items
 		.editAmount(item.value.id, item.value.amount)
