@@ -11,7 +11,7 @@
 		div
 			input(type="checkbox" v-model="permissions[1]" :true-value="1" :false-value="undefined")
 			label Edit, add and remove items
-		.mb-2
+		.mb-4
 			input(type="checkbox" v-model="permissions[2]" :true-value="2" :false-value="undefined")
 			label Edit, add and remove users
 		button(type="submit") Save
@@ -32,9 +32,8 @@ import {
 import {alert, confirm, PopupType} from '../scripts/popups';
 
 const user = ref<User | null>(null);
+const permissions = ref<PERMISSIONS[]>([]);
 const route = useRoute();
-
-const permissions = ref<PERMISSIONS[]>(parsePermissions(appState.user.permissions));
 
 if (Array.isArray(route.params.username)) {
 	throw new Error('Username parameter must not be an array');
@@ -44,7 +43,10 @@ if (!appState.hasPermissions([PERMISSIONS.MANAGE_USERS])) {
 	alert('Not allowed', PopupType.Warning, 'You do not have permissions to view this page');
 }
 
-UserAPI.getByUsername(route.params.username).then((u) => (user.value = u));
+UserAPI.getByUsername(route.params.username).then((u) => {
+	user.value = u;
+	permissions.value = parsePermissions(u.permissions);
+});
 
 async function save() {
 	if (
@@ -54,8 +56,8 @@ async function save() {
 			'You are about to lose permissions!',
 			PopupType.Warning,
 			'Be careful! You are going to revoke permissions from yourself and ' +
-				'you might not be able to regain them if you choose to proceed. ' +
-				'Are you sure this is what you intend to do and do you want to continue?'
+				'you might not be able to regain them if you proceed. ' +
+				'Are you sure this is what you intended to do and you want to continue?'
 		))
 	) {
 		permissions.value = parsePermissions(appState.user.permissions);

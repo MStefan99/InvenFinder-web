@@ -16,8 +16,8 @@
 		#prompt(v-if="activePrompt" :class="activePrompt.prompt.type")
 			.title {{activePrompt.prompt.title}}
 			.details {{activePrompt.prompt.details}}
-			form.mt-2(@submit.prevent="resolvePrompt()")
-				input.mr-4(type="text" v-model="promptValue")
+			form.flex.mt-2(@submit.prevent="resolvePrompt()")
+				input.mr-4.flex-grow(type="text" v-model="promptValue")
 				button(type="submit") Submit
 </template>
 
@@ -70,6 +70,7 @@ function resolvePrompt() {
 
 .title {
 	font-weight: bold;
+	@apply text-xl mb-6;
 }
 
 .info {

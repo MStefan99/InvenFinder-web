@@ -20,10 +20,11 @@ function fromNumber(value: number): PERMISSIONS[] {
 }
 
 function toNumber(permissions: PERMISSIONS[]): number {
+	const len = permissions.length;
 	let val = 0;
 
-	for (const p of permissions) {
-		val |= 1 << p ? 1 : 0;
+	for (let i = 0; i < len; ++i) {
+		val |= (permissions[i] !== undefined ? 1 : 0) << i;
 	}
 
 	return val;
@@ -32,21 +33,21 @@ function toNumber(permissions: PERMISSIONS[]): number {
 export function revokePermissions(
 	current: number | PERMISSIONS[],
 	revoke: number | PERMISSIONS[]
-): number {
+): PERMISSIONS[] {
 	const currentValue = encodePermissions(current);
 	const revokeValue = encodePermissions(revoke);
 
-	return currentValue & ~revokeValue;
+	return parsePermissions(currentValue & ~revokeValue);
 }
 
 export function grantPermissions(
 	current: number | PERMISSIONS[],
 	grant: number | PERMISSIONS[]
-): number {
+): PERMISSIONS[] {
 	const currentValue = encodePermissions(current);
 	const grantValue = encodePermissions(grant);
 
-	return currentValue | grantValue;
+	return parsePermissions(currentValue | grantValue);
 }
 
 export function parsePermissions(p: number | PERMISSIONS[] | undefined): PERMISSIONS[] {
