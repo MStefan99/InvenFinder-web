@@ -74,6 +74,14 @@ class User {
 		this.permissions = encodePermissions(props.permissions);
 	}
 
+	toJSON() {
+		return {
+			id: this.id,
+			username: this.username,
+			permissions: this.permissions,
+		};
+	}
+
 	save(): Promise<void> {
 		return new Promise((resolve, reject) => {
 			clearTimeout(this.#saveHandle);

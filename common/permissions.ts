@@ -23,10 +23,30 @@ function toNumber(permissions: PERMISSIONS[]): number {
 	let val = 0;
 
 	for (const p of permissions) {
-		val |= 1 << p;
+		val |= 1 << p ? 1 : 0;
 	}
 
 	return val;
+}
+
+export function revokePermissions(
+	current: number | PERMISSIONS[],
+	revoke: number | PERMISSIONS[]
+): number {
+	const currentValue = encodePermissions(current);
+	const revokeValue = encodePermissions(revoke);
+
+	return currentValue & ~revokeValue;
+}
+
+export function grantPermissions(
+	current: number | PERMISSIONS[],
+	grant: number | PERMISSIONS[]
+): number {
+	const currentValue = encodePermissions(current);
+	const grantValue = encodePermissions(grant);
+
+	return currentValue | grantValue;
 }
 
 export function parsePermissions(p: number | PERMISSIONS[] | undefined): PERMISSIONS[] {
@@ -60,6 +80,5 @@ export function hasPermissions(
 	const requestedValue = encodePermissions(requestedPermissions);
 	const grantedValue = encodePermissions(grantedPermissions);
 
-	// noinspection JSBitwiseOperatorUsage
 	return (grantedValue & requestedValue) === requestedValue;
 }

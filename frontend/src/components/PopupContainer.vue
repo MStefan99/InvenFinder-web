@@ -5,18 +5,20 @@
 			.alert(v-for="alert in activeAlerts" :key="alert.title" :class="alert.type")
 				.title {{alert.title}}
 				.details {{alert.details}}
-	#confirm(v-if="activeConfirm" :class="activeConfirm.confirm.type")
-		.title {{activeConfirm.confirm.title}}
-		.details {{activeConfirm.confirm.details}}
-		.mt-2
-			button.mr-4(@click="resolveConfirm(true)") Yes
-			button(@click="resolveConfirm(false)") No
-	#prompt(v-if="activePrompt" :class="activePrompt.prompt.type")
-		.title {{activePrompt.prompt.title}}
-		.details {{activePrompt.prompt.details}}
-		form.mt-2(@submit.prevent="resolvePrompt()")
-			input.mr-4(type="text" v-model="promptValue")
-			button(type="submit") Submit
+	Transition(name="popup")
+		#confirm(v-if="activeConfirm" :class="activeConfirm.confirm.type")
+			.title {{activeConfirm.confirm.title}}
+			.details {{activeConfirm.confirm.details}}
+			.mt-2
+				button.mr-4(@click="resolveConfirm(true)") Yes
+				button(@click="resolveConfirm(false)") No
+	Transition(name="popup")
+		#prompt(v-if="activePrompt" :class="activePrompt.prompt.type")
+			.title {{activePrompt.prompt.title}}
+			.details {{activePrompt.prompt.details}}
+			form.mt-2(@submit.prevent="resolvePrompt()")
+				input.mr-4(type="text" v-model="promptValue")
+				button(type="submit") Submit
 </template>
 
 <script setup lang="ts">
@@ -52,8 +54,10 @@ function resolvePrompt() {
 #confirm,
 #prompt {
 	position: relative;
-	width: 80vw;
+	width: min(768px, 90vw);
 	margin: 0 auto;
+
+	@apply shadow-xl;
 }
 
 .alert,
@@ -95,7 +99,7 @@ form input {
 
 .popup-enter-from,
 .popup-leave-to {
-	transform: translateX(50%);
+	transform: translateY(-50%);
 	opacity: 0;
 }
 </style>
