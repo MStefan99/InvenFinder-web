@@ -41,7 +41,7 @@ import type {Item} from '../scripts/types';
 import appState from '../scripts/store';
 import Api from '../scripts/api';
 import {PERMISSIONS} from '../../../common/permissions';
-import {PopupType, prompt} from '../scripts/popups';
+import {PopupColor, prompt} from '../scripts/popups';
 
 const item = ref<Item | null>(null);
 const route = useRoute();
@@ -65,7 +65,7 @@ function updateItem() {
 }
 
 async function editAmount(add = false) {
-	const diff = +((await prompt('Choose amount', PopupType.Info)) ?? 0);
+	const diff = +((await prompt('Choose amount', PopupColor.Green)) ?? 0);
 
 	if (Number.isNaN(diff)) {
 		return;

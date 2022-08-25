@@ -6,17 +6,17 @@
 				.title {{alert.title}}
 				.details {{alert.details}}
 	Transition(name="popup")
-		#confirm(v-if="activeConfirm" :class="activeConfirm.confirm.type")
+		.confirm(v-if="activeConfirm" :class="activeConfirm.confirm.type")
 			.title {{activeConfirm.confirm.title}}
 			.details {{activeConfirm.confirm.details}}
-			.mt-2
-				button.mr-4(@click="resolveConfirm(true)") Yes
-				button(@click="resolveConfirm(false)") No
+			.mt-4
+				button.green.mr-4(@click="resolveConfirm(true)") Yes
+				button.red(@click="resolveConfirm(false)") No
 	Transition(name="popup")
-		#prompt(v-if="activePrompt" :class="activePrompt.prompt.type")
+		.prompt(v-if="activePrompt" :class="activePrompt.prompt.type")
 			.title {{activePrompt.prompt.title}}
 			.details {{activePrompt.prompt.details}}
-			form.flex.mt-2(@submit.prevent="resolvePrompt()")
+			form.flex.mt-4(@submit.prevent="resolvePrompt()")
 				input.mr-4.flex-grow(type="text" v-model="promptValue")
 				button(type="submit") Submit
 </template>
@@ -51,8 +51,8 @@ function resolvePrompt() {
 	padding: 2em;
 }
 
-#confirm,
-#prompt {
+.confirm,
+.prompt {
 	position: relative;
 	width: min(768px, 90vw);
 	margin: 0 auto;
@@ -61,8 +61,11 @@ function resolvePrompt() {
 }
 
 .alert,
-#confirm,
-#prompt {
+.confirm,
+.prompt {
+	border: 6px solid var(--color-accent);
+	background-color: var(--color-overlay);
+	backdrop-filter: blur(8px);
 	border-radius: 1ch;
 	padding: 1em;
 	margin-bottom: 2em;
@@ -73,19 +76,19 @@ function resolvePrompt() {
 	@apply text-xl mb-6;
 }
 
-.info {
-	color: var(--color-background);
-	background-color: #157c5f;
+.green {
+	border-color: var(--color-green);
+	color: var(--color-green);
 }
 
-.notice {
-	color: var(--color-background);
-	background-color: #7a7714;
+.yellow {
+	border-color: var(--color-yellow);
+	color: var(--color-yellow);
 }
 
-.warning {
-	color: var(--color-background);
-	background-color: #b44614;
+.red {
+	border-color: var(--color-red);
+	color: var(--color-red);
 }
 
 form input {

@@ -6,13 +6,22 @@
 	h3.text-accent.text-lg.mb-4 Permissions
 	form.permissions(@submit.prevent="save")
 		div
-			input(type="checkbox" v-model="permissions[0]" :true-value="0" :false-value="undefined")
+			input(
+				type="checkbox"
+				:checked="hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT], permissions)"
+				@change="setPermission(PERMISSIONS.EDIT_ITEM_AMOUNT, $event.target.checked)")
 			label Store and retrieve items
 		div
-			input(type="checkbox" v-model="permissions[1]" :true-value="1" :false-value="undefined")
+			input(
+				type="checkbox"
+				:checked="hasPermissions([PERMISSIONS.MANAGE_ITEMS], permissions)"
+				@change="setPermission(PERMISSIONS.MANAGE_ITEMS, $event.target.checked)")
 			label Edit, add and remove items
 		.mb-4
-			input(type="checkbox" v-model="permissions[2]" :true-value="2" :false-value="undefined")
+			input(
+				type="checkbox"
+				:checked="hasPermissions([PERMISSIONS.MANAGE_USERS], permissions)"
+				@change="setPermission(PERMISSIONS.MANAGE_USERS, $event.target.checked)")
 			label Edit, add and remove users
 		button(type="submit") Save
 </template>
@@ -29,7 +38,7 @@ import {
 	hasPermissions,
 	PERMISSIONS
 } from '../../../common/permissions';
-import {alert, confirm, PopupType} from '../scripts/popups';
+import {alert, confirm, PopupColor} from '../scripts/popups';
 
 const user = ref<User | null>(null);
 const permissions = ref<PERMISSIONS[]>([]);
@@ -40,7 +49,7 @@ if (Array.isArray(route.params.username)) {
 }
 
 if (!appState.hasPermissions([PERMISSIONS.MANAGE_USERS])) {
-	alert('Not allowed', PopupType.Warning, 'You do not have permissions to view this page');
+	alert('Not allowed', PopupColor.Red, 'You do not have permissions to view this page');
 }
 
 UserAPI.getByUsername(route.params.username).then((u) => {
@@ -48,13 +57,21 @@ UserAPI.getByUsername(route.params.username).then((u) => {
 	permissions.value = parsePermissions(u.permissions);
 });
 
+function setPermission(permission: PERMISSIONS, set: boolean) {
+	if (!set) {
+		permissions.value = permissions.value.filter((p) => p !== permission);
+	} else {
+		permissions.value.some((p) => p === permission) || permissions.value.push(permission);
+	}
+}
+
 async function save() {
 	if (
 		user.value.id === appState.user.id &&
 		!hasPermissions(user.value.permissions, permissions.value) &&
 		!(await confirm(
 			'You are about to lose permissions!',
-			PopupType.Warning,
+			PopupColor.Red,
 			'Be careful! You are going to revoke permissions from yourself and ' +
 				'you might not be able to regain them if you proceed. ' +
 				'Are you sure this is what you intended to do and you want to continue?'

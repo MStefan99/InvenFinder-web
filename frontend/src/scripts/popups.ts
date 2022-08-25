@@ -1,28 +1,28 @@
 import {reactive, ref} from 'vue';
 
-export enum PopupType {
-	Info = 'info',
-	Notice = 'notice',
-	Warning = 'warning'
+export enum PopupColor {
+	Green = 'green',
+	Yellow = 'yellow',
+	Red = 'red'
 }
 
 type Alert = {
 	id: number;
 	title: string;
 	details?: string;
-	type: PopupType;
+	type: PopupColor;
 };
 
 type Confirm = {
 	title: string;
 	details?: string;
-	type: PopupType;
+	type: PopupColor;
 };
 
 type Prompt = {
 	title: string;
 	details?: string;
-	type: PopupType;
+	type: PopupColor;
 };
 
 let lastID = 0;
@@ -37,7 +37,7 @@ export const activePrompt = ref<{
 	resolve: (res: string) => void;
 } | null>(null);
 
-export function alert(title: string, type: PopupType, details?: string): Promise<void> {
+export function alert(title: string, type: PopupColor, details?: string): Promise<void> {
 	return new Promise<void>((resolve) => {
 		const id = ++lastID;
 
@@ -55,7 +55,7 @@ export function alert(title: string, type: PopupType, details?: string): Promise
 	});
 }
 
-export function confirm(title: string, type: PopupType, details?: string): Promise<boolean> {
+export function confirm(title: string, type: PopupColor, details?: string): Promise<boolean> {
 	if (activeConfirm.value || activePrompt.value) {
 		throw new Error('Only one popup is allowed at a time');
 	}
@@ -72,7 +72,7 @@ export function confirm(title: string, type: PopupType, details?: string): Promi
 	);
 }
 
-export function prompt(title: string, type: PopupType, details?: string) {
+export function prompt(title: string, type: PopupColor, details?: string) {
 	if (activeConfirm.value || activePrompt.value) {
 		throw new Error('Only one popup is allowed at a time');
 	}

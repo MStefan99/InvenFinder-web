@@ -20,11 +20,10 @@ function fromNumber(value: number): PERMISSIONS[] {
 }
 
 function toNumber(permissions: PERMISSIONS[]): number {
-	const len = permissions.length;
 	let val = 0;
 
-	for (let i = 0; i < len; ++i) {
-		val |= (permissions[i] !== undefined ? 1 : 0) << i;
+	for (const p of permissions) {
+		val |= 1 << p;
 	}
 
 	return val;

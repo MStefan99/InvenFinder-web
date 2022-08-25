@@ -11,8 +11,12 @@ html {
 	--color-muted: #ddd;
 	--color-accent: #05a18a;
 
+	--color-green: #157c5f;
+	--color-yellow: #7a7714;
+	--color-red: #b44614;
+
 	--color-separator: #eee;
-	--color-overlay: #fff8;
+	--color-overlay: #fffb;
 	--color-shadow: #0001;
 
 	color: var(--color-foreground);
@@ -49,10 +53,6 @@ a {
 	cursor: pointer;
 }
 
-input {
-	background-color: inherit;
-}
-
 nav {
 	position: sticky;
 	top: 0;
@@ -73,6 +73,10 @@ nav .clickable:not(:last-child) {
 main,
 footer {
 	padding: 2em min(2em, 5%);
+}
+
+input {
+	background-color: inherit;
 }
 
 input,
@@ -116,6 +120,33 @@ button:not([disabled]):hover {
 
 button[disabled] {
 	@apply bg-muted cursor-not-allowed;
+}
+
+button.green {
+	color: var(--color-green);
+	border-color: var(--color-green);
+}
+
+button.green:not([disabled]):hover {
+	background-color: var(--color-green);
+}
+
+button.yellow {
+	color: var(--color-yellow);
+	border-color: var(--color-yellow);
+}
+
+button.yellow:not([disabled]):hover {
+	background-color: var(--color-yellow);
+}
+
+button.red {
+	color: var(--color-red);
+	border-color: var(--color-red);
+}
+
+button.red:not([disabled]):hover {
+	background-color: var(--color-red);
 }
 
 .popup-wrapper {

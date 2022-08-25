@@ -52,7 +52,7 @@
 	"tasks": {
 		"start": "deno run --allow-net --allow-env --watch index.ts",
 		"build": "echo 'Nothing to build'",
-		"lint": "deno lint && deno fmt --check",
+		"lint": "deno check index.ts && deno lint && deno fmt --check",
 		"fmt": "deno fmt"
 	}
 }
