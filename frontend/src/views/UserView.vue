@@ -34,8 +34,8 @@ import {UserAPI} from '../scripts/api';
 import appState from '../scripts/store';
 import {
 	encodePermissions,
-	parsePermissions,
 	hasPermissions,
+	parsePermissions,
 	PERMISSIONS
 } from '../../../common/permissions';
 import {alert, confirm, PopupColor} from '../scripts/popups';
@@ -80,9 +80,16 @@ async function save() {
 		permissions.value = parsePermissions(appState.user.permissions);
 		return;
 	}
-	user.value.permissions = encodePermissions(permissions.value);
+	const newPermissions = encodePermissions(permissions.value);
+	if (user.value.permissions === newPermissions) {
+		alert('No changes', PopupColor.Yellow, "You haven't made any changes to save");
+		return;
+	}
+	user.value.permissions = newPermissions;
 
-	UserAPI.edit(user.value);
+	UserAPI.edit(user.value).then(() =>
+		alert('Saved', PopupColor.Green, 'User was saved successfully')
+	);
 }
 </script>
 

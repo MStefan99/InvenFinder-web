@@ -29,12 +29,13 @@
 		p.text-gray-500.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])") Right-click to edit
 		div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
 			button.mr-4(@click="editAmount(false)") Take from storage
-			button(@click="editAmount(true)") Put in storage
+			button.mr-4(@click="editAmount(true)") Put in storage
+			button(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
 </template>
 
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
-import {useRoute} from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 
 import TextEditable from '../components/TextEditable.vue';
 import type {Item} from '../scripts/types';
@@ -45,6 +46,7 @@ import {PopupColor, alert, prompt} from '../scripts/popups';
 
 const item = ref<Item | null>(null);
 const route = useRoute();
+const router = useRouter();
 
 onMounted(() => {
 	const idParam = route.params.id instanceof Array ? route.params.id[0] : route.params.id;
@@ -83,7 +85,7 @@ async function editAmount(add = false) {
 			'Invalid amount',
 			PopupColor.Red,
 			'You have entered an invalid amount ' +
-				'as the number of items would turn negatige. Please try again.'
+				'as the number of items would turn negative. Please try again.'
 		);
 		return;
 	}
@@ -92,6 +94,10 @@ async function editAmount(add = false) {
 		.editAmount(item.value.id, item.value.amount)
 		.then((i) => (item.value.amount = i.amount))
 		.catch(() => (item.value.amount = oldAmount));
+}
+
+function deleteItem() {
+	Api.items.delete(item.value).then(() => router.push({name: 'home'}));
 }
 </script>
 

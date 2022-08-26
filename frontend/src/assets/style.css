@@ -75,6 +75,11 @@ footer {
 	padding: 2em min(2em, 5%);
 }
 
+textarea,
+label {
+	display: block;
+}
+
 input {
 	background-color: inherit;
 }
@@ -84,8 +89,8 @@ button {
 	transition: all 0.1s ease-in-out;
 }
 
-input:not(.plain),
-input.plain:focus-visible,
+input,
+textarea,
 button {
 	@apply rounded-xl shadow;
 	border: 0.1em solid var(--color-accent);
@@ -95,7 +100,8 @@ button {
 }
 
 input.full,
-button.full {
+button.full,
+textarea.full {
 	display: inline-block;
 	@apply w-full;
 }

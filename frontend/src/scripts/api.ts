@@ -115,6 +115,16 @@ export const AuthAPI = {
 				})
 				.catch((err) => reject(err));
 		}),
+	register: (username: User['username'], password: string) =>
+		new Promise<User>((resolve, reject) => {
+			request<AuthResult>('/register', {method: RequestMethod.POST, body: {username, password}})
+				.then((data) => {
+					appState.setApiKey(data.key);
+					appState.setUser(data.user);
+					resolve(data.user);
+				})
+				.catch((err) => reject(err));
+		}),
 	test: () => booleanify(request('/auth', {auth: true})),
 	me: () => request<User>('/me', {auth: true}),
 	logout: () =>
@@ -145,6 +155,8 @@ export const SessionAPI = {
 };
 
 export const ItemAPI = {
+	add: (item: Item) =>
+		request<Item>('/items', {auth: true, method: RequestMethod.POST, body: item}),
 	getAll: () => request<Item[]>('/items', {auth: true}),
 	getByID: (id: Item['id']) => request<Item>('/items/' + id, {auth: true}),
 	getByLocation: () => Promise.reject<Item>(notImplemented),
@@ -157,14 +169,14 @@ export const ItemAPI = {
 	edit: (item: Item) =>
 		request<Item>('/items/' + item.id, {auth: true, method: RequestMethod.PATCH, body: item}),
 	delete: (item: Item) =>
-		booleanify(request<Item>('/items' + item.id, {auth: true, method: RequestMethod.DELETE}))
+		booleanify(request<Item>('/items/' + item.id, {auth: true, method: RequestMethod.DELETE}))
 };
 
 export const UserAPI = {
+	add: (user: User) =>
+		request<User>('/users', {auth: true, method: RequestMethod.POST, body: user}),
 	getAll: () => request<User[]>('/users', {auth: true}),
 	getByUsername: (username: User['username']) => request<User>('/users/' + username, {auth: true}),
-	create: (user: User) =>
-		request<User>('/users', {auth: true, method: RequestMethod.POST, body: user}),
 	edit: (user: User) =>
 		request<User>('/users/' + user.username, {auth: true, method: RequestMethod.PATCH, body: user}),
 	delete: (user: User) =>
