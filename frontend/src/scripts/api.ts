@@ -1,5 +1,5 @@
 import appState from './store';
-import type {User, Session, Item} from './types';
+import type {User, Session, Item, NewUser, NewItem} from './types';
 
 type MessageResponse = {
 	code: string;
@@ -155,7 +155,7 @@ export const SessionAPI = {
 };
 
 export const ItemAPI = {
-	add: (item: Item) =>
+	add: (item: NewItem) =>
 		request<Item>('/items', {auth: true, method: RequestMethod.POST, body: item}),
 	getAll: () => request<Item[]>('/items', {auth: true}),
 	getByID: (id: Item['id']) => request<Item>('/items/' + id, {auth: true}),
@@ -173,7 +173,7 @@ export const ItemAPI = {
 };
 
 export const UserAPI = {
-	add: (user: User) =>
+	add: (user: NewUser) =>
 		request<User>('/users', {auth: true, method: RequestMethod.POST, body: user}),
 	getAll: () => request<User[]>('/users', {auth: true}),
 	getByUsername: (username: User['username']) => request<User>('/users/' + username, {auth: true}),

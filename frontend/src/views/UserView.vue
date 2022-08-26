@@ -10,19 +10,19 @@
 				type="checkbox"
 				:checked="hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT], permissions)"
 				@change="setPermission(PERMISSIONS.EDIT_ITEM_AMOUNT, $event.target.checked)")
-			label Store and retrieve items
+			label.inline Store and retrieve items
 		div
 			input(
 				type="checkbox"
 				:checked="hasPermissions([PERMISSIONS.MANAGE_ITEMS], permissions)"
 				@change="setPermission(PERMISSIONS.MANAGE_ITEMS, $event.target.checked)")
-			label Edit, add and remove items
+			label.inline Edit, add and remove items
 		.mb-4
 			input(
 				type="checkbox"
 				:checked="hasPermissions([PERMISSIONS.MANAGE_USERS], permissions)"
 				@change="setPermission(PERMISSIONS.MANAGE_USERS, $event.target.checked)")
-			label Edit, add and remove users
+			label.inline Edit, add and remove users
 		button(type="submit") Save
 </template>
 

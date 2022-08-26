@@ -42,7 +42,7 @@ import type {Item} from '../scripts/types';
 import appState from '../scripts/store';
 import Api from '../scripts/api';
 import {PERMISSIONS} from '../../../common/permissions';
-import {PopupColor, alert, prompt} from '../scripts/popups';
+import {PopupColor, alert, confirm, prompt} from '../scripts/popups';
 
 const item = ref<Item | null>(null);
 const route = useRoute();
@@ -96,8 +96,16 @@ async function editAmount(add = false) {
 		.catch(() => (item.value.amount = oldAmount));
 }
 
-function deleteItem() {
-	Api.items.delete(item.value).then(() => router.push({name: 'home'}));
+async function deleteItem() {
+	if (
+		await confirm(
+			'Delete this item?',
+			PopupColor.Red,
+			'Are you sure you want to delete ' + item.value.name + '?'
+		)
+	) {
+		Api.items.delete(item.value).then(() => router.push({name: 'home'}));
+	}
 }
 </script>
 

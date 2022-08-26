@@ -7,22 +7,38 @@
 			:key="user.id"
 			:to="{name: 'user', params: {username: user.username}}")
 			p {{user.username}}
+	button.mt-4(@click="newUser = defaultUser") Add a new user
+	Transition(name="popup")
+		.popup-wrapper(v-if="newUser !== null" @click.self="newUser = null")
+			form.popup(@submit.prevent="addUser()")
+				p.text-2xl.mb-4 New item
+				label.mb-2(for="name-input") Username
+				input#username-input.mb-4.full(v-model="newUser.username" type="text" placeholder="user")
+				label.mb-2(for="desc-input") Password
+				input#password-input.mb-4.full(v-model="newUser.password" type=password placeholder="pass")
+				button(type="submit") Add user
 </template>
 
 <script setup lang="ts">
 import {ref} from 'vue';
 
-import type {User} from '../scripts/types';
-import {UserAPI} from '../scripts/api';
+import type {User, NewUser} from '../scripts/types';
+import Api, {UserAPI} from '../scripts/api';
 import appState from '../scripts/store';
 import {PERMISSIONS} from '../../../common/permissions';
 import {alert, PopupColor} from '../scripts/popups';
 
 const users = ref<User[]>();
+const newUser = ref<NewUser | null>(null);
+const defaultUser = {username: '', password: ''};
 
 if (!appState.hasPermissions([PERMISSIONS.MANAGE_USERS])) {
 	console.log('not allowed');
 	alert('Not allowed', PopupColor.Red, 'You do not have permissions to view this page');
+}
+
+function addUser() {
+	Api.users.add(newUser.value).then((u) => users.value.push(u));
 }
 
 UserAPI.getAll().then((u) => (users.value = u));
