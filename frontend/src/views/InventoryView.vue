@@ -9,10 +9,10 @@
 			.flex.justify-between
 				div
 					.mr-4 {{item.name}}
-					.mr-4.text-gray-500 {{item.description}}
+					.mr-4.text-muted {{item.description}}
 				div
 					.text-right.font-semibold {{item.location}}
-					.text-right.text-gray-500 {{item.amount}}
+					.text-right.text-muted {{item.amount}}
 	button.mt-4(
 		v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 		@click="newItem = defaultItem") Add a new item
@@ -42,7 +42,7 @@ import {onMounted, ref, watch} from 'vue';
 import Api from '../scripts/api';
 import appState from '../scripts/store';
 import {PERMISSIONS} from '../../../common/permissions';
-import type {Item} from '../scripts/types';
+import type {Item, NewItem} from '../scripts/types';
 
 const defaultItem = {
 	name: '',
@@ -50,7 +50,7 @@ const defaultItem = {
 	link: null,
 	location: '',
 	amount: 10
-} as Item;
+} as NewItem;
 
 const items = ref<Item[]>([]);
 const newItem = ref<Item | null>(null);

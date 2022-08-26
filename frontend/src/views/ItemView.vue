@@ -10,27 +10,36 @@
 				@update:modelValue="updateItem")
 		.flex.justify-between
 			.grow.mr-2
-				TextEditable(
+				TextEditable.mb-2(
 					v-model="item.name"
+					text-class="text-xl font-bold"
+					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
+					@update:modelValue="updateItem")
+				TextEditable.mb-2(
+					v-model="item.description"
+					placeholder="[No description]"
+					text-class="text-muted"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 					@update:modelValue="updateItem")
 				TextEditable(
-					v-model="item.description"
-					text-class="text-gray-500"
-					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-					@update:modelValue="updateItem")
-				a.mr-4(:href="item.link") {{item.link}}
+					v-model="item.link"
+					placeholder="[No link]"
+					text-class="text-muted"
+					clickable
+					@click="open(item.link)"
+					@update:modelValue="updateItem"
+					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 			div
 				TextEditable(
 					v-model="item.amount"
-					text-class="text-gray-500"
+					text-class="text-muted"
 					@update:modelValue="updateItem"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
-		p.text-gray-500.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])") Right-click to edit
+		p.text-muted.my-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])") Right-click to edit
 		div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
 			button.mr-4(@click="editAmount(false)") Take from storage
 			button.mr-4(@click="editAmount(true)") Put in storage
-			button(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
+			button.red(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
 </template>
 
 <script setup lang="ts">
@@ -61,6 +70,10 @@ onMounted(() => {
 		item.value = i;
 	});
 });
+
+function open(url: string) {
+	window.location.href = url;
+}
 
 function updateItem() {
 	item.value && Api.items.edit(item.value).then((i) => (item.value = i));

@@ -23,13 +23,14 @@
 				:checked="hasPermissions([PERMISSIONS.MANAGE_USERS], permissions)"
 				@change="setPermission(PERMISSIONS.MANAGE_USERS, $event.target.checked)")
 			label.inline Edit, add and remove users
-		button(type="submit") Save
+		button.mr-4(type="submit") Save
+		button.red(type="button" @click="deleteUser()") Delete
 </template>
 
 <script setup lang="ts">
 import {ref} from 'vue';
 import type {User} from '../scripts/types';
-import {useRoute} from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import {UserAPI} from '../scripts/api';
 import appState from '../scripts/store';
 import {
@@ -43,6 +44,7 @@ import {alert, confirm, PopupColor} from '../scripts/popups';
 const user = ref<User | null>(null);
 const permissions = ref<PERMISSIONS[]>([]);
 const route = useRoute();
+const router = useRouter();
 
 if (Array.isArray(route.params.username)) {
 	throw new Error('Username parameter must not be an array');
@@ -90,6 +92,18 @@ async function save() {
 	UserAPI.edit(user.value).then(() =>
 		alert('Saved', PopupColor.Green, 'User was saved successfully')
 	);
+}
+
+async function deleteUser() {
+	if (
+		await confirm(
+			'Delete this user?',
+			PopupColor.Red,
+			'Are you sure you want to delete ' + user.value.username + '?'
+		)
+	) {
+		UserAPI.delete(user.value).then(() => router.push({name: 'users'}));
+	}
 }
 </script>
 

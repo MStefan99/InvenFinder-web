@@ -1,6 +1,6 @@
 <template lang="pug">
-#popups
-	#alerts
+.popups
+	.alerts
 		TransitionGroup(name="popup" v-if="!activeConfirm && !activePrompt")
 			.alert(v-for="alert in activeAlerts" :key="alert.title" :class="alert.type")
 				.title {{alert.title}}
@@ -38,14 +38,14 @@ function resolvePrompt() {
 </script>
 
 <style scoped>
-#popups {
+.popups {
 	position: fixed;
 	left: 0;
 	right: 0;
 	top: 10vh;
 }
 
-#alerts {
+.alerts {
 	position: absolute;
 	right: 10vh;
 	padding: 2em;
@@ -65,7 +65,7 @@ function resolvePrompt() {
 .prompt {
 	border: 6px solid var(--color-accent);
 	background-color: var(--color-overlay);
-	backdrop-filter: blur(8px);
+	backdrop-filter: blur(1em);
 	border-radius: 1ch;
 	padding: 1em;
 	margin-bottom: 2em;

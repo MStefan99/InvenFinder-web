@@ -8,12 +8,13 @@ html {
 
 	--color-background: var(--color-white);
 	--color-foreground: var(--color-black);
-	--color-muted: #ddd;
-	--color-accent: #05a18a;
+	--color-muted: #444;
+	--color-accent: #3b00a2;
 
-	--color-green: #157c5f;
-	--color-yellow: #7a7714;
 	--color-red: #b44614;
+	--color-yellow: #7a7714;
+	--color-green: #157c5f;
+	--color-blue: #046898;
 
 	--color-separator: #eee;
 	--color-overlay: #fffb;
@@ -28,7 +29,7 @@ html {
 		--color-background: var(--color-black);
 		--color-foreground: var(--color-white);
 		--color-muted: #ddd;
-		--color-accent: #067a69;
+		--color-accent: #06467a;
 
 		--color-separator: #333;
 		--color-overlay: #2228;

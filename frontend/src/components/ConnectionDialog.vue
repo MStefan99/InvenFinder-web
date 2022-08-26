@@ -25,8 +25,8 @@
 					autocomplete="current-password")
 			.mb-3
 				button.full(type="submit" :disabled="connectionState === ConnectionState.TESTING") Sign in
-			p.text-red-500(v-if="authError") {{authError}}
-		span.text-gray-500 {{getAuthenticationState()}}
+			p.text-red(v-if="authError") {{authError}}
+		span.text-muted {{getAuthenticationState()}}
 </template>
 
 <script setup lang="ts">

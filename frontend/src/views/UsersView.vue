@@ -30,10 +30,9 @@ import {alert, PopupColor} from '../scripts/popups';
 
 const users = ref<User[]>();
 const newUser = ref<NewUser | null>(null);
-const defaultUser = {username: '', password: ''};
+const defaultUser = {username: '', password: ''} as NewUser;
 
 if (!appState.hasPermissions([PERMISSIONS.MANAGE_USERS])) {
-	console.log('not allowed');
 	alert('Not allowed', PopupColor.Red, 'You do not have permissions to view this page');
 }
 

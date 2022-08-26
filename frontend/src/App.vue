@@ -5,7 +5,7 @@ header.no-print
 main
 	RouterView(v-if="appState.user")
 	div(v-else)
-		p.text-red-500.text-xl Please sign in to use the app
+		p.text-red.text-xl Please sign in to use the app
 	NotificationContainer
 
 footer
