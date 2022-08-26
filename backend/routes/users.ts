@@ -16,9 +16,37 @@ router.get('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
 	ctx.response.body = users;
 });
 
+// Get a user by ID
+router.get(
+	'/:id',
+	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	async (ctx) => {
+		if (ctx.params.id === undefined) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'NO_ID',
+				message: 'ID not provided',
+			};
+			return;
+		}
+
+		const user = await User.getByID(+ctx.params.id);
+		if (user === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'USER_NOT_FOUND',
+				message: 'User not found',
+			};
+			return;
+		}
+
+		ctx.response.body = user;
+	},
+);
+
 // Get a user by username
 router.get(
-	'/:username',
+	'/username/:username',
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
 	async (ctx) => {
 		if (ctx.params.username === undefined) {
@@ -68,21 +96,21 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
 
 // Edit user
 router.patch(
-	'/:username',
+	'/:id',
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
 	async (ctx) => {
 		try {
 			const body = await ctx.request.body({ type: 'json' }).value;
-			if (ctx.params.username === undefined) {
+			if (ctx.params.id === undefined) {
 				ctx.response.status = 400;
 				ctx.response.body = {
-					error: 'NO_USERNAME',
-					message: 'Username not provided',
+					error: 'NO_ID',
+					message: 'ID not provided',
 				};
 				return;
 			}
 
-			const user = await User.getByUsername(ctx.params.username);
+			const user = await User.getByID(+ctx.params.id);
 			if (user === null) {
 				ctx.response.status = 400;
 				ctx.response.body = {
@@ -103,7 +131,7 @@ router.patch(
 				user.permissions = permissions;
 			}
 
-			user.save();
+			await user.save();
 
 			ctx.response.status = 200;
 			ctx.response.body = user;
@@ -119,20 +147,20 @@ router.patch(
 
 // Delete user
 router.delete(
-	'/:username',
+	'/:id',
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
 	async (ctx) => {
 		try {
-			if (ctx.params.username === undefined) {
+			if (ctx.params.id === undefined) {
 				ctx.response.status = 400;
 				ctx.response.body = {
-					error: 'NO_USERNAME',
-					message: 'Username not provided',
+					error: 'NO_ID',
+					message: 'ID not provided',
 				};
 				return;
 			}
 
-			const user = await User.getByUsername(ctx.params.username);
+			const user = await User.getByID(+ctx.params.id);
 			if (user === null) {
 				ctx.response.status = 400;
 				ctx.response.body = {

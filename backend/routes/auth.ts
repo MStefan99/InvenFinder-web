@@ -107,10 +107,20 @@ router.patch('/me', auth.authenticated(), async (ctx) => {
 			}
 		}
 
-		user.save();
+		try {
+			await user.save();
 
-		ctx.response.status = 200;
-		ctx.response.body = user;
+			ctx.response.status = 200;
+			ctx.response.body = user;
+		} catch (err) {
+			console.log(err);
+
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: err,
+				message: '',
+			};
+		}
 	} catch {
 		ctx.response.status = 400;
 		ctx.response.body = {

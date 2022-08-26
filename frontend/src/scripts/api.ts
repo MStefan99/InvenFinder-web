@@ -1,5 +1,5 @@
 import appState from './store';
-import type {User, Session, Item, NewUser, NewItem} from './types';
+import type {User, Session, Item, NewUser, NewItem, UpdateUser} from './types';
 
 type MessageResponse = {
 	code: string;
@@ -105,7 +105,7 @@ export const ConnectionAPI = {
 };
 
 export const AuthAPI = {
-	login: (username: User['username'], password: string) =>
+	login: (username: User['username'], password: NewUser['password']) =>
 		new Promise<User>((resolve, reject) => {
 			request<AuthResult>('/login', {method: RequestMethod.POST, body: {username, password}})
 				.then((data) => {
@@ -115,7 +115,7 @@ export const AuthAPI = {
 				})
 				.catch((err) => reject(err));
 		}),
-	register: (username: User['username'], password: string) =>
+	register: (username: User['username'], password: NewUser['password']) =>
 		new Promise<User>((resolve, reject) => {
 			request<AuthResult>('/register', {method: RequestMethod.POST, body: {username, password}})
 				.then((data) => {
@@ -127,6 +127,8 @@ export const AuthAPI = {
 		}),
 	test: () => booleanify(request('/auth', {auth: true})),
 	me: () => request<User>('/me', {auth: true}),
+	edit: (user: UpdateUser) =>
+		request<User>('/me', {auth: true, method: RequestMethod.PATCH, body: user}),
 	logout: () =>
 		new Promise<boolean>((resolve, reject) => {
 			request<MessageResponse>('/logout', {
@@ -176,12 +178,14 @@ export const UserAPI = {
 	add: (user: NewUser) =>
 		request<User>('/users', {auth: true, method: RequestMethod.POST, body: user}),
 	getAll: () => request<User[]>('/users', {auth: true}),
-	getByUsername: (username: User['username']) => request<User>('/users/' + username, {auth: true}),
-	edit: (user: User) =>
-		request<User>('/users/' + user.username, {auth: true, method: RequestMethod.PATCH, body: user}),
+	getByID: (id: User['id']) => request<User>('/users/' + id, {auth: true}),
+	getByUsername: (username: User['username']) =>
+		request<User>('/users/username/' + username, {auth: true}),
+	edit: (user: UpdateUser) =>
+		request<User>('/users/' + user.id, {auth: true, method: RequestMethod.PATCH, body: user}),
 	delete: (user: User) =>
 		booleanify(
-			request<User>('/users/' + user.username, {
+			request<User>('/users/' + user.id, {
 				auth: true,
 				method: RequestMethod.DELETE
 			})

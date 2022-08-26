@@ -5,7 +5,7 @@
 		RouterLink.list-item(
 			v-for="user in users"
 			:key="user.id"
-			:to="{name: 'user', params: {username: user.username}}")
+			:to="{name: 'user', params: {id: user.id}}")
 			p {{user.username}}
 	button.mt-4(@click="newUser = defaultUser") Add a new user
 	Transition(name="popup")
@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 
 import type {User, NewUser} from '../scripts/types';
 import Api, {UserAPI} from '../scripts/api';
@@ -32,15 +32,18 @@ const users = ref<User[]>();
 const newUser = ref<NewUser | null>(null);
 const defaultUser = {username: '', password: ''} as NewUser;
 
-if (!appState.hasPermissions([PERMISSIONS.MANAGE_USERS])) {
-	alert('Not allowed', PopupColor.Red, 'You do not have permissions to view this page');
-}
-
 function addUser() {
 	Api.users.add(newUser.value).then((u) => users.value.push(u));
 }
 
-UserAPI.getAll().then((u) => (users.value = u));
+onMounted(() => {
+	if (!appState.hasPermissions([PERMISSIONS.MANAGE_USERS])) {
+		alert('Not allowed', PopupColor.Red, 'You do not have permissions to view this page');
+		return;
+	}
+
+	UserAPI.getAll().then((u) => (users.value = u));
+});
 </script>
 
 <style scoped></style>

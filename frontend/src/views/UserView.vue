@@ -1,10 +1,11 @@
 <template lang="pug">
 #user
 	h2.text-accent.text-2xl.mb-4 User
-	.mb-6
-		p {{user?.username}}
+	.mb-6(v-if="user")
+		label(for="username-input") Username
+		input#username-input.block.my-2(type="text" v-model="user.username")
 	h3.text-accent.text-lg.mb-4 Permissions
-	form.permissions(@submit.prevent="save")
+	form.permissions(@submit.prevent="editUser")
 		div
 			input(
 				type="checkbox"
@@ -28,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 import type {User} from '../scripts/types';
 import {useRoute, useRouter} from 'vue-router';
 import {UserAPI} from '../scripts/api';
@@ -46,17 +47,25 @@ const permissions = ref<PERMISSIONS[]>([]);
 const route = useRoute();
 const router = useRouter();
 
-if (Array.isArray(route.params.username)) {
-	throw new Error('Username parameter must not be an array');
-}
+onMounted(() => {
+	if (!appState.hasPermissions([PERMISSIONS.MANAGE_USERS])) {
+		alert('Not allowed', PopupColor.Red, 'You do not have permissions to view this page');
+		return;
+	}
 
-if (!appState.hasPermissions([PERMISSIONS.MANAGE_USERS])) {
-	alert('Not allowed', PopupColor.Red, 'You do not have permissions to view this page');
-}
+	if (Array.isArray(route.params.id)) {
+		throw new Error('ID must not be an array');
+	}
+	const id = +route.params.id;
 
-UserAPI.getByUsername(route.params.username).then((u) => {
-	user.value = u;
-	permissions.value = parsePermissions(u.permissions);
+	if (!Number.isInteger(id)) {
+		throw new Error('ID must be a number');
+	}
+
+	UserAPI.getByID(+route.params.id).then((u) => {
+		user.value = u;
+		permissions.value = parsePermissions(u.permissions);
+	});
 });
 
 function setPermission(permission: PERMISSIONS, set: boolean) {
@@ -67,9 +76,9 @@ function setPermission(permission: PERMISSIONS, set: boolean) {
 	}
 }
 
-async function save() {
+async function editUser() {
 	if (
-		user.value.id === appState.user.id &&
+		user.value.username === appState.user.username &&
 		!hasPermissions(user.value.permissions, permissions.value) &&
 		!(await confirm(
 			'You are about to lose permissions!',
@@ -82,12 +91,7 @@ async function save() {
 		permissions.value = parsePermissions(appState.user.permissions);
 		return;
 	}
-	const newPermissions = encodePermissions(permissions.value);
-	if (user.value.permissions === newPermissions) {
-		alert('No changes', PopupColor.Yellow, "You haven't made any changes to save");
-		return;
-	}
-	user.value.permissions = newPermissions;
+	user.value.permissions = encodePermissions(permissions.value);
 
 	UserAPI.edit(user.value).then(() =>
 		alert('Saved', PopupColor.Green, 'User was saved successfully')

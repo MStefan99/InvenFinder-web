@@ -10,7 +10,7 @@ div
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 
 import Api from '../scripts/api';
 import type {Item} from '../scripts/types';
@@ -18,7 +18,7 @@ import type {Item} from '../scripts/types';
 const items = ref<Item[]>();
 const fontSize = ref<number>(1);
 
-Api.items.getAll().then((i) => (items.value = i));
+onMounted(() => Api.items.getAll().then((i) => (items.value = i)));
 </script>
 
 <style scoped>

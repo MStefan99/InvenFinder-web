@@ -55,16 +55,12 @@ type Props = {
 	permissions?: PERMISSIONS[] | number;
 };
 
-type Save = { save: () => Promise<void> };
-
 class User {
 	id: number;
 	username: string;
 	passwordSalt: string;
 	passwordHash: string;
 	permissions: number;
-
-	#saveHandle: number | undefined;
 
 	constructor(props: Props) {
 		this.id = props.id;
@@ -84,34 +80,30 @@ class User {
 
 	save(): Promise<void> {
 		return new Promise((resolve, reject) => {
-			clearTimeout(this.#saveHandle);
-
-			this.#saveHandle = setTimeout(() => {
-				dbClientPromise.then((client) =>
-					client
-						.execute(
-							`insert into invenfinder.users(id,
-									                               username,
-									                               password_salt,
-									                               password_hash,
-									                               permissions)
-									 values (?, ?, ?, ?, ?)
-									 on duplicate key update username = values(username),
-									                         password_salt = values(password_salt),
-									                         password_hash = values(password_hash),
-									                         permissions = values(permissions)`,
-							[
-								this.id,
-								this.username,
-								this.passwordSalt,
-								this.passwordHash,
-								encodePermissions(this.permissions),
-							],
-						)
-				)
-					.then(() => resolve())
-					.catch((err) => reject(err));
-			});
+			dbClientPromise.then((client) =>
+				client
+					.execute(
+						`insert into invenfinder.users(id,
+						                               username,
+						                               password_salt,
+						                               password_hash,
+						                               permissions)
+						 values (?, ?, ?, ?, ?)
+						 on duplicate key update username = values(username),
+						                         password_salt = values(password_salt),
+						                         password_hash = values(password_hash),
+						                         permissions = values(permissions)`,
+						[
+							this.id,
+							this.username,
+							this.passwordSalt,
+							this.passwordHash,
+							encodePermissions(this.permissions),
+						],
+					)
+			)
+				.then(() => resolve())
+				.catch((err) => reject(err));
 		});
 	}
 

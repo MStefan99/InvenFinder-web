@@ -12,6 +12,15 @@ function getRandomString(byteCount: number): string {
 	return dec.decode(hexEncode(data));
 }
 
+type SessionProps = {
+	id: number;
+	publicID: string;
+	userID: number;
+	ip: string;
+	ua: string;
+	time: number;
+};
+
 class Session {
 	id: number;
 	publicID: string;
@@ -20,20 +29,13 @@ class Session {
 	ua: string;
 	time: number;
 
-	constructor(
-		id: number,
-		publicID: string,
-		userID: number,
-		ip: string,
-		ua: string,
-		time: number,
-	) {
-		this.id = id;
-		this.publicID = publicID;
-		this.userID = userID;
-		this.ip = ip;
-		this.ua = ua;
-		this.time = time;
+	constructor(props: SessionProps) {
+		this.id = props.id;
+		this.publicID = props.publicID;
+		this.userID = props.userID;
+		this.ip = props.ip;
+		this.ua = props.ua;
+		this.time = props.time;
 	}
 
 	toJSON() {
@@ -66,14 +68,14 @@ class Session {
 			],
 		);
 
-		return new Session(
-			res.lastInsertId ?? 0,
+		return new Session({
+			id: res.lastInsertId ?? 0,
 			publicID,
-			user.id,
+			userID: user.id,
 			ip,
 			ua,
 			time,
-		);
+		});
 	}
 
 	static async getByID(id: number): Promise<Session | null> {
@@ -94,14 +96,7 @@ class Session {
 			return null;
 		} else {
 			const row = rows[0];
-			return new Session(
-				row.id,
-				row.publicID,
-				row.userID,
-				row.ip,
-				row.ua,
-				row.time,
-			);
+			return new Session(row);
 		}
 	}
 
@@ -123,14 +118,7 @@ class Session {
 			return null;
 		} else {
 			const row = rows[0];
-			return new Session(
-				row.id,
-				row.publicID,
-				row.userID,
-				row.ip,
-				row.ua,
-				row.time,
-			);
+			return new Session(row);
 		}
 	}
 
@@ -152,14 +140,7 @@ class Session {
 
 		for (const row of rows) {
 			sessions.push(
-				new Session(
-					row.id,
-					row.publicID,
-					row.userID,
-					row.ip,
-					row.ua,
-					row.time,
-				),
+				new Session(row),
 			);
 		}
 		return sessions;

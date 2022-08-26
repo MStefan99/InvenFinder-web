@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Common sources" pattern="file[invenfinder]:common//*.ts" />
+</component>

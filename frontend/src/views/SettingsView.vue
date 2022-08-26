@@ -1,8 +1,24 @@
 <template lang="pug">
 #settings
 	h2.text-accent.text-2xl.mb-4 Settings
-	span.mr-2 You are logged in as:
-	b {{appState.user.username}}
+	.mb-2
+		span You are logged in as
+			|
+			|
+			b {{appState.user.username}}
+	form(@submit.prevent="updatePassword()")
+		input(:value="appState.user.username" hidden autocomplete="username")
+		label(for="password-input") Password
+		input#password-input.block.my-2(
+			type="password"
+			v-model="updateUser.password"
+			autocomplete="new-password")
+		label(for="password-repeat-input") Repeat password
+		input#password-repeat-input.block.my-2(
+			type="password"
+			v-model="passwordRepeat"
+			autocomplete="new-password")
+		button(type="submit") Save
 	.sessions
 		p.text-xl.my-4 Active sessions
 		table.w-full
@@ -18,7 +34,7 @@
 					td {{new Date(session.time).toLocaleString()}}
 					td
 						button(@click="logout(session)") Sign out
-			button(@click="Api.auth.logoutAll") Sign out everywhere
+			button(@click="Api.sessions.logoutAll") Sign out everywhere
 </template>
 
 <script setup lang="ts">
@@ -26,9 +42,12 @@ import {onMounted, ref} from 'vue';
 
 import appState from '../scripts/store';
 import Api from '../scripts/api';
-import type {Session} from '../scripts/types';
+import type {Session, UpdateUser} from '../scripts/types';
+import {alert, PopupColor} from '../scripts/popups';
 
 const sessions = ref<Session[]>([]);
+const updateUser = ref<UpdateUser>({id: appState.user.id});
+const passwordRepeat = ref<string>('');
 
 function parseUA(ua: string): string | null {
 	const res = ua.match(/.*? \((.*?); (.*?)([;)]).*/);
@@ -48,14 +67,33 @@ function parseUA(ua: string): string | null {
 	return os;
 }
 
+function updatePassword() {
+	if (!updateUser.value.password.length) {
+		return;
+	}
+
+	if (updateUser.value.password !== passwordRepeat.value) {
+		alert('Passwords do not match', PopupColor.Red);
+		return;
+	}
+
+	Api.auth
+		.edit(updateUser.value)
+		.then(() =>
+			alert(
+				'Saved',
+				PopupColor.Green,
+				'Your password was successfully changed. ' + 'Consider signing out your active sessions'
+			)
+		);
+}
+
 function logout(session: Session) {
 	sessions.value.splice(sessions.value.indexOf(session), 1);
 	Api.sessions.logout(session.id);
 }
 
-onMounted(() => {
-	Api.sessions.getAll().then((s) => (sessions.value = s));
-});
+onMounted(() => Api.sessions.getAll().then((s) => (sessions.value = s)));
 </script>
 
 <style scoped>

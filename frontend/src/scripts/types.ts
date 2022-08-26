@@ -11,6 +11,13 @@ export type NewUser = BaseUser & {
 	password: string;
 };
 
+export type UpdateUser = {
+	id: User['id'];
+	username?: BaseUser['username'];
+	password?: NewUser['password'];
+	permissions?: BaseUser['permissions'];
+};
+
 export type Session = {
 	id: string;
 	ip: string;

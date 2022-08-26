@@ -7,33 +7,33 @@
 				v-model="item.location"
 				text-class="text-9xl font-semibold"
 				:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-				@update:modelValue="updateItem")
+				@update:modelValue="editItem")
 		.flex.justify-between
 			.grow.mr-2
 				TextEditable.mb-2(
 					v-model="item.name"
 					text-class="text-xl font-bold"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-					@update:modelValue="updateItem")
+					@update:modelValue="editItem")
 				TextEditable.mb-2(
 					v-model="item.description"
 					placeholder="[No description]"
 					text-class="text-muted"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-					@update:modelValue="updateItem")
+					@update:modelValue="editItem")
 				TextEditable(
 					v-model="item.link"
 					placeholder="[No link]"
 					text-class="text-muted"
 					clickable
-					@click="open(item.link)"
-					@update:modelValue="updateItem"
+					@click="openURL(item.link)"
+					@update:modelValue="editItem"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 			div
 				TextEditable(
 					v-model="item.amount"
 					text-class="text-muted"
-					@update:modelValue="updateItem"
+					@update:modelValue="editItem"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 		p.text-muted.my-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])") Right-click to edit
 		div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
@@ -71,11 +71,11 @@ onMounted(() => {
 	});
 });
 
-function open(url: string) {
+function openURL(url: string) {
 	window.location.href = url;
 }
 
-function updateItem() {
+function editItem() {
 	item.value && Api.items.edit(item.value).then((i) => (item.value = i));
 }
 

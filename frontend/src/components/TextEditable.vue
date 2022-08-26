@@ -23,6 +23,7 @@ const props = defineProps<{
 	readonly?: boolean;
 	clickable?: boolean;
 }>();
+
 defineEmits<{
 	(e: 'update:modelValue', value: string | number): void;
 	(e: 'click'): void;

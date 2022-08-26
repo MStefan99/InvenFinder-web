@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Frontend sources" pattern="file[invenfinder]:frontend/src//*.ts||file[invenfinder]:frontend/src//*.vue" />
+</component>

@@ -20,8 +20,6 @@ class Item {
 	location: string;
 	amount: number;
 
-	#saveHandle: number | undefined = undefined;
-
 	constructor(props: Props) {
 		this.id = props.id;
 		this.name = props.name;
@@ -33,32 +31,28 @@ class Item {
 
 	save(): Promise<void> {
 		return new Promise((resolve, reject) => {
-			clearTimeout(this.#saveHandle);
-
-			this.#saveHandle = setTimeout(() => {
-				dbClientPromise
-					.then((client) =>
-						client.execute(
-							`insert into invenfinder.items(id, name, description, link, location, amount)
+			dbClientPromise
+				.then((client) =>
+					client.execute(
+						`insert into invenfinder.items(id, name, description, link, location, amount)
 						 values (?, ?, ?, ?, ?, ?)
 						 on duplicate key update name = values(name),
 						                         description = values(description),
 						                         link = values(link),
 						                         location = values(location),
 						                         amount = values(amount)`,
-							[
-								this.id,
-								this.name,
-								this.description,
-								this.link,
-								this.location,
-								this.amount,
-							],
-						)
+						[
+							this.id,
+							this.name,
+							this.description,
+							this.link,
+							this.location,
+							this.amount,
+						],
 					)
-					.then(() => resolve())
-					.catch((err) => reject(err));
-			});
+				)
+				.then(() => resolve())
+				.catch((err) => reject(err));
 		});
 	}
 
@@ -84,7 +78,7 @@ class Item {
 			],
 		);
 
-		const item = new Item({
+		return new Item({
 			id: res.lastInsertId ?? 0,
 			name: options.name,
 			description: options.description,
@@ -92,7 +86,6 @@ class Item {
 			location: options.location,
 			amount: options.amount,
 		});
-		return item;
 	}
 
 	static async getByID(id: number): Promise<Item | null> {

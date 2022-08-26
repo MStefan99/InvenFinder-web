@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Backend sources" pattern="file[invenfinder]:backend//*.ts" />
+</component>
