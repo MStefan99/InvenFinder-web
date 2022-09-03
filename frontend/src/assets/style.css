@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Colors */
 html {
 	--color-white: white;
 	--color-black: black;
@@ -29,7 +30,7 @@ html {
 		--color-background: var(--color-black);
 		--color-foreground: var(--color-white);
 		--color-muted: #ddd;
-		--color-accent: #06467a;
+		--color-accent: #34067a;
 
 		--color-separator: #333;
 		--color-overlay: #2228;
@@ -40,6 +41,7 @@ html {
 	}
 }
 
+/* Utility styles */
 main {
 	max-width: 1024px;
 	margin: 0 auto;
@@ -76,6 +78,7 @@ footer {
 	padding: 2em min(2em, 5%);
 }
 
+/* Forms */
 textarea,
 label {
 	display: block;
@@ -156,6 +159,37 @@ button.red:not([disabled]):hover {
 	background-color: var(--color-red);
 }
 
+input[type='checkbox'] {
+	appearance: none;
+	width: 6ch;
+	padding: 0.2em;
+	line-height: 0;
+	--slider-width: 2ch;
+}
+
+input[type='checkbox']:active {
+	--slider-width: 100%;
+}
+
+input[type='checkbox']:before {
+	position: relative;
+	vertical-align: middle;
+	display: inline-block;
+	content: '';
+	height: 1em;
+	width: var(--slider-width);
+	left: 0;
+	background-color: red;
+	border-radius: inherit;
+	transition: all 0.2s ease;
+}
+
+input[type='checkbox']:checked:before {
+	left: calc(100% - var(--slider-width));
+	background-color: green;
+}
+
+/* Popups */
 .popup-wrapper {
 	position: fixed;
 	left: 0;
