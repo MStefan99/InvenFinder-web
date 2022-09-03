@@ -50,6 +50,7 @@
 		}
 	},
 	"tasks": {
+		"dev": "deno run --allow-net --allow-env index.ts",
 		"start": "deno run --allow-net --allow-env --watch index.ts",
 		"build": "echo 'Nothing to build'",
 		"lint": "deno check index.ts && deno lint && deno fmt --check",
