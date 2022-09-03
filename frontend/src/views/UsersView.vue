@@ -19,6 +19,8 @@
 					v-model="newUser.password"
 					type="password"
 					placeholder="password")
+				label.mb-2 Permissions
+				PermissionSelector.mb-4(v-model="newUser.permissions")
 				button(type="submit") Add user
 </template>
 
@@ -26,6 +28,7 @@
 import {onMounted, ref} from 'vue';
 
 import type {User, NewUser} from '../scripts/types';
+import PermissionSelector from '../components/PermissionSelector.vue';
 import Api, {UserAPI} from '../scripts/api';
 import appState from '../scripts/store';
 import {PERMISSIONS} from '../../../common/permissions';
@@ -33,7 +36,7 @@ import {alert, PopupColor} from '../scripts/popups';
 
 const users = ref<User[]>();
 const newUser = ref<NewUser | null>(null);
-const defaultUser = {username: '', password: ''} as NewUser;
+const defaultUser = {username: '', password: '', permissions: 0} as NewUser;
 
 function addUser() {
 	Api.users.add(newUser.value).then((u) => {

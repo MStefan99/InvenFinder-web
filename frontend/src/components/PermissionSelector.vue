@@ -1,14 +1,17 @@
 <template lang="pug">
 div
 	div
-		input(type="checkbox" v-model="permissionInputs[PERMISSIONS.EDIT_ITEM_AMOUNT]")
-		label.inline Store and retrieve items
+		input#p-edit-item-amount(
+			type="checkbox"
+			:value="PERMISSIONS.EDIT_ITEM_AMOUNT"
+			v-model="permissions")
+		label.inline(for="p-edit-item-amount") Store and retrieve items
 	div
-		input(type="checkbox" v-model="permissionInputs[PERMISSIONS.MANAGE_ITEMS]")
-		label.inline Edit, add and remove items
+		input#p-manage-items(type="checkbox" :value="PERMISSIONS.MANAGE_ITEMS" v-model="permissions")
+		label.inline(for="p-manage-items") Edit, add and remove items
 	div
-		input(type="checkbox" v-model="permissionInputs[PERMISSIONS.MANAGE_USERS]")
-		label.inline Edit, add and remove users
+		input#p-manage-users(type="checkbox" :value="PERMISSIONS.MANAGE_USERS" v-model="permissions")
+		label.inline(for="p-manage-users") Edit, add and remove users
 </template>
 
 <script setup lang="ts">
@@ -18,38 +21,20 @@ import {ref, watch} from 'vue';
 const props = defineProps<{modelValue: number}>();
 const emit = defineEmits<{(e: 'update:modelValue', permissions: number): void}>();
 
-const permissionInputs = ref<boolean[]>(getInputs());
-
-function getInputs() {
-	return parsePermissions(props.modelValue).reduce<boolean[]>(
-		(previousValue, currentValue, currentIndex) => {
-			previousValue[currentIndex] = true;
-			return previousValue;
-		},
-		[]
-	);
-}
+const permissions = ref<PERMISSIONS[]>(parsePermissions(props.modelValue));
 
 watch(
 	() => props.modelValue,
-	() => (permissionInputs.value = getInputs())
+	() => (permissions.value = parsePermissions(props.modelValue))
 );
 
-watch(
-	permissionInputs,
-	() => {
-		const val = encodePermissions(
-			permissionInputs.value.reduce<PERMISSIONS[]>((previousValue, currentValue, currentIndex) => {
-				if (currentValue) {
-					previousValue.push(currentIndex);
-				}
-				return previousValue;
-			}, [])
-		);
-		emit('update:modelValue', val);
-	},
-	{deep: true}
-);
+watch(permissions, () => {
+	emit('update:modelValue', encodePermissions(permissions.value));
+});
 </script>
 
-<style scoped></style>
+<style scoped>
+input {
+	@apply mr-2;
+}
+</style>
