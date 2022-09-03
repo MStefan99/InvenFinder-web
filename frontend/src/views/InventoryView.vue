@@ -18,7 +18,7 @@
 		@click="newItem = defaultItem") Add a new item
 	Transition(name="popup")
 		.popup-wrapper(v-if="newItem !== null" @click.self="newItem = null")
-			form.popup(@submit.prevent="addItem()")
+			form.popup(@submit.prevent="addItem")
 				p.text-2xl.mb-4 New item
 				label.mb-2(for="name-input") Name
 				input#name-input.mb-4.full(v-model="newItem.name" type="text" placeholder="Some item")

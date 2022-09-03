@@ -10,12 +10,15 @@
 	button.mt-4(@click="newUser = defaultUser") Add a new user
 	Transition(name="popup")
 		.popup-wrapper(v-if="newUser !== null" @click.self="newUser = null")
-			form.popup(@submit.prevent="addUser()")
+			form.popup(@submit.prevent="addUser")
 				p.text-2xl.mb-4 New item
 				label.mb-2(for="name-input") Username
 				input#username-input.mb-4.full(v-model="newUser.username" type="text" placeholder="user")
 				label.mb-2(for="desc-input") Password
-				input#password-input.mb-4.full(v-model="newUser.password" type=password placeholder="pass")
+				input#password-input.mb-4.full(
+					v-model="newUser.password"
+					type="password"
+					placeholder="password")
 				button(type="submit") Add user
 </template>
 
@@ -33,7 +36,10 @@ const newUser = ref<NewUser | null>(null);
 const defaultUser = {username: '', password: ''} as NewUser;
 
 function addUser() {
-	Api.users.add(newUser.value).then((u) => users.value.push(u));
+	Api.users.add(newUser.value).then((u) => {
+		users.value.push(u);
+		newUser.value = null;
+	});
 }
 
 onMounted(() => {

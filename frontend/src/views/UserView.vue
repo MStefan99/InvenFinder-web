@@ -1,31 +1,14 @@
 <template lang="pug">
-#user
+#user(v-if="user")
 	h2.text-accent.text-2xl.mb-4 User
-	.mb-6(v-if="user")
+	.mb-6
 		label(for="username-input") Username
 		input#username-input.block.my-2(type="text" v-model="user.username")
 	h3.text-accent.text-lg.mb-4 Permissions
 	form.permissions(@submit.prevent="editUser")
-		div
-			input(
-				type="checkbox"
-				:checked="hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT], permissions)"
-				@change="setPermission(PERMISSIONS.EDIT_ITEM_AMOUNT, $event.target.checked)")
-			label.inline Store and retrieve items
-		div
-			input(
-				type="checkbox"
-				:checked="hasPermissions([PERMISSIONS.MANAGE_ITEMS], permissions)"
-				@change="setPermission(PERMISSIONS.MANAGE_ITEMS, $event.target.checked)")
-			label.inline Edit, add and remove items
-		.mb-4
-			input(
-				type="checkbox"
-				:checked="hasPermissions([PERMISSIONS.MANAGE_USERS], permissions)"
-				@change="setPermission(PERMISSIONS.MANAGE_USERS, $event.target.checked)")
-			label.inline Edit, add and remove users
+		PermissionSelector.mb-4(v-model="user.permissions")
 		button.mr-4(type="submit") Save
-		button.red(type="button" @click="deleteUser()") Delete
+		button.red(type="button" @click="deleteUser") Delete
 </template>
 
 <script setup lang="ts">
@@ -34,16 +17,11 @@ import type {User} from '../scripts/types';
 import {useRoute, useRouter} from 'vue-router';
 import {UserAPI} from '../scripts/api';
 import appState from '../scripts/store';
-import {
-	encodePermissions,
-	hasPermissions,
-	parsePermissions,
-	PERMISSIONS
-} from '../../../common/permissions';
+import {hasPermissions, PERMISSIONS} from '../../../common/permissions';
 import {alert, confirm, PopupColor} from '../scripts/popups';
+import PermissionSelector from '../components/PermissionSelector.vue';
 
 const user = ref<User | null>(null);
-const permissions = ref<PERMISSIONS[]>([]);
 const route = useRoute();
 const router = useRouter();
 
@@ -64,22 +42,13 @@ onMounted(() => {
 
 	UserAPI.getByID(+route.params.id).then((u) => {
 		user.value = u;
-		permissions.value = parsePermissions(u.permissions);
 	});
 });
-
-function setPermission(permission: PERMISSIONS, set: boolean) {
-	if (!set) {
-		permissions.value = permissions.value.filter((p) => p !== permission);
-	} else {
-		permissions.value.some((p) => p === permission) || permissions.value.push(permission);
-	}
-}
 
 async function editUser() {
 	if (
 		user.value.username === appState.user.username &&
-		!hasPermissions(user.value.permissions, permissions.value) &&
+		!hasPermissions(appState.user.permissions, user.value.permissions) &&
 		!(await confirm(
 			'You are about to lose permissions!',
 			PopupColor.Red,
@@ -88,10 +57,8 @@ async function editUser() {
 				'Are you sure this is what you intended to do and you want to continue?'
 		))
 	) {
-		permissions.value = parsePermissions(appState.user.permissions);
 		return;
 	}
-	user.value.permissions = encodePermissions(permissions.value);
 
 	UserAPI.edit(user.value).then(() =>
 		alert('Saved', PopupColor.Green, 'User was saved successfully')

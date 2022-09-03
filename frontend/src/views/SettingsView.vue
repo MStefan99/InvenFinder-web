@@ -6,7 +6,7 @@
 			|
 			|
 			b {{appState.user.username}}
-	form(@submit.prevent="updatePassword()")
+	form(@submit.prevent="updatePassword")
 		input(:value="appState.user.username" hidden autocomplete="username")
 		label(for="password-input") Password
 		input#password-input.block.my-2(

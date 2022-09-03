@@ -39,7 +39,7 @@
 		div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
 			button.mr-4(@click="editAmount(false)") Take from storage
 			button.mr-4(@click="editAmount(true)") Put in storage
-			button.red(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
+			button.red(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem") Delete item
 </template>
 
 <script setup lang="ts">
@@ -100,6 +100,7 @@ async function editAmount(add = false) {
 			'You have entered an invalid amount ' +
 				'as the number of items would turn negative. Please try again.'
 		);
+		item.value.amount = oldAmount;
 		return;
 	}
 
