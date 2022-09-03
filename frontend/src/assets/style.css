@@ -12,10 +12,15 @@ html {
 	--color-muted: #444;
 	--color-accent: #3b00a2;
 
-	--color-red: #b44614;
-	--color-yellow: #7a7714;
-	--color-green: #157c5f;
+	--color-red: #b43114;
+	--color-yellow: #727706;
+	--color-green: #1c7c15;
 	--color-blue: #046898;
+
+	--color-red-bright: #f33910;
+	--color-yellow-bright: #d6e010;
+	--color-green-bright: #1cc212;
+	--color-blue-bright: #13a1de;
 
 	--color-separator: #eee;
 	--color-overlay: #fffb;
@@ -30,7 +35,12 @@ html {
 		--color-background: var(--color-black);
 		--color-foreground: var(--color-white);
 		--color-muted: #ddd;
-		--color-accent: #34067a;
+		--color-accent: #a469ff;
+
+		--color-red: #e76546;
+		--color-yellow: #b8be34;
+		--color-green: #3cb032;
+		--color-blue: #369bce;
 
 		--color-separator: #333;
 		--color-overlay: #2228;
@@ -123,6 +133,10 @@ button:not([disabled]):not(:active) {
 	background-color: var(--color-background);
 }
 
+button:not([disabled]):active {
+	@apply shadow-inner;
+}
+
 button:not([disabled]):hover {
 	background-color: var(--color-accent);
 	color: var(--color-background);
@@ -179,14 +193,14 @@ input[type='checkbox']:before {
 	height: 1em;
 	width: var(--slider-width);
 	left: 0;
-	background-color: red;
+	background-color: var(--color-red-bright);
 	border-radius: inherit;
-	transition: all 0.2s ease;
+	transition: all 0.2s cubic-bezier(0, 0, 0, 1.3);
 }
 
 input[type='checkbox']:checked:before {
 	left: calc(100% - var(--slider-width));
-	background-color: green;
+	background-color: var(--color-green-bright);
 }
 
 /* Popups */
