@@ -16,7 +16,7 @@ app.use(async (ctx, next) => {
 	await next();
 });
 
-if (Deno.env.get('env') === 'development') {
+if (Deno.env.get('ENV') === 'development') {
 	app.use(async (ctx, next) => {
 		ctx.response.headers.set('Access-Control-Allow-Origin', '*');
 		ctx.response.headers.set('Access-Control-Allow-Methods', '*');
