@@ -61,8 +61,8 @@ export default {
 			if (!(await this.test.authenticated(ctx))) {
 				ctx.response.status = 401;
 				ctx.response.body = {
-					error: 'Not authenticated',
-					code: 'NOT_AUTHENTICATED',
+					error: 'NOT_AUTHENTICATED',
+					message: 'Not authenticated',
 				};
 			} else {
 				await next();
@@ -75,14 +75,14 @@ export default {
 			if (!(await this.test.authenticated(ctx))) {
 				ctx.response.status = 401;
 				ctx.response.body = {
-					error: 'Not authenticated',
-					code: 'NOT_AUTHENTICATED',
+					error: 'NOT_AUTHENTICATED',
+					message: 'Not authenticated',
 				};
 			} else if (!(await this.test.permissions(ctx, permissions))) {
 				ctx.response.status = 403;
 				ctx.response.body = {
-					error: 'Not authorized',
-					code: 'NOT_AUTHORIZED',
+					error: 'NOT_AUTHORIZED',
+					message: 'Not authorized',
 				};
 			} else {
 				await next();

@@ -239,7 +239,7 @@ router.delete(
 			item.delete();
 
 			ctx.response.status = 200;
-			ctx.response.body = { message: 'OK' };
+			ctx.response.body = item;
 		} catch {
 			ctx.response.status = 400;
 			ctx.response.body = {
