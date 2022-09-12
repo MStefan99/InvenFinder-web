@@ -18,7 +18,7 @@ html {
 	--color-blue: #046898;
 
 	--color-red-bright: #f33910;
-	--color-yellow-bright: #d6e010;
+	--color-yellow-bright: #ffd200;
 	--color-green-bright: #1cc212;
 	--color-blue-bright: #13a1de;
 
@@ -100,7 +100,7 @@ input {
 
 input,
 button {
-	transition: all 0.1s ease-in-out;
+	transition: color 0.1s ease, background-color 0.1s ease;
 }
 
 input,
@@ -178,11 +178,12 @@ input[type='checkbox'] {
 	width: 6ch;
 	padding: 0.2em;
 	line-height: 0;
-	--slider-width: 2ch;
+	--handle-size: 2ch;
+	@apply mb-1;
 }
 
 input[type='checkbox']:active {
-	--slider-width: 100%;
+	--handle-size: 100%;
 }
 
 input[type='checkbox']:before {
@@ -190,17 +191,22 @@ input[type='checkbox']:before {
 	vertical-align: middle;
 	display: inline-block;
 	content: '';
-	height: 1em;
-	width: var(--slider-width);
+	height: 0.75em;
+	width: var(--handle-size);
 	left: 0;
 	background-color: var(--color-red-bright);
-	border-radius: inherit;
-	transition: all 0.2s cubic-bezier(0, 0, 0, 1.3);
+	border-radius: 10px;
+	transition: left 0.2s cubic-bezier(0, 0, 0, 1.3), width 0.2s cubic-bezier(0, 0, 0, 1.3),
+		background-color 0.1s ease;
 }
 
 input[type='checkbox']:checked:before {
-	left: calc(100% - var(--slider-width));
+	left: calc(100% - var(--handle-size));
 	background-color: var(--color-green-bright);
+}
+
+input[type='checkbox']:active:before {
+	background-color: var(--color-yellow-bright);
 }
 
 /* Popups */
