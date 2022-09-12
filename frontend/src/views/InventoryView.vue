@@ -1,9 +1,10 @@
 <template lang="pug">
 #inventory
 	h2.text-accent.text-2xl.mb-4 Inventory
+	input.full.my-2(placeholder="Search here..." v-model="query" @input="search(query)")
 	#items-table
 		RouterLink.list-item(
-			v-for="item in items"
+			v-for="item in filteredItems"
 			:key="item.id"
 			:to="{name: 'item', params: {id: item.id}}")
 			.flex.justify-between
@@ -53,10 +54,16 @@ const defaultItem = {
 } as NewItem;
 
 const items = ref<Item[]>([]);
+const filteredItems = ref<Item[]>([]);
 const newItem = ref<Item | null>(null);
+const query = ref<string>('');
+
+watch(() => appState.apiKey, loadItems);
+
+onMounted(loadItems);
 
 function loadItems() {
-	Api.items.getAll().then((i) => (items.value = i));
+	Api.items.getAll().then((i) => (filteredItems.value = items.value = i));
 }
 
 function addItem() {
@@ -68,9 +75,21 @@ function addItem() {
 	newItem.value = null;
 }
 
-watch(() => appState.apiKey, loadItems);
+function search(query: string) {
+	const foundItems: Item[] = [];
 
-onMounted(loadItems);
+	for (const item of items.value) {
+		if (
+			item.name.toLowerCase().includes(query.toLowerCase()) ||
+			item.description.toLowerCase().includes(query.toLowerCase()) ||
+			item.location.toLowerCase() === query.toLowerCase()
+		) {
+			foundItems.push(item);
+		}
+	}
+
+	filteredItems.value = foundItems;
+}
 </script>
 
 <style scoped></style>
