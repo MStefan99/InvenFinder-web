@@ -1,7 +1,9 @@
 <template lang="pug">
 #inventory
 	h2.text-accent.text-2xl.mb-4 Inventory
-	input.full.my-2(placeholder="Search here..." v-model="query" @input="search(query)")
+	.flex.my-2
+		input.grow.mr-2(placeholder="Search here..." v-model="query" @input="search(query)")
+		button(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="newItem = defaultItem") Add a new item
 	#items-table
 		RouterLink.list-item(
 			v-for="item in filteredItems"
@@ -14,9 +16,6 @@
 				div
 					.text-right.font-semibold {{item.location}}
 					.text-right.text-muted {{item.amount}}
-	button.mt-4(
-		v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-		@click="newItem = defaultItem") Add a new item
 	Transition(name="popup")
 		.popup-wrapper(v-if="newItem !== null" @click.self="newItem = null")
 			form.popup(@submit.prevent="addItem")
