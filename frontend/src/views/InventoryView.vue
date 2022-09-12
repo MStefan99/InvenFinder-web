@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref, watch} from 'vue';
+import {onMounted, ref} from 'vue';
 
 import Api from '../scripts/api';
 import appState from '../scripts/store';
@@ -57,8 +57,6 @@ const filteredItems = ref<Item[]>([]);
 const newItem = ref<Item | null>(null);
 const query = ref<string>('');
 
-watch(() => appState.apiKey, loadItems);
-
 onMounted(loadItems);
 
 function loadItems() {
@@ -76,12 +74,13 @@ function addItem() {
 
 function search(query: string) {
 	const foundItems: Item[] = [];
+	const q = query.trim().toLowerCase();
 
 	for (const item of items.value) {
 		if (
-			item.name.toLowerCase().includes(query.toLowerCase()) ||
-			item.description.toLowerCase().includes(query.toLowerCase()) ||
-			item.location.toLowerCase() === query.toLowerCase()
+			item.name.toLowerCase().includes(q) ||
+			item.description.toLowerCase().includes(q) ||
+			item.location.toLowerCase() === q
 		) {
 			foundItems.push(item);
 		}
