@@ -10,24 +10,26 @@ export async function credentialsPresent(ctx: Context, next: Next) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_USERNAME',
-				message: 'No username',
+				message: 'Username must be provided',
 			};
 			return;
 		} else if (body.password === undefined) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_PASSWORD',
-				message: 'No password',
+				message: 'Password must be provided',
 			};
 			return;
 		}
 
 		await next();
-	} catch {
+	} catch (e) {
+		console.error(e);
+
 		ctx.response.status = 400;
 		ctx.response.body = {
-			error: 'INVALID_REQUEST',
-			message: 'Invalid request body',
+			error: 'NO_CREDENTIALS',
+			message: 'Credentials must be provided',
 		};
 	}
 }

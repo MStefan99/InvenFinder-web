@@ -25,7 +25,7 @@ router.get(
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_ID',
-				message: 'ID not provided',
+				message: 'ID must be provided',
 			};
 			return;
 		}
@@ -35,7 +35,7 @@ router.get(
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
-				message: 'User not found',
+				message: 'User was not found',
 			};
 			return;
 		}
@@ -53,7 +53,7 @@ router.get(
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_USERNAME',
-				message: 'Username not provided',
+				message: 'Username must be provided',
 			};
 			return;
 		}
@@ -63,7 +63,7 @@ router.get(
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
-				message: 'User not found',
+				message: 'User was not found',
 			};
 			return;
 		}
@@ -85,11 +85,14 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
 
 		ctx.response.status = 201;
 		ctx.response.body = user;
-	} catch {
+	} catch (e) {
+		console.error(e);
+
 		ctx.response.status = 400;
 		ctx.response.body = {
 			error: 'INVALID_REQUEST',
-			message: 'Invalid request body',
+			message:
+				'Could not process your request, please check for errors and retry',
 		};
 	}
 });
@@ -105,7 +108,7 @@ router.patch(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'NO_ID',
-					message: 'ID not provided',
+					message: 'ID must be provided',
 				};
 				return;
 			}
@@ -115,7 +118,7 @@ router.patch(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'USER_NOT_FOUND',
-					message: 'User not found',
+					message: 'User was not found',
 				};
 				return;
 			}
@@ -135,11 +138,14 @@ router.patch(
 
 			ctx.response.status = 200;
 			ctx.response.body = user;
-		} catch {
+		} catch (e) {
+			console.error(e);
+
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'INVALID_REQUEST',
-				message: 'Invalid request body',
+				message:
+					'Could not process your request, please check for errors and retry',
 			};
 		}
 	},
@@ -155,7 +161,7 @@ router.delete(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'NO_ID',
-					message: 'ID not provided',
+					message: 'ID must be provided',
 				};
 				return;
 			}
@@ -165,7 +171,7 @@ router.delete(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'USER_NOT_FOUND',
-					message: 'User not found',
+					message: 'User was not found',
 				};
 				return;
 			}
@@ -174,11 +180,14 @@ router.delete(
 
 			ctx.response.status = 200;
 			ctx.response.body = user;
-		} catch {
+		} catch (e) {
+			console.error(e);
+
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'INVALID_REQUEST',
-				message: 'Invalid request body',
+				message:
+					'Could not process your request, please check for errors and retry',
 			};
 		}
 	},

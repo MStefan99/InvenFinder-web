@@ -20,7 +20,7 @@ const apiPrefix = '/api';
 const notConfigured = {error: 'NOT_CONFIGURED', message: 'Not configured'} as ErrorResponse;
 const notAuthenticated = {
 	error: 'NOT_AUTHENTICATED',
-	message: 'Not authenticated'
+	message: 'You must sign in to do this'
 } as ErrorResponse;
 const requestFailed = {error: 'REQ_FAILED', message: 'Request failed'} as ErrorResponse;
 const notImplemented = {error: 'NOT_IMPLEMENTED', message: 'Not implemented'} as ErrorResponse;

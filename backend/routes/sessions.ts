@@ -14,7 +14,7 @@ router.get('/', auth.authenticated(), async (ctx) => {
 		ctx.response.status = 500;
 		ctx.response.body = {
 			error: 'USER_NOT_FOUND',
-			message: 'User not found',
+			message: 'User was not found',
 		};
 		return;
 	}
@@ -31,7 +31,7 @@ router.delete('/:id', auth.authenticated(), async (ctx) => {
 		ctx.response.status = 400;
 		ctx.response.body = {
 			error: 'SESSION_NOT_FOUND',
-			message: 'Session not found',
+			message: 'Session was not found',
 		};
 		return;
 	}
@@ -40,7 +40,7 @@ router.delete('/:id', auth.authenticated(), async (ctx) => {
 		ctx.response.status = 403;
 		ctx.response.body = {
 			error: 'NOT_AUTHORIZED',
-			message: 'Not authorized',
+			message: 'You are not allowed to do this',
 		};
 		return;
 	}
@@ -58,7 +58,7 @@ router.delete('/', auth.authenticated(), async (ctx) => {
 		ctx.response.status = 500;
 		ctx.response.body = {
 			error: 'USER_NOT_FOUND',
-			message: 'User not found',
+			message: 'User was not found',
 		};
 		return;
 	}

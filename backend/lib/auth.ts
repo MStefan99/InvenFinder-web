@@ -62,7 +62,7 @@ export default {
 				ctx.response.status = 401;
 				ctx.response.body = {
 					error: 'NOT_AUTHENTICATED',
-					message: 'Not authenticated',
+					message: 'You must sign in to do this',
 				};
 			} else {
 				await next();
@@ -76,13 +76,13 @@ export default {
 				ctx.response.status = 401;
 				ctx.response.body = {
 					error: 'NOT_AUTHENTICATED',
-					message: 'Not authenticated',
+					message: 'You must sign in to do this',
 				};
 			} else if (!(await this.test.permissions(ctx, permissions))) {
 				ctx.response.status = 403;
 				ctx.response.body = {
 					error: 'NOT_AUTHORIZED',
-					message: 'Not authorized',
+					message: 'You are not allowed to do this',
 				};
 			} else {
 				await next();

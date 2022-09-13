@@ -10,23 +10,35 @@ const router = new Router();
 
 // Register
 router.post('/register', credentialsPresent, async (ctx) => {
-	const body = await ctx.request.body({ type: 'json' }).value;
+	try {
+		const body = await ctx.request.body({ type: 'json' }).value;
 
-	const user = await User.create(body.username, body.password, []);
-	const session = await Session.create(
-		user,
-		ctx.request.ip,
-		ctx.request.headers.get('user-agent') ?? 'Unknown',
-	);
+		const user = await User.create(
+			body.username,
+			body.password,
+			[],
+		);
+		const session = await Session.create(
+			user,
+			ctx.request.ip,
+			ctx.request.headers.get('user-agent') ?? 'Unknown',
+		);
 
-	ctx.response.status = 201;
-	ctx.response.body = { key: session.publicID, user };
+		ctx.response.status = 201;
+		ctx.response.body = { key: session.publicID, user };
+	} catch (e) {
+		console.error(e);
+		ctx.response.status = 400;
+		ctx.response.body = {
+			error: 'INVALID_REQUEST',
+			message:
+				'Could not process your request, please check for errors and retry',
+		};
+	}
 });
 
 // Log in
 router.post('/login', credentialsPresent, async (ctx) => {
-	// No 'try' because already present in middleware
-
 	const body = await ctx.request.body({ type: 'json' }).value;
 	const user = await User.getByUsername(body.username);
 
@@ -34,14 +46,14 @@ router.post('/login', credentialsPresent, async (ctx) => {
 		ctx.response.status = 400;
 		ctx.response.body = {
 			error: 'USER_NOT_FOUND',
-			message: 'User not found',
+			message: 'User was not found',
 		};
 		return;
 	} else if (!(await user.verifyPassword(body.password))) {
 		ctx.response.status = 400;
 		ctx.response.body = {
 			error: 'WRONG_PASSWORD',
-			message: 'Incorrect password',
+			message: 'Wrong password',
 		};
 		return;
 	}
@@ -71,7 +83,7 @@ router.get('/me', auth.authenticated(), async (ctx) => {
 		ctx.response.status = 500;
 		ctx.response.body = {
 			error: 'USER_NOT_FOUND',
-			message: 'User not found',
+			message: 'User was not found',
 		};
 	} else {
 		ctx.response.status = 200;
@@ -89,7 +101,7 @@ router.patch('/me', auth.authenticated(), async (ctx) => {
 			ctx.response.status = 500;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
-				message: 'User not found',
+				message: 'User was not found',
 			};
 			return;
 		}
@@ -107,25 +119,17 @@ router.patch('/me', auth.authenticated(), async (ctx) => {
 			}
 		}
 
-		try {
-			await user.save();
+		await user.save();
 
-			ctx.response.status = 200;
-			ctx.response.body = user;
-		} catch (err) {
-			console.log(err);
-
-			ctx.response.status = 400;
-			ctx.response.body = {
-				error: err,
-				message: '',
-			};
-		}
-	} catch {
+		ctx.response.status = 200;
+		ctx.response.body = user;
+	} catch (e) {
+		console.error(e);
 		ctx.response.status = 400;
 		ctx.response.body = {
 			error: 'INVALID_REQUEST',
-			message: 'Invalid request body',
+			message:
+				'Could not process your request, please check for errors and retry',
 		};
 	}
 });

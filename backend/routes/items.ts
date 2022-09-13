@@ -4,8 +4,6 @@ import auth from '../lib/auth.ts';
 import Item from '../lib/item.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
 
-const locationRegex = /^[1-9]\d*-[A-Z]+[1-9]\d*$/;
-
 const router = new Router({
 	prefix: '/items',
 });
@@ -35,14 +33,17 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 
 		if (body.name === undefined) {
 			ctx.response.status = 400;
-			ctx.response.body = { error: 'NO_NAME', message: 'No name' };
+			ctx.response.body = {
+				error: 'NO_NAME',
+				message: 'Name must be provided',
+			};
 			return;
 		}
 		if (body.location === undefined) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_LOCATION',
-				message: 'No location',
+				message: 'Location must be provided',
 			};
 			return;
 		}
@@ -50,15 +51,7 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'INVALID_AMOUNT',
-				message: 'No or invalid amount',
-			};
-			return;
-		}
-		if (!body.location.match(locationRegex)) {
-			ctx.response.status = 400;
-			ctx.response.body = {
-				error: 'INVALID_LOCATION',
-				message: 'Invalid location',
+				message: 'Amount must be a number',
 			};
 			return;
 		}
@@ -73,11 +66,13 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 
 		ctx.response.status = 201;
 		ctx.response.body = item;
-	} catch {
+	} catch (e) {
+		console.error(e);
 		ctx.response.status = 400;
 		ctx.response.body = {
-			error: 'INVALID_BODY',
-			message: 'Invalid request body',
+			error: 'INVALID_REQUEST',
+			message:
+				'Could not process your request, please check for errors and retry',
 		};
 	}
 });
@@ -93,7 +88,7 @@ router.put(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'INVALID_ID',
-					message: 'Invalid ID',
+					message: 'ID must be a number',
 				};
 				return;
 			}
@@ -102,7 +97,7 @@ router.put(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'INVALID_AMOUNT',
-					message: 'Invalid amount',
+					message: 'Amount must be a number',
 				};
 				return;
 			}
@@ -112,7 +107,7 @@ router.put(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'ITEM_NOT_FOUND',
-					message: 'Item not found',
+					message: 'Item was not found',
 				};
 				return;
 			}
@@ -122,11 +117,14 @@ router.put(
 
 			ctx.response.status = 200;
 			ctx.response.body = item;
-		} catch {
+		} catch (e) {
+			console.error(e);
+
 			ctx.response.status = 400;
 			ctx.response.body = {
-				error: 'INVALID_BODY',
-				message: 'Invalid request body',
+				error: 'INVALID_REQUEST',
+				message:
+					'Could not process your request, please check for errors and retry',
 			};
 		}
 	},
@@ -143,7 +141,7 @@ router.patch(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'INVALID_ID',
-					message: 'Invalid ID',
+					message: 'ID must be a number',
 				};
 				return;
 			}
@@ -154,7 +152,7 @@ router.patch(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'ITEM_NOT_FOUND',
-					message: 'Item not found',
+					message: 'Item was not found',
 				};
 				return;
 			}
@@ -164,21 +162,10 @@ router.patch(
 					ctx.response.status = 400;
 					ctx.response.body = {
 						error: 'INVALID_AMOUNT',
-						message: 'Invalid amount',
+						message: 'Amount must be a number',
 					};
 					return;
 				}
-			}
-			if (
-				body.location !== undefined &&
-				!body.location.match(locationRegex)
-			) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'INVALID_LOCATION',
-					message: 'Invalid location',
-				};
-				return;
 			}
 
 			if (body.name !== undefined) {
@@ -196,15 +183,19 @@ router.patch(
 			if (body.amount !== undefined) {
 				item.amount = amount;
 			}
+
 			item.save();
 
 			ctx.response.status = 200;
 			ctx.response.body = item;
-		} catch {
+		} catch (e) {
+			console.error(e);
+
 			ctx.response.status = 400;
 			ctx.response.body = {
-				error: 'INVALID_BODY',
-				message: 'Invalid request body',
+				error: 'INVALID_REQUEST',
+				message:
+					'Could not process your request, please check for errors and retry',
 			};
 		}
 	},
@@ -221,7 +212,7 @@ router.delete(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'INVALID_ID',
-					message: 'Invalid ID',
+					message: 'ID must be a number',
 				};
 				return;
 			}
@@ -231,7 +222,7 @@ router.delete(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'ITEM_NOT_FOUND',
-					message: 'Item not found',
+					message: 'Item was not found',
 				};
 				return;
 			}
@@ -240,11 +231,14 @@ router.delete(
 
 			ctx.response.status = 200;
 			ctx.response.body = item;
-		} catch {
+		} catch (e) {
+			console.error(e);
+
 			ctx.response.status = 400;
 			ctx.response.body = {
-				error: 'INVALID_BODY',
-				message: 'Invalid request body',
+				error: 'INVALID_REQUEST',
+				message:
+					'Could not process your request, please check for errors and retry',
 			};
 		}
 	},
