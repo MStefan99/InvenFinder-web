@@ -18,7 +18,7 @@
 			type="password"
 			v-model="passwordRepeat"
 			autocomplete="new-password")
-		p.mb-2.text-red(v-if="updateUser.password?.length || passwordRepeat.length") Passwords do not match
+		p.mb-2.text-red(v-if="(updateUser.password ?? '') !== passwordRepeat") Passwords do not match
 		button(type="submit" :disabled="!passwordsMatch") Save
 	.sessions
 		p.text-xl.my-4 Active sessions
