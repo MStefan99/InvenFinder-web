@@ -256,8 +256,13 @@ input[type='checkbox']:active:before {
 
 .list-item {
 	display: block;
-	border-bottom: 1px solid var(--color-light);
 	padding: 1em 0;
+	border-bottom: 1px solid var(--color-light);
+	transition: border-bottom-color 0.1s ease;
+}
+
+.list-item:hover {
+	border-bottom-color: var(--color-foreground);
 }
 
 .popup-enter-active,
