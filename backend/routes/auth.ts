@@ -106,11 +106,11 @@ router.patch('/me', auth.authenticated(), async (ctx) => {
 			return;
 		}
 
-		if (body.password !== undefined) {
+		if (body.password?.length) {
 			await user.setPassword(body.password);
 		}
 		if (await auth.test.permissions(ctx, [PERMISSIONS.MANAGE_USERS])) {
-			if (body.username !== undefined) {
+			if (body.username?.length) {
 				user.username = body.username.trim();
 			}
 			const permissions = +body.permissions;

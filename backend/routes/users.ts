@@ -21,7 +21,7 @@ router.get(
 	'/:id',
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
 	async (ctx) => {
-		if (ctx.params.id === undefined) {
+		if (!ctx.params.id?.length) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_ID',
@@ -49,7 +49,7 @@ router.get(
 	'/username/:username',
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
 	async (ctx) => {
-		if (ctx.params.username === undefined) {
+		if (!ctx.params.username?.length) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_USERNAME',
@@ -76,6 +76,22 @@ router.get(
 router.post('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
 	try {
 		const body = await ctx.request.body({ type: 'json' }).value;
+		if (!ctx.params.username?.length) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'NO_USERNAME',
+				message: 'Username must be provided',
+			};
+			return;
+		}
+		if (!ctx.params.password?.length) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'NO_PASSWORD',
+				message: 'Password must be provided',
+			};
+			return;
+		}
 
 		const user = await User.create(
 			body.username.trim(),
@@ -103,7 +119,7 @@ router.patch(
 	async (ctx) => {
 		try {
 			const body = await ctx.request.body({ type: 'json' }).value;
-			if (ctx.params.id === undefined) {
+			if (!ctx.params.id?.length) {
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'NO_ID',
@@ -122,10 +138,10 @@ router.patch(
 				return;
 			}
 
-			if (body.username !== undefined) {
+			if (body.username?.length) {
 				user.username = body.username.trim();
 			}
-			if (body.password !== undefined) {
+			if (body.password?.length) {
 				await user.setPassword(body.password);
 			}
 			const permissions = +body.permissions;
@@ -156,7 +172,7 @@ router.delete(
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
 	async (ctx) => {
 		try {
-			if (ctx.params.id === undefined) {
+			if (!ctx.params.id?.length) {
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'NO_ID',

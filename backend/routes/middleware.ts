@@ -6,14 +6,14 @@ export async function credentialsPresent(ctx: Context, next: Next) {
 	try {
 		const body = await ctx.request.body({ type: 'json' }).value;
 
-		if (body.username === undefined) {
+		if (!body.username?.length) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_USERNAME',
 				message: 'Username must be provided',
 			};
 			return;
-		} else if (body.password === undefined) {
+		} else if (!body.password.length) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_PASSWORD',

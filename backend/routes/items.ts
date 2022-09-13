@@ -31,7 +31,7 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 	try {
 		const body = await ctx.request.body({ type: 'json' }).value;
 
-		if (body.name === undefined) {
+		if (!body.name.length) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_NAME',
@@ -39,7 +39,7 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 			};
 			return;
 		}
-		if (body.location === undefined) {
+		if (!body.location.length) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_LOCATION',
@@ -47,19 +47,19 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 			};
 			return;
 		}
-		if (body.amount === undefined || !Number.isInteger(body.amount)) {
+		if (body.amount === undefined || +body.amount < 0) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'INVALID_AMOUNT',
-				message: 'Amount must be a number',
+				message: 'Amount must be a positive number',
 			};
 			return;
 		}
 
 		const item = await Item.create({
 			name: body.name.trim(),
-			description: body.description.trim(),
-			link: body.link.trim(),
+			description: body.description?.trim(),
+			link: body.link?.trim(),
 			location: body.location.trim(),
 			amount: +body.amount,
 		});
@@ -97,7 +97,7 @@ router.put(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'INVALID_AMOUNT',
-					message: 'Amount must be a number',
+					message: 'Amount must be a positive number',
 				};
 				return;
 			}
@@ -162,22 +162,22 @@ router.patch(
 					ctx.response.status = 400;
 					ctx.response.body = {
 						error: 'INVALID_AMOUNT',
-						message: 'Amount must be a number',
+						message: 'Amount must be a positive number',
 					};
 					return;
 				}
 			}
 
-			if (body.name !== undefined) {
+			if (body.name?.length) {
 				item.name = body.name.trim();
 			}
-			if (body.description !== undefined) {
-				item.description = body.description.trim();
+			if (body.description?.length) {
+				item.description = body.description?.trim();
 			}
-			if (body.link !== undefined) {
-				item.link = body.link.trim();
+			if (body.link?.length) {
+				item.link = body.link?.trim();
 			}
-			if (body.location !== undefined) {
+			if (body.location?.length) {
 				item.location = body.location.trim();
 			}
 			if (body.amount !== undefined) {

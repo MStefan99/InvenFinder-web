@@ -14,11 +14,17 @@ import {onMounted, ref} from 'vue';
 
 import Api from '../scripts/api';
 import type {Item} from '../scripts/types';
+import {alert, PopupColor} from '../scripts/popups';
 
 const items = ref<Item[]>();
 const fontSize = ref<number>(1);
 
-onMounted(() => Api.items.getAll().then((i) => (items.value = i)));
+onMounted(() =>
+	Api.items
+		.getAll()
+		.then((i) => (items.value = i))
+		.catch((err) => alert('Could not load inventory', PopupColor.Red, err.message))
+);
 </script>
 
 <style scoped>

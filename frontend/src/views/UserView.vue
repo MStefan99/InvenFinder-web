@@ -15,7 +15,7 @@
 import {onMounted, ref} from 'vue';
 import type {User} from '../scripts/types';
 import {useRoute, useRouter} from 'vue-router';
-import {UserAPI} from '../scripts/api';
+import Api from '../scripts/api';
 import appState from '../scripts/store';
 import {hasPermissions, PERMISSIONS} from '../../../common/permissions';
 import {alert, confirm, PopupColor} from '../scripts/popups';
@@ -40,9 +40,12 @@ onMounted(() => {
 		throw new Error('ID must be a number');
 	}
 
-	UserAPI.getByID(+route.params.id).then((u) => {
-		user.value = u;
-	});
+	Api.users
+		.getByID(+route.params.id)
+		.then((u) => {
+			user.value = u;
+		})
+		.catch((err) => alert('Could not load user details', PopupColor.Red, err.message));
 });
 
 async function editUser() {
@@ -60,9 +63,15 @@ async function editUser() {
 		return;
 	}
 
-	UserAPI.edit(user.value).then(() =>
-		alert('Saved', PopupColor.Green, 'User was saved successfully')
-	);
+	if (!user.value.username) {
+		alert('Username cannot be empty', PopupColor.Red, 'Please type in a new username');
+		return;
+	}
+
+	Api.users
+		.edit(user.value)
+		.then(() => alert('User saved', PopupColor.Green, 'User was saved successfully'))
+		.catch((err) => alert('Could not save the user', PopupColor.Red, err.message));
 }
 
 async function deleteUser() {
@@ -73,7 +82,13 @@ async function deleteUser() {
 			'Are you sure you want to delete ' + user.value.username + '?'
 		)
 	) {
-		UserAPI.delete(user.value).then(() => router.push({name: 'users'}));
+		Api.users
+			.delete(user.value)
+			.then(() =>
+				router
+					.push({name: 'users'})
+					.catch((err) => alert('Could not delete the user', PopupColor.Red, err.message))
+			);
 	}
 }
 </script>

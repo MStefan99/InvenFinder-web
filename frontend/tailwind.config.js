@@ -10,6 +10,7 @@ module.exports = {
 			colors: {
 				foreground: 'var(--color-foreground)',
 				background: 'var(--color-background)',
+				light: 'var(--color-light)',
 				muted: 'var(--color-muted)',
 				accent: 'var(--color-accent)',
 				red: 'var(--color-red)',

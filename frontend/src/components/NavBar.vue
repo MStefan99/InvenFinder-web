@@ -10,7 +10,7 @@ div
 		span
 			span.clickable(v-if="!appState.user" @click="connectionDialogOpen = true") Sign in
 			div(v-else)
-				span.clickable(@click="Api.auth.logout") Sign out
+				span.clickable(@click="logout") Sign out
 	Transition(name="popup")
 		ConnectionDialog(v-if="connectionDialogOpen" @close="connectionDialogOpen = false")
 </template>
@@ -24,6 +24,12 @@ import {PERMISSIONS} from '../../../common/permissions';
 import ConnectionDialog from './ConnectionDialog.vue';
 
 const connectionDialogOpen = ref<boolean>(false);
+
+function logout() {
+	Api.auth.logout();
+	appState.setApiKey(null);
+	appState.setUser(null);
+}
 </script>
 
 <style scoped>

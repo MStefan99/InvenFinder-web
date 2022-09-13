@@ -10,6 +10,7 @@ html {
 	--color-background: var(--color-white);
 	--color-foreground: var(--color-black);
 	--color-muted: #444;
+	--color-light: #ccc;
 	--color-accent: #3b00a2;
 
 	--color-red: #b43114;
@@ -22,7 +23,6 @@ html {
 	--color-green-bright: #1cc212;
 	--color-blue-bright: #13a1de;
 
-	--color-separator: #eee;
 	--color-overlay: #fffb;
 	--color-shadow: #0001;
 
@@ -33,16 +33,16 @@ html {
 @media (prefers-color-scheme: dark) {
 	html {
 		--color-background: var(--color-black);
-		--color-foreground: var(--color-white);
-		--color-muted: #ddd;
-		--color-accent: #a469ff;
+		--color-foreground: #ccc;
+		--color-light: #444;
+		--color-muted: #888;
+		--color-accent: #703cb2;
 
 		--color-red: #e76546;
 		--color-yellow: #b8be34;
 		--color-green: #3cb032;
 		--color-blue: #369bce;
 
-		--color-separator: #333;
 		--color-overlay: #2228;
 		--color-shadow: #0001;
 
@@ -64,6 +64,17 @@ a {
 
 .clickable {
 	cursor: pointer;
+	border-bottom: 0 solid;
+	transition: transform 0.1s ease;
+	display: inline-block;
+}
+
+.clickable:hover {
+	transform: translateY(-5%);
+}
+
+.clickable:active {
+	transform: translateY(5%);
 }
 
 nav {
@@ -111,6 +122,17 @@ button {
 	color: var(--color-foreground);
 	background-color: var(--color-background);
 	padding: 0.5em 1em;
+	transition: transform 0.1s ease;
+}
+
+button:active {
+	transform: scale(92%);
+}
+
+input:active,
+textarea:active,
+button.full:active {
+	transform: scale(98.5%);
 }
 
 input.full,
@@ -142,7 +164,7 @@ button:not([disabled]):hover {
 }
 
 button[disabled] {
-	@apply bg-muted cursor-not-allowed;
+	@apply text-muted bg-light border-muted cursor-not-allowed;
 }
 
 button.green {
@@ -234,7 +256,7 @@ input[type='checkbox']:active:before {
 
 .list-item {
 	display: block;
-	border-bottom: 1px solid var(--color-separator);
+	border-bottom: 1px solid var(--color-light);
 	padding: 1em 0;
 }
 

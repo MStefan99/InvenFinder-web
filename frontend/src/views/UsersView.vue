@@ -27,9 +27,9 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
 
-import type {User, NewUser} from '../scripts/types';
+import type {NewUser, User} from '../scripts/types';
 import PermissionSelector from '../components/PermissionSelector.vue';
-import Api, {UserAPI} from '../scripts/api';
+import Api from '../scripts/api';
 import appState from '../scripts/store';
 import {PERMISSIONS} from '../../../common/permissions';
 import {alert, PopupColor} from '../scripts/popups';
@@ -39,10 +39,13 @@ const newUser = ref<NewUser | null>(null);
 const defaultUser = {username: '', password: '', permissions: 0} as NewUser;
 
 function addUser() {
-	Api.users.add(newUser.value).then((u) => {
-		users.value.push(u);
-		newUser.value = null;
-	});
+	Api.users
+		.add(newUser.value)
+		.then((u) => {
+			users.value.push(u);
+			newUser.value = null;
+		})
+		.catch((err) => alert('Could not add the user', PopupColor.Red, err.message));
 }
 
 onMounted(() => {
@@ -51,7 +54,10 @@ onMounted(() => {
 		return;
 	}
 
-	UserAPI.getAll().then((u) => (users.value = u));
+	Api.users
+		.getAll()
+		.then((u) => (users.value = u))
+		.catch((err) => alert('Could not load users', PopupColor.Red, err.message));
 });
 </script>
 

@@ -18,7 +18,8 @@
 			type="password"
 			v-model="passwordRepeat"
 			autocomplete="new-password")
-		button(type="submit") Save
+		p.mb-2.text-red(v-if="updateUser.password?.length || passwordRepeat.length") Passwords do not match
+		button(type="submit" :disabled="!passwordsMatch") Save
 	.sessions
 		p.text-xl.my-4 Active sessions
 		table.w-full
@@ -34,11 +35,11 @@
 					td {{new Date(session.time).toLocaleString()}}
 					td
 						button(@click="logout(session)") Sign out
-			button(@click="Api.sessions.logoutAll") Sign out everywhere
+			button(@click="logoutAll") Sign out everywhere
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 
 import appState from '../scripts/store';
 import Api from '../scripts/api';
@@ -48,6 +49,12 @@ import {alert, PopupColor} from '../scripts/popups';
 const sessions = ref<Session[]>([]);
 const updateUser = ref<UpdateUser>({id: appState.user.id});
 const passwordRepeat = ref<string>('');
+const passwordsMatch = computed<boolean>(
+	() =>
+		updateUser.value.password?.length &&
+		passwordRepeat.value.length &&
+		updateUser.value.password === passwordRepeat.value
+);
 
 function parseUA(ua: string): string | null {
 	const res = ua.match(/.*? \((.*?); (.*?)([;)]).*/);
@@ -68,12 +75,17 @@ function parseUA(ua: string): string | null {
 }
 
 function updatePassword() {
-	if (!updateUser.value.password.length) {
+	if (!updateUser.value.password?.length || passwordRepeat.value.length) {
+		alert('Password cannot be empty', PopupColor.Red, 'Please type in a new password');
 		return;
 	}
 
-	if (updateUser.value.password !== passwordRepeat.value) {
-		alert('Passwords do not match', PopupColor.Red);
+	if (!passwordsMatch.value) {
+		alert(
+			'Passwords do not match',
+			PopupColor.Red,
+			'Please check that both passwords are the same'
+		);
 		return;
 	}
 
@@ -81,19 +93,35 @@ function updatePassword() {
 		.edit(updateUser.value)
 		.then(() =>
 			alert(
-				'Saved',
+				'Password changed',
 				PopupColor.Green,
-				'Your password was successfully changed. ' + 'Consider signing out your active sessions'
+				'Your password was successfully changed. Consider signing out your active sessions'
 			)
-		);
+		)
+		.catch((err) => alert('Could not change your password', PopupColor.Red, err.message));
 }
 
 function logout(session: Session) {
-	sessions.value.splice(sessions.value.indexOf(session), 1);
 	Api.sessions.logout(session.id);
+	sessions.value.splice(sessions.value.indexOf(session), 1);
+	if (session.id === appState.apiKey) {
+		appState.setApiKey(null);
+		appState.setUser(null);
+	}
 }
 
-onMounted(() => Api.sessions.getAll().then((s) => (sessions.value = s)));
+function logoutAll() {
+	Api.sessions.logoutAll();
+	appState.setApiKey(null);
+	appState.setUser(null);
+}
+
+onMounted(() =>
+	Api.sessions
+		.getAll()
+		.then((s) => (sessions.value = s))
+		.catch((err) => alert('Could not load sessions', PopupColor.Red, err.message))
+);
 </script>
 
 <style scoped>

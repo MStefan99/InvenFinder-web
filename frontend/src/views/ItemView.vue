@@ -51,7 +51,7 @@ import type {Item} from '../scripts/types';
 import appState from '../scripts/store';
 import Api from '../scripts/api';
 import {PERMISSIONS} from '../../../common/permissions';
-import {PopupColor, alert, confirm, prompt} from '../scripts/popups';
+import {alert, confirm, PopupColor, prompt} from '../scripts/popups';
 
 const item = ref<Item | null>(null);
 const route = useRoute();
@@ -66,9 +66,12 @@ onMounted(() => {
 		return;
 	}
 
-	Api.items.getByID(id).then((i) => {
-		item.value = i;
-	});
+	Api.items
+		.getByID(id)
+		.then((i) => {
+			item.value = i;
+		})
+		.catch((err) => alert('Could not load the item', PopupColor.Red, err.message));
 });
 
 function openURL(url: string) {
@@ -76,7 +79,13 @@ function openURL(url: string) {
 }
 
 function editItem() {
-	item.value && Api.items.edit(item.value).then((i) => (item.value = i));
+	item.value &&
+		Api.items
+			.edit(item.value)
+			.then((i) => (item.value = i))
+			.catch((err) =>
+				alert('Could not save ' + item.value.name || 'the item', PopupColor.Red, err.message)
+			);
 }
 
 async function editAmount(add = false) {
@@ -107,7 +116,10 @@ async function editAmount(add = false) {
 	Api.items
 		.editAmount(item.value.id, item.value.amount)
 		.then((i) => (item.value.amount = i.amount))
-		.catch(() => (item.value.amount = oldAmount));
+		.catch((err) => {
+			item.value.amount = oldAmount;
+			alert('Could not change the amount', PopupColor.Red, err.message);
+		});
 }
 
 async function deleteItem() {
@@ -118,7 +130,12 @@ async function deleteItem() {
 			'Are you sure you want to delete ' + item.value.name + '?'
 		)
 	) {
-		Api.items.delete(item.value).then(() => router.push({name: 'home'}));
+		Api.items
+			.delete(item.value)
+			.then(() => router.push({name: 'home'}))
+			.catch((err) =>
+				alert('Could not delete ' + item.value.name || 'the item', PopupColor.Red, err.message)
+			);
 	}
 }
 </script>

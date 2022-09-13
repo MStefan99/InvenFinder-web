@@ -43,6 +43,7 @@ import Api from '../scripts/api';
 import appState from '../scripts/store';
 import {PERMISSIONS} from '../../../common/permissions';
 import type {Item, NewItem} from '../scripts/types';
+import {alert, PopupColor} from '../scripts/popups';
 
 const defaultItem = {
 	name: '',
@@ -60,7 +61,10 @@ const query = ref<string>('');
 onMounted(loadItems);
 
 function loadItems() {
-	Api.items.getAll().then((i) => (filteredItems.value = items.value = i));
+	Api.items
+		.getAll()
+		.then((i) => (filteredItems.value = items.value = i))
+		.catch((err) => alert('Could not load inventory', PopupColor.Red, err.message));
 }
 
 function addItem() {
@@ -68,8 +72,16 @@ function addItem() {
 		return;
 	}
 
-	Api.items.add(newItem.value).then((i) => items.value.push(i));
-	newItem.value = null;
+	Api.items
+		.add(newItem.value)
+		.then((i) => {
+			items.value.push(i);
+			alert('Added ' + newItem.value.name, PopupColor.Green, 'The item was successfully added');
+			newItem.value = null;
+		})
+		.catch((err) =>
+			alert('Could not add ' + newItem.value.name || 'the item', PopupColor.Red, err.message)
+		);
 }
 
 function search(query: string) {
