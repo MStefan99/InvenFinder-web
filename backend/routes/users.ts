@@ -78,7 +78,7 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
 		const body = await ctx.request.body({ type: 'json' }).value;
 
 		const user = await User.create(
-			body.username,
+			body.username.trim(),
 			body.password,
 			parsePermissions(body.permissions),
 		);
@@ -87,7 +87,6 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
 		ctx.response.body = user;
 	} catch (e) {
 		console.error(e);
-
 		ctx.response.status = 400;
 		ctx.response.body = {
 			error: 'INVALID_REQUEST',
@@ -124,7 +123,7 @@ router.patch(
 			}
 
 			if (body.username !== undefined) {
-				user.username = body.username;
+				user.username = body.username.trim();
 			}
 			if (body.password !== undefined) {
 				await user.setPassword(body.password);

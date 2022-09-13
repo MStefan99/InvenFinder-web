@@ -14,7 +14,7 @@ router.post('/register', credentialsPresent, async (ctx) => {
 		const body = await ctx.request.body({ type: 'json' }).value;
 
 		const user = await User.create(
-			body.username,
+			body.username.trim(),
 			body.password,
 			[],
 		);
@@ -40,7 +40,7 @@ router.post('/register', credentialsPresent, async (ctx) => {
 // Log in
 router.post('/login', credentialsPresent, async (ctx) => {
 	const body = await ctx.request.body({ type: 'json' }).value;
-	const user = await User.getByUsername(body.username);
+	const user = await User.getByUsername(body.username.trim());
 
 	if (user === null) {
 		ctx.response.status = 400;
@@ -111,7 +111,7 @@ router.patch('/me', auth.authenticated(), async (ctx) => {
 		}
 		if (await auth.test.permissions(ctx, [PERMISSIONS.MANAGE_USERS])) {
 			if (body.username !== undefined) {
-				user.username = body.username;
+				user.username = body.username.trim();
 			}
 			const permissions = +body.permissions;
 			if (Number.isInteger(permissions)) {

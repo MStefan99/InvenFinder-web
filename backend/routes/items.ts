@@ -57,10 +57,10 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 		}
 
 		const item = await Item.create({
-			name: body.name,
-			description: body.description,
-			link: body.link,
-			location: body.location,
+			name: body.name.trim(),
+			description: body.description.trim(),
+			link: body.link.trim(),
+			location: body.location.trim(),
 			amount: +body.amount,
 		});
 
@@ -169,16 +169,16 @@ router.patch(
 			}
 
 			if (body.name !== undefined) {
-				item.name = body.name;
+				item.name = body.name.trim();
 			}
 			if (body.description !== undefined) {
-				item.description = body.description;
+				item.description = body.description.trim();
 			}
 			if (body.link !== undefined) {
-				item.link = body.link;
+				item.link = body.link.trim();
 			}
 			if (body.location !== undefined) {
-				item.location = body.location;
+				item.location = body.location.trim();
 			}
 			if (body.amount !== undefined) {
 				item.amount = amount;
