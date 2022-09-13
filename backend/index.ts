@@ -55,7 +55,10 @@ apiRouter.use(userRouter.allowedMethods());
 
 app.use((ctx) => {
 	ctx.response.status = 404;
-	ctx.response.body = { error: 'Route not found', code: 'NOT_FOUND' };
+	ctx.response.body = {
+		error: 'NOT_FOUND',
+		message: 'Route not found',
+	};
 });
 
 app.listen({ port }).then(() => {

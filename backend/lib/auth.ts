@@ -31,8 +31,6 @@ async function getUser(ctx: Context): Promise<User | null> {
 	return (ctx.state.user = await User.getByID(ctx.state.session.userID));
 }
 
-type Next = () => Promise<unknown>;
-
 export default {
 	test: {
 		async authenticated(ctx: Context): Promise<boolean> {
