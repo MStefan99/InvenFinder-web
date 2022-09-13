@@ -33,3 +33,13 @@ export async function credentialsPresent(ctx: Context, next: Next) {
 		};
 	}
 }
+
+export async function logger(ctx: Context, next: Next) {
+	const req = ctx.request;
+	console.log(
+		`${req.method} ${req.url.pathname} from ${req.ip} on ${
+			new Date().toLocaleString()
+		}`,
+	);
+	await next();
+}

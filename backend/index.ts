@@ -1,4 +1,5 @@
 import { Application, Router } from './deps.ts';
+import { logger } from './routes/middleware.ts';
 import authRouter from './routes/auth.ts';
 import sessionRouter from './routes/sessions.ts';
 import itemRouter from './routes/items.ts';
@@ -10,6 +11,8 @@ const app = new Application();
 const apiRouter = new Router({
 	prefix: '/api',
 });
+
+app.use(logger);
 
 app.use(async (ctx, next) => {
 	ctx.response.headers.set('Who-Am-I', 'Invenfinder');
@@ -56,5 +59,5 @@ app.use((ctx) => {
 });
 
 app.listen({ port }).then(() => {
-	console.log('Deno listening at http://localhost:' + port);
+	console.log('Listening at http://localhost:' + port);
 });
