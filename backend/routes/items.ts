@@ -58,8 +58,8 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 
 		const item = await Item.create({
 			name: body.name.trim(),
-			description: body.description?.trim(),
-			link: body.link?.trim(),
+			description: body.description?.trim() ?? null,
+			link: body.link?.trim() ?? null,
 			location: body.location.trim(),
 			amount: +body.amount,
 		});
@@ -171,11 +171,11 @@ router.patch(
 			if (body.name?.length) {
 				item.name = body.name.trim();
 			}
-			if (body.description?.length) {
-				item.description = body.description?.trim();
+			if (body.description !== undefined) {
+				item.description = body.description?.trim() ?? null;
 			}
-			if (body.link?.length) {
-				item.link = body.link?.trim();
+			if (body.link !== undefined) {
+				item.link = body.link?.trim() ?? null;
 			}
 			if (body.location?.length) {
 				item.location = body.location.trim();
@@ -190,7 +190,6 @@ router.patch(
 			ctx.response.body = item;
 		} catch (e) {
 			console.error(e);
-
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'INVALID_REQUEST',

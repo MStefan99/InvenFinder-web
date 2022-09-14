@@ -17,13 +17,13 @@
 					@update:modelValue="editItem")
 				TextEditable.mb-2(
 					v-model="item.description"
-					placeholder="[No description]"
+					placeholder="No description"
 					text-class="text-muted"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 					@update:modelValue="editItem")
 				TextEditable(
 					v-model="item.link"
-					placeholder="[No link]"
+					placeholder="No link"
 					text-class="text-muted"
 					clickable
 					@click="openURL(item.link)"
