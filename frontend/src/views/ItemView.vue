@@ -35,7 +35,7 @@
 					text-class="text-muted"
 					@update:modelValue="editItem"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
-		p.text-muted.my-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])") Right-click to edit
+		p.text-muted.my-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])") Right-click the fields above to edit
 		div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
 			button.mr-4(@click="editAmount(false)") Take from storage
 			button.mr-4(@click="editAmount(true)") Put in storage

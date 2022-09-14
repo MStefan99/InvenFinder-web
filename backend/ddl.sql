@@ -25,8 +25,6 @@ create table users
 	permissions   int default 0 not null,
 	constraint users_id_uindex
 		unique (id),
-	constraint users_pk_username
-		unique (username),
 	constraint users_username_uindex
 		unique (username)
 );

@@ -76,7 +76,7 @@ router.get(
 router.post('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
 	try {
 		const body = await ctx.request.body({ type: 'json' }).value;
-		if (!ctx.params.username?.length) {
+		if (!body.username?.length) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_USERNAME',
@@ -84,7 +84,7 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
 			};
 			return;
 		}
-		if (!ctx.params.password?.length) {
+		if (!body.password?.length) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'NO_PASSWORD',
