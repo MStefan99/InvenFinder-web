@@ -77,6 +77,11 @@ a {
 	transform: translateY(5%);
 }
 
+.filler {
+	padding-top: 3em;
+	@apply text-muted text-xl text-center align-middle;
+}
+
 nav {
 	position: sticky;
 	top: 0;
@@ -129,7 +134,7 @@ button:active {
 	transform: scale(92%);
 }
 
-input:active,
+input:not([type='checkbox']):active,
 textarea:active,
 button.full:active {
 	transform: scale(98.5%);

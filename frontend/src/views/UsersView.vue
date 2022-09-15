@@ -13,12 +13,17 @@
 			form.popup(@submit.prevent="addUser")
 				p.text-2xl.mb-4 New item
 				label.mb-2(for="name-input") Username
-				input#username-input.mb-4.full(v-model="newUser.username" type="text" placeholder="user")
+				input#username-input.mb-4.full(
+					v-model="newUser.username"
+					type="text"
+					placeholder="user"
+					autocomplete="username")
 				label.mb-2(for="desc-input") Password
 				input#password-input.mb-4.full(
 					v-model="newUser.password"
 					type="password"
-					placeholder="password")
+					placeholder="password"
+					autocomplete="new-password")
 				label.mb-2 Permissions
 				PermissionSelector.mb-4(v-model="newUser.permissions")
 				button(type="submit") Add user

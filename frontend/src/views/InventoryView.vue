@@ -5,7 +5,10 @@
 		input.grow.mr-2(placeholder="Search here..." v-model="query" @input="search(query)")
 		button(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="newItem = defaultItem") Add a new item
 	#items-table
+		p.filler(v-if="!items.length") Oh no, your inventory is empty! Once you have some items, they will appear here
+		p.filler(v-else-if="!filteredItems.length") No items matching your search. Please try something else
 		RouterLink.list-item(
+			v-else
 			v-for="item in filteredItems"
 			:key="item.id"
 			:to="{name: 'item', params: {id: item.id}}")
