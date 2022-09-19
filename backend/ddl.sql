@@ -1,22 +1,16 @@
-create table items
-(
+create table items (
 	id          int auto_increment
 		primary key,
 	name        varchar(200) not null,
-	description text         null,
-	link        text         null,
+	description text         null default null,
+	link        text         null default null,
 	location    varchar(50)  not null,
 	amount      int          not null,
 	constraint components_id_uindex
-		unique (id),
-	constraint components_name_uindex
-		unique (name),
-	constraint items_location_uindex
-		unique (location)
+		unique (id)
 );
 
-create table users
-(
+create table users (
 	id            int auto_increment
 		primary key,
 	username      varchar(50)   not null,
@@ -29,8 +23,7 @@ create table users
 		unique (username)
 );
 
-create table sessions
-(
+create table sessions (
 	id        int auto_increment
 		primary key,
 	public_id varchar(80)  not null,
@@ -46,4 +39,3 @@ create table sessions
 		foreign key (user_id) references users (id)
 			on update cascade on delete cascade
 );
-
