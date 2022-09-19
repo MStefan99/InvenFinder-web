@@ -1,12 +1,12 @@
 <template lang="pug">
 .editable
-	span(
-		v-if="!expanded || readonly"
-		:class="[textClass, {'underline cursor-pointer': modelValue && clickable}]"
-		@click="modelValue && $emit('click', value)"
-		@contextmenu.prevent="expanded = true") {{value ?? placeholder}}
+	.flex.items-baseline(v-if="!expanded || readonly")
+		span(
+			:class="[textClass, {'underline cursor-pointer': modelValue && clickable}]"
+			@click="modelValue && $emit('click', value)") {{value ?? placeholder}}
+		img.icon.ml-2.clickable(src="/src/assets/pen.svg" @click="expanded = true")
 	form(v-else @submit.prevent="$emit('update:modelValue', value); expanded = false")
-		input(type="text" v-model="value")
+		textarea.full(rows="1" v-model="value")
 		.my-4
 			button.mr-4(type="button" @click="value = props.modelValue; expanded = false") Cancel
 			button.mr-4(type="button" @click="value = null") Clear
@@ -41,7 +41,7 @@ watch(
 </script>
 
 <style scoped>
-input {
-	width: 100%;
+.icon {
+	display: inline-block;
 }
 </style>

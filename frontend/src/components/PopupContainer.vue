@@ -1,24 +1,24 @@
 <template lang="pug">
 .popups
 	.alerts
-		TransitionGroup(name="popup" v-if="!activeConfirm && !activePrompt")
+		TransitionGroup(name="popup")
 			.alert(v-for="alert in activeAlerts" :key="alert.title" :class="alert.type")
-				.title {{alert.title}}
+				.title(:class="alert.type") {{alert.title}}
 				.details {{alert.details}}
 	Transition(name="popup")
 		.confirm(v-if="activeConfirm" :class="activeConfirm.confirm.type")
 			.title {{activeConfirm.confirm.title}}
 			.details {{activeConfirm.confirm.details}}
 			.mt-4
-				button.green.mr-4(@click="resolveConfirm(true)") Yes
-				button.red(@click="resolveConfirm(false)") No
+				button.mr-4(@click="resolveConfirm(true)" :class="activeConfirm.confirm.type") Yes
+				button(@click="resolveConfirm(false)") No
 	Transition(name="popup")
 		.prompt(v-if="activePrompt" :class="activePrompt.prompt.type")
 			.title {{activePrompt.prompt.title}}
 			.details {{activePrompt.prompt.details}}
 			form.flex.mt-4(@submit.prevent="resolvePrompt")
-				input.mr-4.flex-grow(type="text" v-model="promptValue")
-				button(type="submit") Submit
+				input.mr-4.flex-grow(type="text" v-model="promptValue" :class="activePrompt.prompt.type")
+				button(type="submit" :class="activePrompt.prompt.type") Submit
 </template>
 
 <script setup lang="ts">

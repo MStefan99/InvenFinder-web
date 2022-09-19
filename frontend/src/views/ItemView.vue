@@ -2,40 +2,41 @@
 #item
 	h2.text-accent.text-2xl.mb-4 Item details
 	div(v-if="item")
-		.flex.justify-end
-			TextEditable(
-				v-model="item.location"
-				text-class="text-9xl font-semibold"
-				:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-				@update:modelValue="editItem")
 		.flex.justify-between
 			.grow.mr-2
 				TextEditable.mb-2(
 					v-model="item.name"
-					text-class="text-xl font-bold"
+					text-class="text-2xl font-bold"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 					@update:modelValue="editItem")
-				TextEditable.mb-2(
-					v-model="item.description"
-					placeholder="No description"
-					text-class="text-muted"
-					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-					@update:modelValue="editItem")
-				TextEditable(
-					v-model="item.link"
-					placeholder="No link"
-					text-class="text-muted"
-					clickable
-					@click="openURL(item.link)"
-					@update:modelValue="editItem"
-					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
-			div
+				.flex.items-baseline.mb-4
+					img.icon.mr-2(src="/src/assets/shelf.svg")
+					TextEditable.grow(
+						v-model="item.location"
+						text-class="text-xl font-semibold"
+						:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
+						@update:modelValue="editItem")
+			.shrink-0.flex.items-baseline
+				img.icon.mr-2(src="/src/assets/warehouse.svg")
 				TextEditable(
 					v-model="item.amount"
 					text-class="text-muted"
 					@update:modelValue="editItem"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
-		p.text-muted.my-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])") Right-click the fields above to edit
+		TextEditable.mb-2(
+			v-model="item.description"
+			placeholder="No description"
+			text-class="text-muted"
+			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
+			@update:modelValue="editItem")
+		TextEditable.mb-4(
+			v-model="item.link"
+			placeholder="No link"
+			text-class="text-muted"
+			clickable
+			@click="openURL(item.link)"
+			@update:modelValue="editItem"
+			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 		div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
 			button.mr-4(@click="editAmount(false)") Take from storage
 			button.mr-4(@click="editAmount(true)") Put in storage
@@ -141,10 +142,6 @@ async function deleteItem() {
 </script>
 
 <style scoped>
-.location {
-	font-size: 10vh;
-}
-
 input {
 	@apply block;
 }

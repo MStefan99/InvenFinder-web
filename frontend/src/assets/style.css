@@ -77,6 +77,10 @@ a {
 	transform: translateY(5%);
 }
 
+.icon {
+	height: 1rem;
+}
+
 .filler {
 	padding-top: 3em;
 	@apply text-muted text-xl text-center align-middle;
@@ -244,6 +248,7 @@ input[type='checkbox']:active:before {
 	bottom: 0;
 	background-color: var(--color-overlay);
 	box-shadow: 0 0 3em var(--color-shadow);
+	backdrop-filter: blur(8px);
 }
 
 .popup-wrapper .popup {
@@ -256,7 +261,6 @@ input[type='checkbox']:active:before {
 	border-radius: 1em;
 	background-color: var(--color-overlay);
 	box-shadow: 0 1em 3em var(--color-shadow);
-	backdrop-filter: blur(2em);
 }
 
 .list-item {
@@ -272,12 +276,13 @@ input[type='checkbox']:active:before {
 
 .popup-enter-active,
 .popup-leave-active {
-	transition: transform 0.5s ease-in-out;
+	transition: all 0.3s cubic-bezier(0, 0.2, 0.5, 1);
 }
 
 .popup-enter-from,
 .popup-leave-to {
-	transform: translateY(-100%);
+	opacity: 0;
+	transform: scale(120%);
 }
 
 @media print {

@@ -14,10 +14,10 @@
 			:to="{name: 'item', params: {id: item.id}}")
 			.flex.justify-between
 				div
-					.mr-4 {{item.name}}
-					.mr-4.text-muted {{item.description}}
+					.mr-4 {{truncate(item.name, 40)}}
+					.mr-4.text-muted {{truncate(item.description, 180)}}
 				div
-					.text-right.font-semibold {{item.location}}
+					.text-right.font-semibold {{truncate(item.location, 20)}}
 					.text-right.text-muted {{item.amount}}
 	Transition(name="popup")
 		.popup-wrapper(v-if="newItem !== null" @click.self="newItem = null")
@@ -94,7 +94,7 @@ function search(query: string) {
 	for (const item of items.value) {
 		if (
 			item.name.toLowerCase().includes(q) ||
-			item.description.toLowerCase().includes(q) ||
+			item.description?.toLowerCase()?.includes(q) ||
 			item.location.toLowerCase() === q
 		) {
 			foundItems.push(item);
@@ -102,6 +102,18 @@ function search(query: string) {
 	}
 
 	filteredItems.value = foundItems;
+}
+
+function truncate(text: string | null, length: number): string {
+	if (text === null) {
+		return '';
+	}
+
+	if (text.length > length) {
+		return text.substring(0, length - 1) + '…';
+	} else {
+		return text;
+	}
 }
 </script>
 
