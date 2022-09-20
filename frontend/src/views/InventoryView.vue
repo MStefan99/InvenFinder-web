@@ -6,7 +6,7 @@
 		button(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="newItem = defaultItem") Add a new item
 	#items-table
 		p.filler(v-if="!items.length") Oh no, your inventory is empty! Once you have some items, they will appear here
-		p.filler(v-else-if="!filteredItems.length") No items matching your search. Please try something else
+		p.filler(v-else-if="!filteredItems.length") No items matched your search. Please try something else
 		RouterLink.list-item(
 			v-else
 			v-for="item in filteredItems"
@@ -15,7 +15,7 @@
 			.flex.justify-between
 				div
 					.mr-4 {{truncate(item.name, 40)}}
-					.mr-4.text-muted {{truncate(item.description, 180)}}
+					.mr-4.text-muted {{truncate(item.description, 180) || 'No description'}}
 				div
 					.text-right.font-semibold {{truncate(item.location, 20)}}
 					.text-right.text-muted {{item.amount}}
