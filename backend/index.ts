@@ -4,6 +4,7 @@ import authRouter from './routes/auth.ts';
 import sessionRouter from './routes/sessions.ts';
 import itemRouter from './routes/items.ts';
 import userRouter from './routes/users.ts';
+import { init } from './lib/init.ts';
 
 const port = 3007;
 
@@ -61,10 +62,12 @@ app.use((ctx) => {
 	};
 });
 
-console.log('Starting Oak server...');
+init().then(() => {
+	console.log('Starting Oak server...');
 
-app.listen({ port }).then(() => {
-	console.log('Listening at http://localhost:' + port);
+	app.listen({ port }).then(() => {
+		console.log('Listening at http://localhost:' + port);
+	});
 });
 
 function exit() {

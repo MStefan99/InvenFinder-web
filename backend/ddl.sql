@@ -1,3 +1,6 @@
+create database invenfinder;
+use invenfinder;
+
 create table items (
 	id          int auto_increment
 		primary key,
