@@ -1,0 +1,9 @@
+FROM denoland/deno:latest
+
+COPY ./backend /run/backend
+COPY ./common /run/common
+
+WORKDIR /run/backend
+EXPOSE 3007
+
+ENTRYPOINT ["deno", "run", "--allow-net", "--allow-env", "index.ts"]
