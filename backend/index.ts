@@ -61,6 +61,19 @@ app.use((ctx) => {
 	};
 });
 
+console.log('Starting Oak server...');
+
 app.listen({ port }).then(() => {
 	console.log('Listening at http://localhost:' + port);
 });
+
+function exit() {
+	console.log('Shutting down...');
+	Deno.exit();
+}
+
+try {
+	Deno.addSignalListener('SIGTERM', exit);
+} catch {
+	Deno.addSignalListener('SIGINT', exit);
+}
