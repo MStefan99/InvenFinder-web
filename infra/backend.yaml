@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    function: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      function: backend
+  template:
+    metadata:
+      labels:
+        function: backend
+    spec:
+      restartPolicy: Always
+      containers:
+        - env:
+            - name: DB_PASSWORD
+              value: example
+            - name: DB_URL
+              value: db
+            - name: DB_USERNAME
+              value: root
+          image: invenfinder-backend
+          imagePullPolicy: Never
+          name: backend
+          ports:
+            - containerPort: 3007
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    function: backend
+  name: backend
+spec:
+  ports:
+    - name: "3070"
+      port: 3070
+      targetPort: 3007
+  selector:
+    function: backend

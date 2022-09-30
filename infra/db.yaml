@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  labels:
+    function: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      function: db
+  template:
+    metadata:
+      labels:
+        function: db
+    spec:
+      restartPolicy: Always
+      containers:
+        - env:
+            - name: MARIADB_ROOT_PASSWORD
+              value: example
+          image: mariadb
+          name: db

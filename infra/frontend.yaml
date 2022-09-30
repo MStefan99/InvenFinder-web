@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    function: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      function: frontend
+  template:
+    metadata:
+      labels:
+        function: frontend
+    spec:
+      restartPolicy: Always
+      containers:
+        - env:
+            - name: BACKEND_URL
+              value: backend:3070
+          image: invenfinder-frontend
+          name: frontend
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    function: frontend
+  name: frontend
+spec:
+  type: "NodePort"
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 80
+      nodePort: 30000
+  selector:
+    function: frontend
