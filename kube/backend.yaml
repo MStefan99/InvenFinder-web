@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: invenfinder
+    function: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      function: backend
+  template:
+    metadata:
+      labels:
+        app: invenfinder
+        function: backend
+    spec:
+      containers:
+        - env:
+            - name: CORS_ORIGIN
+              value: "*"
+            - name: DB_URL
+              value: db
+            - name: DB_USERNAME
+              value: root
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: mariadb-password
+          image: invenfinder-backend
+          imagePullPolicy: Never
+          name: backend
+          ports:
+            - containerPort: 3007
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: invenfinder
+    function: backend
+  name: backend
+spec:
+  type: "NodePort"
+  ports:
+    - port: 3070
+      targetPort: 3007
+      nodePort: 30001
+  selector:
+    function: backend
