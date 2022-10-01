@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: backend
   labels:
+    app: invenfinder
     function: backend
 spec:
   replicas: 3
@@ -12,17 +13,17 @@ spec:
   template:
     metadata:
       labels:
+        app: invenfinder
         function: backend
     spec:
-      restartPolicy: Always
       containers:
         - env:
-            - name: DB_PASSWORD
-              value: example
             - name: DB_URL
               value: db
             - name: DB_USERNAME
               value: root
+            - name: DB_PASSWORD
+              value: example
           image: invenfinder-backend
           imagePullPolicy: Never
           name: backend
@@ -33,12 +34,14 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
+    app: invenfinder
     function: backend
   name: backend
 spec:
+  type: "NodePort"
   ports:
-    - name: "3070"
-      port: 3070
+    - port: 3070
       targetPort: 3007
+      nodePort: 30001
   selector:
     function: backend
