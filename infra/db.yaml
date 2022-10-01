@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: db
+  labels:
+    app: invenfinder
 spec:
   serviceName: db
   replicas: 2
@@ -15,16 +17,20 @@ spec:
         function: db
     spec:
       containers:
-      - name: mariadb
-        env:
-          - name: MARIADB_ROOT_PASSWORD
-            value: example
-        ports:
-        - containerPort: 3306
-          name: web
-        volumeMounts:
-        - name: db
-          mountPath: /mnt/db
+        - image: mariadb
+          name: mariadb
+          env:
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: mariadb-password
+          ports:
+          - containerPort: 3306
+            name: web
+          volumeMounts:
+          - name: db
+            mountPath: /var/lib/mysql
   volumeClaimTemplates:
   - metadata:
       name: db

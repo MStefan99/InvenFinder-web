@@ -43,3 +43,22 @@ export async function logger(ctx: Context, next: Next) {
 	);
 	await next();
 }
+
+export async function cors(ctx: Context, next: Next) {
+	if (Deno.env.get('ENV') === 'development') {
+		ctx.response.headers.set('Access-Control-Allow-Origin', '*');
+	} else {
+		const origin = Deno.env.get('CORS_ORIGIN');
+		origin &&
+			ctx.response.headers.set('Access-Control-Allow-Origin', origin);
+	}
+
+	ctx.response.headers.set('Access-Control-Allow-Headers', '*');
+	ctx.response.headers.set('Access-Control-Allow-Methods', '*');
+	ctx.response.headers.set('Access-Control-Expose-Headers', '*');
+	ctx.response.headers.set('Access-Control-Max-Age', '86400');
+
+	ctx.response.status = 200;
+
+	await next();
+}

@@ -18,12 +18,17 @@ spec:
     spec:
       containers:
         - env:
+            - name: CORS_ORIGIN
+              value: "*"
             - name: DB_URL
               value: db
             - name: DB_USERNAME
               value: root
             - name: DB_PASSWORD
-              value: example
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: mariadb-password
           image: invenfinder-backend
           imagePullPolicy: Never
           name: backend

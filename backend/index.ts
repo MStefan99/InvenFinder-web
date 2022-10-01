@@ -1,5 +1,5 @@
 import { Application, Router } from './deps.ts';
-import { logger } from './routes/middleware.ts';
+import { cors, logger } from './routes/middleware.ts';
 import authRouter from './routes/auth.ts';
 import sessionRouter from './routes/sessions.ts';
 import itemRouter from './routes/items.ts';
@@ -14,26 +14,12 @@ const apiRouter = new Router({
 });
 
 app.use(logger);
+app.use(cors);
 
 app.use(async (ctx, next) => {
 	ctx.response.headers.set('Who-Am-I', 'Invenfinder');
 	await next();
 });
-
-if (Deno.env.get('ENV') === 'development') {
-	app.use(async (ctx, next) => {
-		ctx.response.headers.set('Access-Control-Allow-Origin', '*');
-		ctx.response.headers.set('Access-Control-Allow-Methods', '*');
-		ctx.response.headers.set('Access-Control-Allow-Headers', '*');
-		ctx.response.headers.set('Access-Control-Expose-Headers', '*');
-		ctx.response.headers.set('Access-Control-Max-Age', '86400');
-
-		if (ctx.request.method === 'OPTIONS') {
-			ctx.response.status = 200;
-		}
-		await next();
-	});
-}
 
 apiRouter.get('/', (ctx) => {
 	ctx.response.body = { message: 'Welcome!' };
