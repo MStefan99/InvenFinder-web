@@ -5,10 +5,9 @@ metadata:
   labels:
     app: invenfinder
 spec:
-  storageClassName: manual
   capacity:
     storage: 500M
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/mnt/data"
+    path: /data/db
