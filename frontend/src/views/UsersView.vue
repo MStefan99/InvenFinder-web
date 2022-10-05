@@ -38,17 +38,19 @@ import Api from '../scripts/api';
 import appState from '../scripts/store';
 import {PERMISSIONS} from '../../../common/permissions';
 import {alert, PopupColor} from '../scripts/popups';
+import {useRouter} from 'vue-router';
 
 const users = ref<User[]>();
 const newUser = ref<NewUser | null>(null);
 const defaultUser = {username: '', password: '', permissions: 0} as NewUser;
+const router = useRouter();
 
 function addUser() {
 	Api.users
 		.add(newUser.value)
 		.then((u) => {
 			users.value.push(u);
-			newUser.value = null;
+			router.push({name: 'user', params: {id: u.id}});
 		})
 		.catch((err) => alert('Could not add the user', PopupColor.Red, err.message));
 }

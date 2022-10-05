@@ -9,5 +9,5 @@ spec:
     storage: 500M
   accessModes:
     - ReadWriteOnce
-  hostPath:
+  hostPath:  # This should be a remote storage if deploying on multiple nodes
     path: /data/db

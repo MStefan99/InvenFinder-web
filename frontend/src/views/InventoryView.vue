@@ -47,6 +47,7 @@ import appState from '../scripts/store';
 import {PERMISSIONS} from '../../../common/permissions';
 import type {Item, NewItem} from '../scripts/types';
 import {alert, PopupColor} from '../scripts/popups';
+import {useRouter} from 'vue-router';
 
 const defaultItem = {
 	name: '',
@@ -60,6 +61,7 @@ const items = ref<Item[]>([]);
 const filteredItems = ref<Item[]>([]);
 const newItem = ref<Item | null>(null);
 const query = ref<string>('');
+const router = useRouter();
 
 onMounted(loadItems);
 
@@ -79,8 +81,7 @@ function addItem() {
 		.add(newItem.value)
 		.then((i) => {
 			items.value.push(i);
-			alert('Added ' + newItem.value.name, PopupColor.Green, 'The item was successfully added');
-			newItem.value = null;
+			router.push({name: 'item', params: {id: i.id}});
 		})
 		.catch((err) =>
 			alert('Could not add ' + newItem.value.name || 'the item', PopupColor.Red, err.message)
