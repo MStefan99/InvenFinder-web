@@ -1,27 +1,28 @@
 <template lang="pug">
 div
-	div
-		input#p-edit-item-amount(
+	div(v-for="permission in permissionKeys" :key="permission")
+		input(
 			type="checkbox"
-			:value="PERMISSIONS.EDIT_ITEM_AMOUNT"
+			:id="'permission-' + permission"
+			:value="permission"
 			v-model="permissions")
-		label.inline(for="p-edit-item-amount") Store and retrieve items
-	div
-		input#p-manage-items(type="checkbox" :value="PERMISSIONS.MANAGE_ITEMS" v-model="permissions")
-		label.inline(for="p-manage-items") Edit, add and remove items
-	div
-		input#p-manage-users(type="checkbox" :value="PERMISSIONS.MANAGE_USERS" v-model="permissions")
-		label.inline(for="p-manage-users") Edit, add and remove users
+		label.inline(:for="'permission-' + permission") {{permissionDescriptions[permission]}}
 </template>
 
 <script setup lang="ts">
-import {encodePermissions, parsePermissions, PERMISSIONS} from '../../../common/permissions';
-import {ref, watch} from 'vue';
+import {
+	encodePermissions,
+	parsePermissions,
+	PERMISSIONS,
+	permissionDescriptions
+} from '../../../common/permissions';
+import {computed, ref, watch} from 'vue';
 
 const props = defineProps<{modelValue: number}>();
 const emit = defineEmits<{(e: 'update:modelValue', permissions: number): void}>();
 
 const permissions = ref<PERMISSIONS[]>(parsePermissions(props.modelValue));
+const permissionKeys = computed<string[]>(() => Object.keys(PERMISSIONS).filter((k) => !isNaN(+k)));
 
 watch(
 	() => props.modelValue,

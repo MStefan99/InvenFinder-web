@@ -1,9 +1,14 @@
-export const enum PERMISSIONS {
+export enum PERMISSIONS {
 	EDIT_ITEM_AMOUNT,
 	MANAGE_ITEMS,
-	LOAN_ITEMS,
 	MANAGE_USERS
 }
+
+export const permissionDescriptions: Record<PERMISSIONS, string> = {
+	[PERMISSIONS.EDIT_ITEM_AMOUNT]: 'Edit item amount',
+	[PERMISSIONS.MANAGE_ITEMS]: 'Edit items',
+	[PERMISSIONS.MANAGE_USERS]: 'Edit users'
+};
 
 function fromNumber(value: number): PERMISSIONS[] {
 	const permissions = new Array<PERMISSIONS>();
