@@ -52,9 +52,16 @@ function request<T>(path: string, params: RequestParams): Promise<T> {
 			return;
 		}
 
-		const query = params?.query ? '?' + new URLSearchParams(params.query).toString() : '';
+		const query =
+			params?.query &&
+			Object.keys(params?.query).reduce<Record<string, string>>((q, key) => {
+				params.query[key].trim() && (q[key] = params.query[key]);
+				return q;
+			}, {});
+		const queryString =
+			query && Object.keys(query).length ? '?' + new URLSearchParams(query).toString() : '';
 
-		fetch(appState.backendURL + apiPrefix + path + query, {
+		fetch(appState.backendURL + apiPrefix + path + queryString, {
 			method: params.method ?? 'GET',
 			headers: {
 				...(!!params.auth && {
@@ -160,6 +167,7 @@ export const ItemAPI = {
 	add: (item: NewItem) =>
 		request<Item>('/items', {auth: true, method: RequestMethod.POST, body: item}),
 	getAll: () => request<Item[]>('/items', {auth: true}),
+	search: (query: string) => request<Item[]>('/items', {auth: true, query: {q: query}}),
 	getByID: (id: Item['id']) => request<Item>('/items/' + id, {auth: true}),
 	getByLocation: () => Promise.reject<Item>(notImplemented),
 	editAmount: (id: Item['id'], amount: Item['amount']) =>

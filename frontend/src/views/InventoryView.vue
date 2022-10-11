@@ -62,6 +62,7 @@ const filteredItems = ref<Item[]>([]);
 const newItem = ref<Item | null>(null);
 const query = ref<string>('');
 const router = useRouter();
+let debounceHandle: number | undefined = undefined;
 
 onMounted(loadItems);
 
@@ -103,6 +104,11 @@ function search(query: string) {
 	}
 
 	filteredItems.value = foundItems;
+
+	clearTimeout(debounceHandle);
+	debounceHandle = setTimeout(() => {
+		Api.items.search(q).then((i) => (filteredItems.value = i));
+	}, 2000);
 }
 
 function truncate(text: string | null, length: number): string {
