@@ -10,6 +10,13 @@ const router = new Router({
 
 // Get all items
 router.get('/', auth.authenticated(), async (ctx) => {
+	const query = ctx.request.url.searchParams.get('q');
+
+	if (query?.length) {
+		ctx.response.body = await Item.search(query);
+		return;
+	}
+
 	ctx.response.body = await Item.getAll();
 });
 

@@ -8,10 +8,11 @@ create table items (
 	description text         null default null,
 	link        text         null default null,
 	location    varchar(50)  not null,
-	amount      int          not null,
-	constraint components_id_uindex
-		unique (id)
+	amount      int          not null
 );
+
+create fulltext index items_search_index
+	on invenfinder.items (name, description);
 
 create table users (
 	id            int auto_increment
@@ -20,8 +21,6 @@ create table users (
 	password_salt varchar(100)  not null,
 	password_hash varchar(100)  not null,
 	permissions   int default 0 not null,
-	constraint users_id_uindex
-		unique (id),
 	constraint users_username_uindex
 		unique (username)
 );
@@ -34,8 +33,6 @@ create table sessions (
 	ip        varchar(20)  not null,
 	ua        varchar(200) not null,
 	time      bigint       not null,
-	constraint sessions_id_uindex
-		unique (id),
 	constraint sessions_public_id_uindex
 		unique (public_id),
 	constraint sessions_users_id_fk

@@ -135,6 +135,24 @@ class Item {
 		return items;
 	}
 
+	static async search(query: string): Promise<Item[]> {
+		const items = [];
+
+		const client = await dbClientPromise;
+		const rows = await client.query(
+			`select *
+		                                 from invenfinder.items
+		                                 where match (name, description)
+			                                       against (?)`,
+			[query],
+		);
+
+		for (const row of rows) {
+			items.push(new Item(row));
+		}
+		return items;
+	}
+
 	async delete(): Promise<void> {
 		const client = await dbClientPromise;
 		await client.execute(
