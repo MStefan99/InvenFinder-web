@@ -111,9 +111,10 @@ function search(query: string) {
 		clearTimeout(debounceHandle);
 		debounceHandle = setTimeout(() => {
 			Api.items.search(q).then((i) => {
-				filteredItems.value.length !== i.length &&
+				if (i.length > filteredItems.value.length) {
+					filteredItems.value = i;
 					alert('Search results enhanced', PopupColor.Green, 'Better results coming your way!');
-				filteredItems.value = i;
+				}
 			});
 		}, 2000);
 	}
