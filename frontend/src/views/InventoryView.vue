@@ -3,6 +3,7 @@
 	h2.text-accent.text-2xl.mb-4 Inventory
 	.flex.my-2
 		input.grow.mr-2(placeholder="Search here..." v-model="query" @input="search(query)")
+		button.mr-2(@click="query = ''; search(query)") Clear
 		button(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="newItem = defaultItem") Add a new item
 	#items-table
 		p.filler(v-if="!items.length") Oh no, your inventory is empty! Once you have some items, they will appear here
@@ -93,22 +94,29 @@ function search(query: string) {
 	const foundItems: Item[] = [];
 	const q = query.trim().toLowerCase();
 
-	for (const item of items.value) {
-		if (
-			item.name.toLowerCase().includes(q) ||
-			item.description?.toLowerCase()?.includes(q) ||
-			item.location.toLowerCase() === q
-		) {
-			foundItems.push(item);
+	if (!q) {
+		filteredItems.value = items.value;
+	} else {
+		for (const item of items.value) {
+			if (
+				item.name.toLowerCase().includes(q) ||
+				item.description?.toLowerCase()?.includes(q) ||
+				item.location.toLowerCase() === q
+			) {
+				foundItems.push(item);
+			}
 		}
+		filteredItems.value = foundItems;
+
+		clearTimeout(debounceHandle);
+		debounceHandle = setTimeout(() => {
+			Api.items.search(q).then((i) => {
+				filteredItems.value.length !== i.length &&
+					alert('Search results enhanced', PopupColor.Green, 'Better results coming your way!');
+				filteredItems.value = i;
+			});
+		}, 2000);
 	}
-
-	filteredItems.value = foundItems;
-
-	clearTimeout(debounceHandle);
-	debounceHandle = setTimeout(() => {
-		Api.items.search(q).then((i) => (filteredItems.value = i));
-	}, 2000);
 }
 
 function truncate(text: string | null, length: number): string {
