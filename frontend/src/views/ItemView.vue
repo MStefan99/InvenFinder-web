@@ -31,6 +31,7 @@
 			@update:modelValue="editItem")
 		TextEditable.mb-4(
 			v-model="item.link"
+			label="More details"
 			placeholder="No link"
 			text-class="text-muted"
 			clickable
