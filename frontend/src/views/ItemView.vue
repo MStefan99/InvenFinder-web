@@ -91,7 +91,7 @@ function editItem() {
 }
 
 async function editAmount(add = false) {
-	const diff = +((await prompt('Choose amount', PopupColor.Green)) ?? 0);
+	const diff = +((await prompt('Choose amount', PopupColor.Accent)) ?? 0);
 
 	if (Number.isNaN(diff)) {
 		return;
