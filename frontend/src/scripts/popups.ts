@@ -7,7 +7,6 @@ export enum PopupColor {
 }
 
 type Alert = {
-	id: number;
 	title: string;
 	details?: string;
 	type: PopupColor;
@@ -25,8 +24,6 @@ type Prompt = {
 	type: PopupColor;
 };
 
-let lastID = 0;
-
 export const activeAlerts = reactive<Alert[]>([]);
 export const activeConfirm = ref<{
 	confirm: Confirm;
@@ -39,17 +36,12 @@ export const activePrompt = ref<{
 
 export function alert(title: string, type: PopupColor, details?: string): Promise<void> {
 	return new Promise<void>((resolve) => {
-		const id = ++lastID;
+		const alert = {title, details, type} as Alert;
 
 		setTimeout(() => {
-			activeAlerts.splice(
-				activeAlerts.findIndex((n) => n.id === id),
-				1
-			);
+			activeAlerts.splice(activeAlerts.indexOf(alert), 1);
 			resolve();
 		}, 5000);
-
-		const alert = {id, title, details, type} as Alert;
 
 		activeAlerts.push(alert);
 	});
