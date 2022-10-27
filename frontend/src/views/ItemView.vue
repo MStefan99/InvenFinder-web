@@ -20,13 +20,11 @@
 				img.icon.mr-2(src="/src/assets/warehouse.svg")
 				TextEditable(
 					v-model="item.amount"
-					text-class="text-muted"
 					@update:modelValue="editItem"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 		TextEditable.mb-2(
 			v-model="item.description"
 			placeholder="No description"
-			text-class="text-muted"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 			@update:modelValue="editItem")
 		TextEditable.mb-4(
@@ -39,9 +37,9 @@
 			@update:modelValue="editItem"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 		div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
-			button.mr-4(@click="editAmount(false)") Take from storage
-			button.mr-4(@click="editAmount(true)") Put in storage
-			button.red(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem") Delete item
+			button.mr-4.mb-4(@click="editAmount(false)") Take from storage
+			button.mr-4.mb-4(@click="editAmount(true)") Put in storage
+			button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem") Delete item
 </template>
 
 <script setup lang="ts">

@@ -2,13 +2,14 @@
 header.no-print
 	NavBar
 
-main
+main.grow
 	RouterView(v-if="appState.user")
 	div(v-else)
 		p.text-red.text-xl Please sign in to use the app
 	NotificationContainer
 
 footer
+	span Invenfinder
 	.print
 		p.text-muted Do not edit, this file was generated automatically by InvenFinder
 </template>

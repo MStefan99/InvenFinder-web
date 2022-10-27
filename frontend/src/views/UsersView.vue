@@ -7,7 +7,7 @@
 			:key="user.id"
 			:to="{name: 'user', params: {id: user.id}}")
 			p {{user.username}}
-	button.mt-4(@click="newUser = defaultUser") Add a new user
+		button.fab(@click="newUser = defaultUser") New user
 	Transition(name="popup")
 		.popup-wrapper(v-if="newUser !== null" @click.self="newUser = null")
 			form.popup(@submit.prevent="addUser")

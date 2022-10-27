@@ -9,7 +9,7 @@ html {
 
 	--color-background: var(--color-white);
 	--color-foreground: var(--color-black);
-	--color-muted: #444;
+	--color-muted: #888;
 	--color-light: #ccc;
 	--color-accent: #3b00a2;
 
@@ -34,9 +34,9 @@ html {
 	html {
 		--color-background: var(--color-black);
 		--color-foreground: #ccc;
+		--color-muted: #666;
 		--color-light: #444;
-		--color-muted: #888;
-		--color-accent: #703cb2;
+		--color-accent: #934fea;
 
 		--color-red: #e76546;
 		--color-yellow: #b8be34;
@@ -52,11 +52,6 @@ html {
 }
 
 /* Utility styles */
-main {
-	max-width: 1024px;
-	margin: 0 auto;
-}
-
 a {
 	text-decoration: none;
 	color: inherit;
@@ -82,19 +77,19 @@ a {
 }
 
 .filler {
-	padding-top: 3em;
+	padding-top: 3rem;
 	@apply text-muted text-xl text-center align-middle;
 }
 
 nav {
 	position: sticky;
 	top: 0;
-	padding: 1em 1.5em;
+	padding: 1rem 1.5rem;
 	display: flex;
 	flex-flow: row wrap;
 	justify-content: space-between;
-	backdrop-filter: blur(1em);
-	border-radius: 0 0 1em 1em;
+	backdrop-filter: blur(1rem);
+	border-radius: 0 0 1rem 1rem;
 	@apply shadow-neutral-300/10 shadow-xl;
 }
 
@@ -103,9 +98,16 @@ nav .clickable:not(:last-child) {
 	margin-right: 1ch;
 }
 
-main,
+main {
+	padding: 2rem min(2rem, 5%);
+	margin: 0 auto;
+	width: min(90vw, 1024px);
+}
+
 footer {
-	padding: 2em min(2em, 5%);
+	padding: 1rem min(2rem, 5%);
+	background-color: var(--color-shadow);
+	@apply text-muted;
 }
 
 /* Forms */
@@ -127,10 +129,10 @@ input,
 textarea,
 button {
 	@apply rounded-xl shadow;
-	border: 0.1em solid var(--color-accent);
+	border: 0.1rem solid var(--color-accent);
 	color: var(--color-foreground);
 	background-color: var(--color-background);
-	padding: 0.5em 1em;
+	padding: 0.5rem 1rem;
 	transition: transform 0.1s ease, color 0.1s ease, background-color 0.1s ease;
 }
 
@@ -203,10 +205,22 @@ button.red:not([disabled]):hover {
 	background-color: var(--color-red);
 }
 
+.fab,
+.fab:not([disabled]):not(:hover) {
+	position: sticky;
+	bottom: 2rem;
+	left: 100%;
+	margin: 1rem 2rem 0 0;
+	background-color: var(--color-accent);
+	color: var(--color-white);
+	border-radius: 20rem;
+	vertical-align: bottom;
+}
+
 input[type='checkbox'] {
 	appearance: none;
 	width: 6ch;
-	padding: 0.2em;
+	padding: 0.2rem;
 	line-height: 0;
 	--handle-size: 2ch;
 	@apply mb-1;
@@ -221,7 +235,7 @@ input[type='checkbox']:before {
 	vertical-align: middle;
 	display: inline-block;
 	content: '';
-	height: 0.75em;
+	height: 0.75rem;
 	width: var(--handle-size);
 	left: 0;
 	background-color: var(--color-red-bright);
@@ -247,7 +261,7 @@ input[type='checkbox']:active:before {
 	right: 0;
 	bottom: 0;
 	background-color: var(--color-overlay);
-	box-shadow: 0 0 3em var(--color-shadow);
+	box-shadow: 0 0 3rem var(--color-shadow);
 	backdrop-filter: blur(8px);
 }
 
@@ -257,15 +271,15 @@ input[type='checkbox']:active:before {
 	top: 50%;
 	max-width: min(768px, 90vw);
 	transform: translate(-50%, -50%);
-	padding: 4em min(4em, 10%);
-	border-radius: 1em;
+	padding: 4rem min(4rem, 10%);
+	border-radius: 1rem;
 	background-color: var(--color-overlay);
-	box-shadow: 0 1em 3em var(--color-shadow);
+	box-shadow: 0 1rem 3rem var(--color-shadow);
 }
 
 .list-item {
 	display: block;
-	padding: 1em 0;
+	padding: 1rem 0;
 	border-bottom: 1px solid var(--color-light);
 	transition: border-bottom-color 0.1s ease;
 }

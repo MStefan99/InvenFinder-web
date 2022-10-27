@@ -4,7 +4,6 @@
 	.flex.my-2
 		input.grow.mr-2(placeholder="Search here..." v-model="query" @input="search(query)")
 		button.mr-2(@click="query = ''; search(query)") Clear
-		button(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="newItem = defaultItem") Add a new item
 	#items-table
 		p.filler(v-if="!items.length") Oh no, your inventory is empty! Once you have some items, they will appear here
 		p.filler(v-else-if="!filteredItems.length") No items matched your search. Please try something else
@@ -20,6 +19,9 @@
 				div
 					.text-right.font-semibold {{truncate(item.location, 20)}}
 					.text-right.text-muted {{item.amount}}
+		button.fab(
+			v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
+			@click="newItem = defaultItem") New item
 	Transition(name="popup")
 		.popup-wrapper(v-if="newItem !== null" @click.self="newItem = null")
 			form.popup(@submit.prevent="addItem")

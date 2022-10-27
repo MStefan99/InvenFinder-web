@@ -48,7 +48,7 @@ function resolvePrompt() {
 
 .alerts {
 	position: absolute;
-	right: 10vh;
+	right: 10vw;
 	padding: 2em;
 }
 
@@ -57,7 +57,6 @@ function resolvePrompt() {
 	position: relative;
 	width: min(768px, 90vw);
 	margin: 0 auto;
-
 	@apply shadow-xl;
 }
 

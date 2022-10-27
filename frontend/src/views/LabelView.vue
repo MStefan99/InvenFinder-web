@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+#labels
 	.no-print
 		input.w-full(v-model="fontSize" type="range" min="0.2" max="5" step="0.01")
 		p Font size: {{Math.floor(fontSize * 100)}}%
