@@ -93,8 +93,8 @@ class Loan {
 		}
 	}
 
-	static async getAllForItem(itemID: number): Promise<Loan[]> {
-		const items = [];
+	static async getForItem(itemID: number): Promise<Loan[]> {
+		const loans = [];
 
 		const client = await dbClientPromise;
 		const rows = await client.query(
@@ -105,9 +105,47 @@ class Loan {
 		);
 
 		for (const row of rows) {
-			items.push(new Loan(row));
+			loans.push(new Loan(row));
 		}
-		return items;
+		return loans;
+	}
+
+	static async getForUser(userID: number): Promise<Loan[]> {
+		const loans = [];
+
+		const client = await dbClientPromise;
+		const rows = await client.query(
+			`select *
+			 from invenfinder.loans
+			 where userID=?`,
+			[userID],
+		);
+
+		for (const row of rows) {
+			loans.push(new Loan(row));
+		}
+		return loans;
+	}
+
+	static async getForItemAndUser(
+		itemsID: number,
+		userID: number,
+	): Promise<Loan[]> {
+		const loans = [];
+
+		const client = await dbClientPromise;
+		const rows = await client.query(
+			`select *
+			 from invenfinder.loans
+			 where itemID=?
+				 and userID=?`,
+			[itemsID, userID],
+		);
+
+		for (const row of rows) {
+			loans.push(new Loan(row));
+		}
+		return loans;
 	}
 
 	async delete(): Promise<void> {
