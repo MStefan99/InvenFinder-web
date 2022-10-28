@@ -10,7 +10,7 @@ div
 		span
 			span.clickable(v-if="!appState.user" @click="connectionDialogOpen = true") Sign in
 			div(v-else)
-				span.clickable(@click="logout") Sign out
+				span.clickable(@click="logout()") Sign out
 	Transition(name="popup")
 		ConnectionDialog(v-if="connectionDialogOpen" @close="connectionDialogOpen = false")
 </template>

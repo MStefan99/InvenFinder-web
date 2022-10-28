@@ -10,7 +10,7 @@
 		button.fab(@click="newUser = defaultUser") New user
 	Transition(name="popup")
 		.popup-wrapper(v-if="newUser !== null" @click.self="newUser = null")
-			form.popup(@submit.prevent="addUser")
+			form.popup(@submit.prevent="addUser()")
 				p.text-2xl.mb-4 New item
 				label.mb-2(for="name-input") Username
 				input#username-input.mb-4.full(

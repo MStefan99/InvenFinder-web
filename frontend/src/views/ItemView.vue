@@ -8,25 +8,25 @@
 					v-model="item.name"
 					text-class="text-2xl font-bold"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-					@update:modelValue="editItem")
+					@update:modelValue="editItem()")
 				.flex.items-baseline.mb-4
 					img.icon.mr-2(src="/src/assets/shelf.svg")
 					TextEditable.grow(
 						v-model="item.location"
 						text-class="text-xl font-semibold"
 						:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-						@update:modelValue="editItem")
+						@update:modelValue="editItem()")
 			.shrink-0.flex.items-baseline
 				img.icon.mr-2(src="/src/assets/warehouse.svg")
 				TextEditable(
 					v-model="item.amount"
-					@update:modelValue="editItem"
+					@update:modelValue="editItem()"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 		TextEditable.mb-2(
 			v-model="item.description"
 			placeholder="No description"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-			@update:modelValue="editItem")
+			@update:modelValue="editItem()")
 		TextEditable.mb-4(
 			v-model="item.link"
 			label="More details"
@@ -34,7 +34,7 @@
 			text-class="text-muted"
 			clickable
 			@click="openURL(item.link)"
-			@update:modelValue="editItem"
+			@update:modelValue="editItem()"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 		button.mr-4.mb-4(
 			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
@@ -42,7 +42,7 @@
 		button.mr-4.mb-4(
 			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
 			@click="editAmount(true)") Put in storage
-		button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem") Delete item
+		button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
 </template>
 
 <script setup lang="ts">

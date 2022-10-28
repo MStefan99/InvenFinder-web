@@ -6,7 +6,7 @@
 			|
 			|
 			b {{appState.user.username}}
-	form(@submit.prevent="updatePassword")
+	form(@submit.prevent="updatePassword()")
 		input(:value="appState.user.username" hidden autocomplete="username")
 		label(for="password-input") Password
 		input#password-input.block.my-2(
@@ -35,7 +35,7 @@
 					td {{new Date(session.time).toLocaleString()}}
 					td
 						button(@click="logout(session)") Sign out
-			button(@click="logoutAll") Sign out everywhere
+			button(@click="logoutAll()") Sign out everywhere
 </template>
 
 <script setup lang="ts">

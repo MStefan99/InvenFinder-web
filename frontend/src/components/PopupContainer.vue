@@ -16,7 +16,7 @@
 		.prompt(v-if="activePrompt" :class="activePrompt.prompt.type")
 			.title {{activePrompt.prompt.title}}
 			.details {{activePrompt.prompt.details}}
-			form.flex.mt-4(@submit.prevent="resolvePrompt")
+			form.flex.mt-4(@submit.prevent="resolvePrompt()")
 				input.mr-4.flex-grow(type="text" v-model="promptValue" :class="activePrompt.prompt.type")
 				button.mr-4(@click="resolveConfirm(false)") Cancel
 				button(type="submit" :class="activePrompt.prompt.type") Submit

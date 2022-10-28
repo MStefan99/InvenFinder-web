@@ -2,13 +2,13 @@
 .popup-wrapper(@click.self="$emit('close')")
 	.popup
 		p.text-2xl.mb-4.font-semibold Sign in
-		form(@submit.prevent="connect")
+		form(@submit.prevent="connect()")
 			.mb-3
 				label(for="url-input") URL
 				input#url-input.full(v-model="url" type="text" placeholder="https://example.com")
 			.mb-3
 				button.full(type="submit" :disabled="connectionState === ConnectionState.TESTING") Connect
-		form(v-if="connectionState === ConnectionState.CONNECTED" @submit.prevent="login")
+		form(v-if="connectionState === ConnectionState.CONNECTED" @submit.prevent="login()")
 			.mb-3
 				label(for="username-input") Username
 				input#username-input.full(
