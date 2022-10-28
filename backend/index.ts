@@ -4,6 +4,7 @@ import authRouter from './routes/auth.ts';
 import sessionRouter from './routes/sessions.ts';
 import itemRouter from './routes/items.ts';
 import userRouter from './routes/users.ts';
+import loanRouter from './routes/loans.ts';
 import { init } from './lib/init.ts';
 import log from './lib/log.ts';
 import rateLimiter from './lib/rateLimiter.ts';
@@ -19,7 +20,7 @@ const port =
 
 const app = new Application();
 const apiRouter = new Router();
-const routers = [authRouter, sessionRouter, itemRouter, userRouter];
+const routers = [authRouter, sessionRouter, itemRouter, userRouter, loanRouter];
 
 app.use(logger());
 app.use(cors());

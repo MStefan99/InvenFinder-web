@@ -8,7 +8,7 @@ type PropsBase = {
 	amount: number;
 };
 
-type Props = PropsBase & {
+type ItemProps = PropsBase & {
 	id: number;
 };
 
@@ -20,7 +20,7 @@ class Item {
 	location: string;
 	amount: number;
 
-	constructor(props: Props) {
+	constructor(props: ItemProps) {
 		this.id = props.id;
 		this.name = props.name;
 		this.description = props.description;

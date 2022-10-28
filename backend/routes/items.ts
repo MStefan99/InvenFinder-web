@@ -2,6 +2,7 @@ import { Middleware, path, Router, send } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
 import Item from '../lib/item.ts';
+import Loan from '../lib/loan.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
 import { hasBody } from './middleware.ts';
 import rateLimiter from '../lib/rateLimiter.ts';
@@ -212,6 +213,70 @@ router.get(
 		});
 	},
 );
+
+// Place a loan request
+router.post('/:id/loans', auth.authenticated(), async (ctx) => {
+	try {
+		const body = await ctx.request.body({ type: 'json' }).value;
+
+		const id = +ctx.params.id;
+		if (!Number.isInteger(id)) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'INVALID_ID',
+				message: 'ID must be a number',
+			};
+			return;
+		}
+
+		const user = await auth.methods.getUser(ctx);
+		if (user === null) {
+			ctx.response.status = 500;
+			ctx.response.body = {
+				error: 'USER_NOT_FOUND',
+				message: 'User was not found',
+			};
+			return;
+		}
+
+		const item = await Item.getByID(id);
+		if (item === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ITEM_NOT_FOUND',
+				message: 'Item was not found',
+			};
+			return;
+		}
+
+		const amount = +body.amount;
+		if (!Number.isInteger(amount) || item.amount - amount < 0) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'INVALID_AMOUNT',
+				message: 'Resulting amount must be a positive number',
+			};
+			return;
+		}
+
+		const loan = await Loan.create({
+			userID: user.id,
+			itemID: item.id,
+			amount: amount,
+		});
+
+		ctx.response.status = 201;
+		ctx.response.body = loan;
+	} catch (e) {
+		console.error(e);
+		ctx.response.status = 400;
+		ctx.response.body = {
+			error: 'INVALID_REQUEST',
+			message:
+				'Could not process your request, please check for errors and retry',
+		};
+	}
+});
 
 // Change item amount
 router.put(
