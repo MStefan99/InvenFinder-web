@@ -35,13 +35,14 @@ export async function credentialsPresent(ctx: Context, next: Next) {
 }
 
 export async function logger(ctx: Context, next: Next) {
+	const start = Date.now();
+	await next();
 	const req = ctx.request;
 	console.log(
-		`${req.method} ${req.url.pathname} from ${req.ip} on ${
+		`${req.method} ${req.url.pathname + req.url.search} from ${req.ip} on ${
 			new Date().toLocaleString()
-		}`,
+		} - ${ctx.response.status} in ${Date.now() - start} ms`,
 	);
-	await next();
 }
 
 export async function cors(ctx: Context, next: Next) {
