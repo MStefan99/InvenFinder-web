@@ -36,10 +36,13 @@
 			@click="openURL(item.link)"
 			@update:modelValue="editItem"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
-		div(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])")
-			button.mr-4.mb-4(@click="editAmount(false)") Take from storage
-			button.mr-4.mb-4(@click="editAmount(true)") Put in storage
-			button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem") Delete item
+		button.mr-4.mb-4(
+			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
+			@click="editAmount(false)") Take from storage
+		button.mr-4.mb-4(
+			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
+			@click="editAmount(true)") Put in storage
+		button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem") Delete item
 </template>
 
 <script setup lang="ts">
