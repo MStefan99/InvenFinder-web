@@ -153,12 +153,10 @@ export const AuthAPI = {
 export const SessionAPI = {
 	getAll: () => request<Session[]>('/sessions', {auth: true}),
 	logout: (id: Session['id']) =>
-		booleanify(
-			request<MessageResponse>('/sessions/' + id, {
-				auth: true,
-				method: RequestMethod.DELETE
-			})
-		),
+		request<Session>('/sessions/' + id, {
+			auth: true,
+			method: RequestMethod.DELETE
+		}),
 	logoutAll: () =>
 		booleanify(request<MessageResponse>('/sessions', {auth: true, method: RequestMethod.DELETE}))
 };

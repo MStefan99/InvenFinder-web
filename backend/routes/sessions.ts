@@ -48,7 +48,7 @@ router.delete('/:id', auth.authenticated(), async (ctx) => {
 	otherSession.delete();
 
 	ctx.response.status = 200;
-	ctx.response.body = { message: 'OK' };
+	ctx.response.body = otherSession;
 });
 
 // Log out all sessions
