@@ -3,7 +3,7 @@
 	.flex.items-baseline(v-if="!expanded || readonly")
 		span(
 			:class="[textClass, {'underline cursor-pointer': modelValue && clickable}]"
-			@click="modelValue && $emit('click', value)") {{value ? label || value : placeholder}}
+			@click="modelValue && $emit('click', value)") {{value !== null ? label || value : placeholder}}
 		img.icon.ml-2.clickable(src="/src/assets/pen.svg" v-if="!readonly" @click="expanded = true")
 	form(v-else @submit.prevent="$emit('update:modelValue', value); expanded = false")
 		textarea.full(rows="1" v-model="value")
