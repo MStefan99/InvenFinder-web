@@ -16,11 +16,11 @@
 		"start": "cd ./backend && deno task start",
 		"lint:frontend": "cd ./frontend && npm run lint",
 		"lint:backend": "cd ./backend && deno task lint",
-		"lint:common": "eslint ./common/{*,**/*}.ts --max-warnings=0 && prettier --check ./common",
+		"lint:common": "eslint './common/{*,**/*}.ts' --max-warnings=0 && prettier --check ./common",
 		"lint": "run-p lint:*",
 		"fmt:frontend": "cd ./frontend && npm run fmt",
 		"fmt:backend": "cd ./backend && deno task fmt",
-		"fmt:common": "eslint ./common{*,**/*}.{ts,vue} --fix && prettier -w ./common",
+		"fmt:common": "eslint './common/{*,**/*}.ts' --fix && prettier -w ./common",
 		"fmt": "run-p fmt:*",
 		"precommit": "npm run lint"
 	},

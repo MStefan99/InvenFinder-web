@@ -1,10 +1,10 @@
-import {Application, Router} from './deps.ts';
-import {cors, logger} from './routes/middleware.ts';
+import { Application, Router } from './deps.ts';
+import { cors, logger } from './routes/middleware.ts';
 import authRouter from './routes/auth.ts';
 import sessionRouter from './routes/sessions.ts';
 import itemRouter from './routes/items.ts';
 import userRouter from './routes/users.ts';
-import {init} from './lib/init.ts';
+import { init } from './lib/init.ts';
 
 const port = 3007;
 
@@ -27,15 +27,21 @@ app.use(async (ctx, next) => {
 	} catch (err) {
 		ctx.response.status = 500;
 		if (Deno.env.get('env') === 'development') {
-			ctx.response.body = {error: 'APP_ERROR', message: 'An error occurred while processing your request'};
+			ctx.response.body = {
+				error: 'APP_ERROR',
+				message: 'An error occurred while processing your request',
+			};
 		} else {
-			ctx.response.body = {error: 'APP_ERROR', message: `Error: ${err.message}; Stack: ${err.stack}`};
+			ctx.response.body = {
+				error: 'APP_ERROR',
+				message: `Error: ${err.message}; Stack: ${err.stack}`,
+			};
 		}
 	}
 });
 
 apiRouter.get('/', (ctx) => {
-	ctx.response.body = {message: 'Welcome!'};
+	ctx.response.body = { message: 'Welcome!' };
 });
 
 app.use(apiRouter.routes());
@@ -64,7 +70,7 @@ app.use((ctx) => {
 init().then(() => {
 	console.log('Starting Oak server...');
 
-	app.listen({port}).then(() => {
+	app.listen({ port }).then(() => {
 		console.log('Listening at http://localhost:' + port);
 	});
 });
