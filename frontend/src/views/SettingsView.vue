@@ -75,7 +75,7 @@ function parseUA(ua: string): string | null {
 }
 
 function updatePassword() {
-	if (!updateUser.value.password?.length || passwordRepeat.value.length) {
+	if (!updateUser.value.password?.length || !passwordRepeat.value.length) {
 		alert('Password cannot be empty', PopupColor.Red, 'Please type in a new password');
 		return;
 	}
@@ -91,13 +91,14 @@ function updatePassword() {
 
 	Api.auth
 		.edit(updateUser.value)
-		.then(() =>
+		.then(() => {
 			alert(
 				'Password changed',
 				PopupColor.Green,
 				'Your password was successfully changed. Consider signing out your active sessions'
-			)
-		)
+			);
+			updateUser.value.password = passwordRepeat.value = '';
+		})
 		.catch((err) => alert('Could not change your password', PopupColor.Red, err.message));
 }
 
