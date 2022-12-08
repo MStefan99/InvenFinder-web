@@ -75,21 +75,35 @@ async function editUser() {
 }
 
 async function deleteUser() {
-	if (
-		await confirm(
-			'Delete this user?',
-			PopupColor.Red,
-			'Are you sure you want to delete ' + user.value.username + '?'
+	if (appState.user.username === user.value.username) {
+		if (
+			!(await confirm(
+				'You are about to delete your account!',
+				PopupColor.Red,
+				'Be careful! You are going to delete your account and ' +
+					'you might not be able to log back in if you proceed. ' +
+					'Are you sure this is what you intended to do and you want to continue?'
+			))
 		)
-	) {
-		Api.users
-			.delete(user.value)
-			.then(() =>
-				router
-					.push({name: 'users'})
-					.catch((err) => alert('Could not delete the user', PopupColor.Red, err.message))
-			);
+			return;
+	} else {
+		if (
+			!(await confirm(
+				'Delete this user?',
+				PopupColor.Red,
+				'Are you sure you want to delete ' + user.value.username + '?'
+			))
+		)
+			return;
 	}
+
+	Api.users
+		.delete(user.value)
+		.then(() =>
+			router
+				.push({name: 'users'})
+				.catch((err) => alert('Could not delete the user', PopupColor.Red, err.message))
+		);
 }
 </script>
 
