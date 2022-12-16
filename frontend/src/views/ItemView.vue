@@ -42,6 +42,13 @@
 		button.mr-4.mb-4(
 			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
 			@click="editAmount(true)") Put in storage
+		form(
+			v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
+			:action="appState.backendURL + '/api/items/1/upload'"
+			method="post"
+			enctype="multipart/form-data")
+			input(type="file" name="document")
+			button.mr-4.mb-4 Upload file
 		button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
 </template>
 
@@ -74,6 +81,7 @@ onMounted(() => {
 		.then((i) => {
 			item.value = i;
 			window.document.title = i.name + ' | Invenfinder';
+			item.value.link.replace(/^file:\//, appState.backendURL);
 		})
 		.catch((err) => alert('Could not load the item', PopupColor.Red, err.message));
 });

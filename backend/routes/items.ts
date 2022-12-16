@@ -1,4 +1,4 @@
-import { Router } from '../deps.ts';
+import { dirname, Router } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
 import Item from '../lib/item.ts';
@@ -103,6 +103,44 @@ router.post(
 		ctx.response.body = item;
 	},
 );
+
+router.post('/:id/upload', hasBody(), async (ctx) => {
+	const id = +ctx.params.id;
+	if (!Number.isInteger(id)) {
+		ctx.response.status = 400;
+		ctx.response.body = {
+			error: 'INVALID_ID',
+			message: 'ID must be a number',
+		};
+		return;
+	}
+	const body = await ctx.request.body({ type: 'form-data' }).value.read();
+
+	const item = await Item.getByID(id);
+	if (item === null) {
+		ctx.response.status = 400;
+		ctx.response.body = {
+			error: 'ITEM_NOT_FOUND',
+			message: 'Item was not found',
+		};
+		return;
+	}
+
+	if (body.files?.[0].filename) {
+		const dir = `./upload/${ctx.params.id}`;
+		const file = dir + `/${body.files[0].originalName}`;
+
+		await Deno.remove(dir, { recursive: true });
+		await Deno.mkdir(dir, { recursive: true });
+		await Deno.rename(body.files[0].filename, file);
+		await Deno.remove(dirname(body.files[0].filename), {
+			recursive: true,
+		});
+
+		item.link = file.replace(/^\./, `file:`);
+		item.save();
+	}
+});
 
 // Change item amount
 router.put(
