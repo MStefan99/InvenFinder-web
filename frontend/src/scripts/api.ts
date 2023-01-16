@@ -140,6 +140,7 @@ export const AuthAPI = {
 		}),
 	test: () => booleanify(request('/auth', {auth: true})),
 	me: () => request<User>('/me', {auth: true}),
+	getCookie: () => request<MessageResponse>('/getCookie', {auth: true}),
 	edit: (user: UpdateUser) =>
 		request<User>('/me', {auth: true, method: RequestMethod.PATCH, body: user}),
 	logout: () =>

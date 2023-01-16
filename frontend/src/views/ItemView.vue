@@ -46,7 +46,8 @@
 			v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 			:action="appState.backendURL + '/items/' + item.id + '/upload'"
 			method="post"
-			enctype="multipart/form-data")
+			enctype="multipart/form-data"
+			onsubmit="authRequest()")
 			input(type="file" name="document")
 			button.mr-4.mb-4 Upload file
 		button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
@@ -87,10 +88,15 @@ onMounted(() => {
 });
 
 function openURL(url: string) {
-	window.location.href = url.replace(
-		/^file:/,
-		`${appState.backendURL}/items/${item.value.id}/upload/`
-	);
+	Api.auth
+		.getCookie()
+		.then(
+			() =>
+				(window.location.href = url.replace(
+					/^file:/,
+					`${appState.backendURL}/items/${item.value.id}/upload/`
+				))
+		);
 }
 
 function editItem() {

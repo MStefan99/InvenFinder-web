@@ -104,50 +104,61 @@ router.post(
 	},
 );
 
-router.post('/:id/upload', hasBody(), async (ctx) => {
-	const id = +ctx.params.id;
-	if (!Number.isInteger(id)) {
-		ctx.response.status = 400;
-		ctx.response.body = {
-			error: 'INVALID_ID',
-			message: 'ID must be a number',
-		};
-		return;
-	}
-	const body = await ctx.request.body({ type: 'form-data' }).value.read();
-
-	const item = await Item.getByID(id);
-	if (item === null) {
-		ctx.response.status = 400;
-		ctx.response.body = {
-			error: 'ITEM_NOT_FOUND',
-			message: 'Item was not found',
-		};
-		return;
-	}
-
-	if (body.files?.[0].filename) {
-		const dir = `./upload/${ctx.params.id}`;
-		const file = dir + `/${body.files[0].originalName}`;
-
-		try {
-			await Deno.remove(dir, { recursive: true });
-		} catch {
-			// Nothing to do here
+// Upload file for an item
+router.post(
+	'/:id/upload',
+	hasBody(),
+	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	async (ctx) => {
+		const id = +ctx.params.id;
+		if (!Number.isInteger(id)) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'INVALID_ID',
+				message: 'ID must be a number',
+			};
+			return;
 		}
-		await Deno.mkdir(dir, { recursive: true });
-		await Deno.rename(body.files[0].filename, file);
-		await Deno.remove(dirname(body.files[0].filename), {
-			recursive: true,
-		});
+		const body = await ctx.request.body({ type: 'form-data' }).value
+			.read();
 
-		item.link = 'file:' + basename(body.files[0].originalName);
-		item.save();
-	}
-});
+		const item = await Item.getByID(id);
+		if (item === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ITEM_NOT_FOUND',
+				message: 'Item was not found',
+			};
+			return;
+		}
+
+		if (body.files?.[0].filename) {
+			const dir = `./upload/${ctx.params.id}`;
+			const file = dir + `/${body.files[0].originalName}`;
+
+			try {
+				await Deno.remove(dir, { recursive: true });
+			} catch {
+				// Nothing to do here
+			}
+			await Deno.mkdir(dir, { recursive: true });
+			await Deno.rename(body.files[0].filename, file);
+			await Deno.remove(dirname(body.files[0].filename), {
+				recursive: true,
+			});
+
+			item.link = 'file:' + basename(body.files[0].originalName);
+			item.save();
+		}
+
+		// TODO: fix
+		ctx.response.status = 303;
+		ctx.response.headers.set('Location', 'back');
+	},
+);
 
 // Get file for an item
-router.get('/:id/upload/:file', async (ctx) => {
+router.get('/:id/upload/:file', auth.authenticated(), async (ctx) => {
 	await send(ctx, `./upload/${ctx.params.id}/${ctx.params.file}`);
 });
 
