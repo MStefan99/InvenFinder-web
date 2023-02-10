@@ -10,7 +10,7 @@ const router = new Router({
 	prefix: '/loans',
 });
 
-// Loan requests are added through an item router
+// Loan requests are retrieved and added through the item router
 
 // Change loan status
 router.patch(
@@ -58,7 +58,6 @@ router.patch(
 				item.save();
 			}
 
-			ctx.response.status = 200;
 			ctx.response.body = loan;
 		});
 	},
@@ -109,7 +108,6 @@ router.delete(
 
 			loan.delete();
 
-			ctx.response.status = 200;
 			ctx.response.body = loan;
 		});
 	},

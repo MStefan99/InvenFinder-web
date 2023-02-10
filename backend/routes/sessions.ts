@@ -63,7 +63,6 @@ router.delete(
 
 		otherSession.delete();
 
-		ctx.response.status = 200;
 		ctx.response.body = otherSession;
 	},
 );
@@ -89,7 +88,6 @@ router.delete(
 
 		Session.deleteAllUserSessions(user);
 
-		ctx.response.status = 200;
 		ctx.response.body = { message: 'OK' };
 	},
 );
