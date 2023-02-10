@@ -1,5 +1,5 @@
 import appState from './store';
-import type {User, Session, Item, NewUser, NewItem, UpdateUser} from './types';
+import type {User, Session, Item, NewUser, NewItem, UpdateUser, Loan} from './types';
 
 type MessageResponse = {
 	code: string;
@@ -193,6 +193,21 @@ export const ItemAPI = {
 		request<Item>('/items/' + item.id, {auth: true, method: RequestMethod.PATCH, body: item}),
 	delete: (item: Item) =>
 		booleanify(request<Item>('/items/' + item.id, {auth: true, method: RequestMethod.DELETE}))
+};
+
+export const LoanAPI = {
+	add: (itemID: Item['id'], amount: Loan['amount']) =>
+		request<Loan>('/items/' + itemID + '/loans', {
+			auth: true,
+			body: {amount}
+		}),
+	getByItem: (itemID: Item['id']) =>
+		request<Loan[]>('/items/' + itemID + '/loans', {
+			auth: true
+		}),
+	// TODO: getByUser() and owner edit/delete
+	edit: (loan: Loan) => request<Loan>('/loans/' + loan.id, {auth: true, body: loan}),
+	delete: (loan: Loan) => request<Loan>('/loans/' + loan.id, {auth: true})
 };
 
 export const UserAPI = {

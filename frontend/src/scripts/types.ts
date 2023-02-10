@@ -36,3 +36,15 @@ export type NewItem = {
 	location: string;
 	amount: number;
 };
+
+export type Loan = {
+	id: number;
+	approved: boolean;
+	username?: string;
+} & LoanRequest;
+
+export type LoanRequest = {
+	userID: number;
+	itemID: number;
+	amount: number;
+};

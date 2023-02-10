@@ -84,7 +84,7 @@ class Loan {
 		const rows = await client.query(
 			`select loans.id as id, userID, itemID, amount, approved, username
 			 from invenfinder.loans
-			 join invenfinder.users on loans.userID = users.id
+				      join invenfinder.users on loans.userID=users.id
 			 where loans.id=?`,
 			[id],
 		);
@@ -104,7 +104,7 @@ class Loan {
 		const rows = await client.query(
 			`select loans.id as id, userID, itemID, amount, approved, username
 			 from invenfinder.loans
-			 join invenfinder.users on loans.userID = users.id
+				      join invenfinder.users on loans.userID=users.id
 			 where itemID=?`,
 			[itemID],
 		);
@@ -122,9 +122,31 @@ class Loan {
 		const rows = await client.query(
 			`select loans.id as id, userID, itemID, amount, approved, username
 			 from invenfinder.loans
-			 join invenfinder.users on loans.userID = users.id
+				      join invenfinder.users on loans.userID=users.id
 			 where userID=?`,
 			[userID],
+		);
+
+		for (const row of rows) {
+			loans.push(new Loan(row));
+		}
+		return loans;
+	}
+
+	static async getForItemAndUser(
+		itemsID: number,
+		userID: number,
+	): Promise<Loan[]> {
+		const loans = [];
+
+		const client = await dbClientPromise;
+		const rows = await client.query(
+			`select loans.id as id, userID, itemID, amount, approved, username
+			 from invenfinder.loans
+				      join invenfinder.users on loans.userID=users.id
+			 where itemID=?
+				 and userID=?`,
+			[itemsID, userID],
 		);
 
 		for (const row of rows) {
