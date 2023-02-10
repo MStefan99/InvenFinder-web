@@ -60,9 +60,9 @@ router.get(
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
 	}),
 	async (ctx) => {
-		const parsedID = +ctx.params.id;
+		const id = +ctx.params.id;
 
-		if (Number.isNaN(parsedID)) {
+		if (Number.isNaN(id)) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'ID_NAN',
@@ -71,7 +71,20 @@ router.get(
 			return;
 		}
 
-		ctx.response.body = await Item.getByID(parsedID);
+		ctx.response.body = await Item.getByID(id);
+});
+
+// Get item loans
+router.get('/:id/loans', auth.authenticated(), async (ctx) => {
+	const id = +ctx.params.id;
+
+	if (Number.isNaN(id)) {
+		ctx.response.status = 400;
+		ctx.response.body = { error: 'ID_NAN', message: 'ID must be a number' };
+		return;
+	}
+
+	ctx.response.body = await Loan.getByItem(id);
 	},
 );
 

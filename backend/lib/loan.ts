@@ -9,6 +9,7 @@ type PropsBase = {
 type LoanProps = PropsBase & {
 	id: number;
 	approved: boolean;
+	username?: string;
 };
 
 class Loan {
@@ -17,6 +18,7 @@ class Loan {
 	itemID: number;
 	amount: number;
 	approved: boolean;
+	username?: string;
 
 	constructor(props: LoanProps) {
 		this.id = props.id;
@@ -24,6 +26,7 @@ class Loan {
 		this.itemID = props.itemID;
 		this.amount = props.amount;
 		this.approved = !!props.approved;
+		this.username = props.username;
 	}
 
 	save(): Promise<void> {
@@ -79,9 +82,10 @@ class Loan {
 	static async getByID(id: number): Promise<Loan | null> {
 		const client = await dbClientPromise;
 		const rows = await client.query(
-			`select *
+			`select loans.id as id, userID, itemID, amount, approved, username
 			 from invenfinder.loans
-			 where id=?`,
+			 join invenfinder.users on loans.userID = users.id
+			 where loans.id=?`,
 			[id],
 		);
 
@@ -93,13 +97,14 @@ class Loan {
 		}
 	}
 
-	static async getForItem(itemID: number): Promise<Loan[]> {
+	static async getByItem(itemID: number): Promise<Loan[]> {
 		const loans = [];
 
 		const client = await dbClientPromise;
 		const rows = await client.query(
-			`select *
+			`select loans.id as id, userID, itemID, amount, approved, username
 			 from invenfinder.loans
+			 join invenfinder.users on loans.userID = users.id
 			 where itemID=?`,
 			[itemID],
 		);
@@ -110,36 +115,16 @@ class Loan {
 		return loans;
 	}
 
-	static async getForUser(userID: number): Promise<Loan[]> {
+	static async getByUser(userID: number): Promise<Loan[]> {
 		const loans = [];
 
 		const client = await dbClientPromise;
 		const rows = await client.query(
-			`select *
+			`select loans.id as id, userID, itemID, amount, approved, username
 			 from invenfinder.loans
+			 join invenfinder.users on loans.userID = users.id
 			 where userID=?`,
 			[userID],
-		);
-
-		for (const row of rows) {
-			loans.push(new Loan(row));
-		}
-		return loans;
-	}
-
-	static async getForItemAndUser(
-		itemsID: number,
-		userID: number,
-	): Promise<Loan[]> {
-		const loans = [];
-
-		const client = await dbClientPromise;
-		const rows = await client.query(
-			`select *
-			 from invenfinder.loans
-			 where itemID=?
-				 and userID=?`,
-			[itemsID, userID],
 		);
 
 		for (const row of rows) {
