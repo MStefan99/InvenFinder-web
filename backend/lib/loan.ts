@@ -23,7 +23,7 @@ class Loan {
 		this.userID = props.userID;
 		this.itemID = props.itemID;
 		this.amount = props.amount;
-		this.approved = props.approved;
+		this.approved = !!props.approved;
 	}
 
 	save(): Promise<void> {

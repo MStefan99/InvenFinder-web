@@ -1,10 +1,12 @@
 export enum PERMISSIONS {
+	LOAN_ITEMS,
 	EDIT_ITEM_AMOUNT,
 	MANAGE_ITEMS,
 	MANAGE_USERS
 }
 
 export const permissionDescriptions: Record<PERMISSIONS, string> = {
+	[PERMISSIONS.LOAN_ITEMS]: 'Place loan requests',
 	[PERMISSIONS.EDIT_ITEM_AMOUNT]: 'Edit item amount',
 	[PERMISSIONS.MANAGE_ITEMS]: 'Edit items',
 	[PERMISSIONS.MANAGE_USERS]: 'Edit users'
