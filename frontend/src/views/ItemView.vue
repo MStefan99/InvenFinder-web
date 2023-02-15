@@ -42,6 +42,7 @@
 			template(v-slot="{text}")
 				button.block.mb-2(v-for="link in text.split(`\n`)" :key="link" @click="openFile(link)") {{link.replace('file:', 'File: ')}}
 		h3 Actions
+		button.mr-4.mb-4(v-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])" @click="loanItem()") Loan this item
 		button.mr-4.mb-4(
 			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
 			@click="editAmount(false)") Take from storage
@@ -62,6 +63,8 @@
 					name="document"
 					@change="(e) => (fileLabel = e.target.files ? e.target.files.length + ' files selected' : 'Select files to upload')")
 			button Upload files
+		div(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
+			h3 Manage loans
 </template>
 
 <script setup lang="ts">
@@ -102,6 +105,26 @@ async function openFile(fileName: string) {
 	fileName = fileName.replace(/^file:/, `${appState.backendURL}/items/${item.value.id}/upload/`);
 	await Api.auth.getCookie();
 	window.location.href = fileName;
+}
+
+async function loanItem() {
+	const amount = +(await prompt('Choose amount', PopupColor.Accent, 'How many items do you need?'));
+
+	if (amount < 1) {
+		alert('Incorrect amount', PopupColor.Red, 'The amount cannot be negative or zero');
+	}
+
+	if (amount > item.value.amount) {
+		alert(
+			'Not enough items',
+			PopupColor.Red,
+			'There are not enough items available, please choose a smaller amount'
+		);
+	}
+
+	Api.loans.add(item.value.id, amount).then(() => {
+		alert('Loan request placed', PopupColor.Green, 'Loan request successfully placed');
+	});
 }
 
 function editItem() {

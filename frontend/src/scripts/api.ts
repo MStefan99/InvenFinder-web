@@ -199,6 +199,7 @@ export const LoanAPI = {
 	add: (itemID: Item['id'], amount: Loan['amount']) =>
 		request<Loan>('/items/' + itemID + '/loans', {
 			auth: true,
+			method: RequestMethod.POST,
 			body: {amount}
 		}),
 	getByItem: (itemID: Item['id']) =>
@@ -206,8 +207,10 @@ export const LoanAPI = {
 			auth: true
 		}),
 	// TODO: getByUser() and owner edit/delete
-	edit: (loan: Loan) => request<Loan>('/loans/' + loan.id, {auth: true, body: loan}),
-	delete: (loan: Loan) => request<Loan>('/loans/' + loan.id, {auth: true})
+	edit: (loan: Loan) =>
+		request<Loan>('/loans/' + loan.id, {auth: true, method: RequestMethod.POST, body: loan}),
+	delete: (loan: Loan) =>
+		request<Loan>('/loans/' + loan.id, {auth: true, method: RequestMethod.DELETE})
 };
 
 export const UserAPI = {
@@ -233,5 +236,6 @@ export default {
 	sessions: SessionAPI,
 	auth: AuthAPI,
 	items: ItemAPI,
+	loans: LoanAPI,
 	users: UserAPI
 };
