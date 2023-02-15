@@ -101,7 +101,7 @@ router.delete(
 				return;
 			}
 
-			if (!body.returned ?? true) {
+			if (body.returned ?? false) {
 				item.amount += loan.amount;
 				item.save();
 			}

@@ -208,9 +208,9 @@ export const LoanAPI = {
 		}),
 	// TODO: getByUser() and owner edit/delete
 	edit: (loan: Loan) =>
-		request<Loan>('/loans/' + loan.id, {auth: true, method: RequestMethod.POST, body: loan}),
-	delete: (loan: Loan) =>
-		request<Loan>('/loans/' + loan.id, {auth: true, method: RequestMethod.DELETE})
+		request<Loan>('/loans/' + loan.id, {auth: true, method: RequestMethod.PATCH, body: loan}),
+	delete: (loan: Loan, returned?: boolean) =>
+		request<Loan>('/loans/' + loan.id, {auth: true, method: RequestMethod.DELETE, body: {returned}})
 };
 
 export const UserAPI = {

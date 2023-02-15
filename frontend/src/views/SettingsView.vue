@@ -21,7 +21,7 @@
 		p.mb-2.text-red(v-if="(updateUser.password ?? '') !== passwordRepeat") Passwords do not match
 		button(type="submit" :disabled="!passwordsMatch") Save
 	.sessions
-		p.text-xl.my-4 Active sessions
+		h3.text-accent.text-xl.my-4 Active sessions
 		table.w-full
 			thead
 				tr

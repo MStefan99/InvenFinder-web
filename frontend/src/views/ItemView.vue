@@ -64,7 +64,31 @@
 					@change="(e) => (fileLabel = e.target.files ? e.target.files.length + ' files selected' : 'Select files to upload')")
 			button Upload files
 		div(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
-			h3 Manage loans
+			h3.text-accent.text-xl.my-4 Loans for this item
+			h4.text-accent.text-lg.my-4 New
+			table
+				tbody
+					tr(v-for="loan in loans.filter((l) => !l.approved)" :key="loan.id")
+						td
+							b {{loan.username}}
+						td is asking to loan
+						td {{loan.amount}}
+						td items
+						td
+							button.mx-4(@click="approveLoan(loan)") Approve
+							button.red(@click="deleteLoan(loan)") Reject
+			h4.text-accent.text-lg.my-4 Approved
+			table
+				tbody
+					tr(v-for="loan in loans.filter((l) => l.approved)" :key="loan.id")
+						td
+							b {{loan.username}}
+						td has loaned
+						td {{loan.amount}}
+						td items
+						td
+							button.mx-4(@click="deleteLoan(loan, true)") Returned
+							button.red(@click="deleteLoan(loan, false)") Delete
 </template>
 
 <script setup lang="ts">
@@ -72,13 +96,14 @@ import {onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 
 import TextEditable from '../components/TextEditable.vue';
-import type {Item} from '../scripts/types';
+import type {Item, Loan} from '../scripts/types';
 import appState from '../scripts/store';
 import Api from '../scripts/api';
 import {PERMISSIONS} from '../../../common/permissions';
 import {alert, confirm, PopupColor, prompt} from '../scripts/popups';
 
 const item = ref<Item | null>(null);
+const loans = ref<Loan[]>([]);
 const route = useRoute();
 const router = useRouter();
 const fileLabel = ref<string>('Select files to upload');
@@ -99,6 +124,13 @@ onMounted(() => {
 			window.document.title = i.name + ' | Invenfinder';
 		})
 		.catch((err) => alert('Could not load the item', PopupColor.Red, err.message));
+
+	if (appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])) {
+		Api.loans
+			.getByItem(id)
+			.then((l) => (loans.value = l))
+			.catch((err) => alert('Could not load the loans', PopupColor.Red, err.message));
+	}
 });
 
 async function openFile(fileName: string) {
@@ -135,6 +167,15 @@ function editItem() {
 			.catch((err) =>
 				alert('Could not save ' + item.value.name || 'the item', PopupColor.Red, err.message)
 			);
+}
+
+function approveLoan(loan: Loan) {
+	loan.approved = true;
+	Api.loans.edit(loan);
+}
+
+function deleteLoan(loan: Loan, returned?: boolean) {
+	Api.loans.delete(loan, returned);
 }
 
 async function editAmount(add = false) {
@@ -192,6 +233,10 @@ async function deleteItem() {
 <style scoped>
 input {
 	@apply block;
+}
+
+td {
+	padding: 0.5em 0.25ch;
 }
 
 h3 {
