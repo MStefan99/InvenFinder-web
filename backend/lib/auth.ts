@@ -87,4 +87,18 @@ export default {
 			}
 		};
 	},
+
+	condition(cb: (ctx: Context) => Promise<boolean>): Middleware {
+		return async (ctx, next) => {
+			if (!(await cb(ctx))) {
+				ctx.response.status = 403;
+				ctx.response.body = {
+					error: 'NOT_AUTHORIZED',
+					message: 'You are not allowed to do this',
+				};
+			} else {
+				await next();
+			}
+		};
+	},
 };
