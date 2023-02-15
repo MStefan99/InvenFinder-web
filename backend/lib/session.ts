@@ -16,7 +16,7 @@ type SessionProps = {
 	userID: number;
 	ip: string;
 	ua: string;
-	time: number;
+	time: number | string;
 };
 
 class Session {
@@ -33,7 +33,9 @@ class Session {
 		this.userID = props.userID;
 		this.ip = props.ip;
 		this.ua = props.ua;
-		this.time = props.time;
+		this.time = (typeof props.time === 'string')
+			? Date.parse(props.time)
+			: props.time;
 	}
 
 	toJSON() {
@@ -47,7 +49,7 @@ class Session {
 
 	static async create(user: User, ip: string, ua: string): Promise<Session> {
 		const publicID = getRandomString(32);
-		const time = Date.now();
+		const time = new Date().toISOString().replace('T', ' ').slice(0, -1);
 
 		const client = await dbClientPromise;
 		const res = await client.execute(
@@ -67,7 +69,7 @@ class Session {
 		);
 
 		return new Session({
-			id: res.lastInsertId ?? 0,
+			id: Number(res.insertId) ?? 0,
 			publicID,
 			userID: user.id,
 			ip,

@@ -79,7 +79,7 @@ class Item {
 		);
 
 		return new Item({
-			id: res.lastInsertId ?? 0,
+			id: Number(res.insertId) ?? 0,
 			name: options.name,
 			description: options.description,
 			link: options.link,

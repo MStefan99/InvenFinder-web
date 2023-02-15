@@ -1,8 +1,8 @@
-import { DBClient } from '../deps.ts';
+import { mariadb } from '../deps.ts';
 
-const dbClientPromise = new DBClient().connect({
-	hostname: Deno.env.get('DB_URL'),
-	username: Deno.env.get('DB_USERNAME'),
+const dbClientPromise = mariadb.createConnection({
+	host: Deno.env.get('DB_URL'),
+	user: Deno.env.get('DB_USERNAME'),
 	password: Deno.env.get('DB_PASSWORD'),
 });
 

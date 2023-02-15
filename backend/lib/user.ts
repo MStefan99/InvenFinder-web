@@ -133,7 +133,7 @@ class User {
 		);
 
 		return new User({
-			id: res.lastInsertId ?? 0,
+			id: Number(res.insertId) ?? 0,
 			username,
 			passwordSalt,
 			passwordHash,
