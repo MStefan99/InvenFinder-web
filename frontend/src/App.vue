@@ -6,7 +6,7 @@ main.grow
 	RouterView(v-if="appState.user")
 	div(v-else)
 		p.text-red.text-xl Please sign in to use the app
-	NotificationContainer
+	PopupContainer
 
 footer
 	span Invenfinder
@@ -18,7 +18,7 @@ footer
 import {onMounted} from 'vue';
 
 import NavBar from './components/NavBar.vue';
-import NotificationContainer from './components/PopupContainer.vue';
+import PopupContainer from './components/PopupContainer.vue';
 import Api from './scripts/api';
 import appState from './scripts/store';
 

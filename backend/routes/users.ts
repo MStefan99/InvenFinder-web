@@ -3,6 +3,7 @@ import { Router } from '../deps.ts';
 import auth from '../lib/auth.ts';
 import { parsePermissions, PERMISSIONS } from '../../common/permissions.ts';
 import User from '../lib/user.ts';
+import { hasBody } from './middleware.ts';
 
 const router = new Router({
 	prefix: '/users',
@@ -10,10 +11,7 @@ const router = new Router({
 
 // Get a list of all users
 router.get('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
-	const users = await User.getAll();
-
-	ctx.response.status = 200;
-	ctx.response.body = users;
+	ctx.response.body = await User.getAll();
 });
 
 // Get a user by ID
@@ -73,8 +71,11 @@ router.get(
 );
 
 // Add a new user
-router.post('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
-	try {
+router.post(
+	'/',
+	hasBody(),
+	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	async (ctx) => {
 		const body = await ctx.request.body({ type: 'json' }).value;
 		if (!body.username?.length) {
 			ctx.response.status = 400;
@@ -101,110 +102,80 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
 
 		ctx.response.status = 201;
 		ctx.response.body = user;
-	} catch (e) {
-		console.error(e);
-		ctx.response.status = 400;
-		ctx.response.body = {
-			error: 'INVALID_REQUEST',
-			message:
-				'Could not process your request, please check for errors and retry',
-		};
-	}
-});
+	},
+);
 
 // Edit user
 router.patch(
 	'/:id',
+	hasBody(),
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
 	async (ctx) => {
-		try {
-			const body = await ctx.request.body({ type: 'json' }).value;
-			if (!ctx.params.id?.length) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'NO_ID',
-					message: 'ID must be provided',
-				};
-				return;
-			}
-
-			const user = await User.getByID(+ctx.params.id);
-			if (user === null) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'USER_NOT_FOUND',
-					message: 'User was not found',
-				};
-				return;
-			}
-
-			if (body.username?.length) {
-				user.username = body.username.trim();
-			}
-			if (body.password?.length) {
-				await user.setPassword(body.password);
-			}
-			const permissions = +body.permissions;
-			if (Number.isInteger(permissions)) {
-				user.permissions = permissions;
-			}
-
-			await user.save();
-
-			ctx.response.status = 200;
-			ctx.response.body = user;
-		} catch (e) {
-			console.error(e);
-
+		const body = await ctx.request.body({ type: 'json' }).value;
+		if (!ctx.params.id?.length) {
 			ctx.response.status = 400;
 			ctx.response.body = {
-				error: 'INVALID_REQUEST',
-				message:
-					'Could not process your request, please check for errors and retry',
+				error: 'NO_ID',
+				message: 'ID must be provided',
 			};
+			return;
 		}
+
+		const user = await User.getByID(+ctx.params.id);
+		if (user === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'USER_NOT_FOUND',
+				message: 'User was not found',
+			};
+			return;
+		}
+
+		if (body.username?.length) {
+			user.username = body.username.trim();
+		}
+		if (body.password?.length) {
+			await user.setPassword(body.password);
+		}
+		const permissions = +body.permissions;
+		if (Number.isInteger(permissions)) {
+			user.permissions = permissions;
+		}
+
+		await user.save();
+
+		ctx.response.body = user;
 	},
 );
 
 // Delete user
 router.delete(
 	'/:id',
+	hasBody(),
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
 	async (ctx) => {
-		try {
-			if (!ctx.params.id?.length) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'NO_ID',
-					message: 'ID must be provided',
-				};
-				return;
-			}
-
-			const user = await User.getByID(+ctx.params.id);
-			if (user === null) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'USER_NOT_FOUND',
-					message: 'User was not found',
-				};
-				return;
-			}
-
-			user.delete();
-
-			ctx.response.status = 200;
-			ctx.response.body = user;
-		} catch (e) {
-			console.error(e);
-
+		if (!ctx.params.id?.length) {
 			ctx.response.status = 400;
 			ctx.response.body = {
-				error: 'INVALID_REQUEST',
-				message:
-					'Could not process your request, please check for errors and retry',
+				error: 'NO_ID',
+				message: 'ID must be provided',
 			};
+			return;
 		}
+
+		const user = await User.getByID(+ctx.params.id);
+		if (user === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'USER_NOT_FOUND',
+				message: 'User was not found',
+			};
+			return;
+		}
+
+		user.delete();
+
+		ctx.response.body = user;
 	},
 );
 

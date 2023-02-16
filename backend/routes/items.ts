@@ -3,6 +3,7 @@ import { Router } from '../deps.ts';
 import auth from '../lib/auth.ts';
 import Item from '../lib/item.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
+import { hasBody } from './middleware.ts';
 
 const router = new Router({
 	prefix: '/items',
@@ -34,8 +35,11 @@ router.get('/:id', auth.authenticated(), async (ctx) => {
 });
 
 // Add item
-router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
-	try {
+router.post(
+	'/',
+	hasBody(),
+	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	async (ctx) => {
 		const body = await ctx.request.body({ type: 'json' }).value;
 
 		if (!body.name.length) {
@@ -73,34 +77,82 @@ router.post('/', auth.permissions([PERMISSIONS.MANAGE_ITEMS]), async (ctx) => {
 
 		ctx.response.status = 201;
 		ctx.response.body = item;
-	} catch (e) {
-		console.error(e);
-		ctx.response.status = 400;
-		ctx.response.body = {
-			error: 'INVALID_REQUEST',
-			message:
-				'Could not process your request, please check for errors and retry',
-		};
-	}
-});
+	},
+);
 
 // Change item amount
 router.put(
 	'/:id/amount',
+	hasBody(),
 	auth.permissions([PERMISSIONS.EDIT_ITEM_AMOUNT]),
 	async (ctx) => {
-		try {
-			const id = +ctx.params.id;
-			if (!Number.isInteger(id)) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'INVALID_ID',
-					message: 'ID must be a number',
-				};
-				return;
-			}
-			const body = await ctx.request.body({ type: 'json' }).value;
-			if (body.amount === undefined || +body.amount < 0) {
+		const id = +ctx.params.id;
+		if (!Number.isInteger(id)) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'INVALID_ID',
+				message: 'ID must be a number',
+			};
+			return;
+		}
+
+		const body = await ctx.request.body({ type: 'json' }).value;
+		if (body.amount === undefined || +body.amount < 0) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'INVALID_AMOUNT',
+				message: 'Amount must be a positive number',
+			};
+			return;
+		}
+
+		const item = await Item.getByID(id);
+		if (item === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ITEM_NOT_FOUND',
+				message: 'Item was not found',
+			};
+			return;
+		}
+
+		item.amount = body.amount;
+		item.save();
+
+		ctx.response.body = item;
+	},
+);
+
+// Edit item
+router.patch(
+	'/:id',
+	hasBody(),
+	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	async (ctx) => {
+		const id = +ctx.params.id;
+		if (!Number.isInteger(id)) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'INVALID_ID',
+				message: 'ID must be a number',
+			};
+			return;
+		}
+		const body = await ctx.request.body({ type: 'json' }).value;
+
+		const item = await Item.getByID(id);
+		if (item === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ITEM_NOT_FOUND',
+				message: 'Item was not found',
+			};
+			return;
+		}
+
+		const amount = +body.amount;
+		if (body.amount !== undefined) {
+			if (!Number.isInteger(amount) || amount < 0) {
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'INVALID_AMOUNT',
@@ -108,145 +160,59 @@ router.put(
 				};
 				return;
 			}
-
-			const item = await Item.getByID(id);
-			if (item === null) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'ITEM_NOT_FOUND',
-					message: 'Item was not found',
-				};
-				return;
-			}
-
-			item.amount = body.amount;
-			item.save();
-
-			ctx.response.status = 200;
-			ctx.response.body = item;
-		} catch (e) {
-			console.error(e);
-
-			ctx.response.status = 400;
-			ctx.response.body = {
-				error: 'INVALID_REQUEST',
-				message:
-					'Could not process your request, please check for errors and retry',
-			};
 		}
-	},
-);
 
-// Edit item
-router.patch(
-	'/:id',
-	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
-	async (ctx) => {
-		try {
-			const id = +ctx.params.id;
-			if (!Number.isInteger(id)) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'INVALID_ID',
-					message: 'ID must be a number',
-				};
-				return;
-			}
-			const body = await ctx.request.body({ type: 'json' }).value;
-
-			const item = await Item.getByID(id);
-			if (item === null) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'ITEM_NOT_FOUND',
-					message: 'Item was not found',
-				};
-				return;
-			}
-			const amount = +body.amount;
-			if (body.amount !== undefined) {
-				if (!Number.isInteger(amount) || amount < 0) {
-					ctx.response.status = 400;
-					ctx.response.body = {
-						error: 'INVALID_AMOUNT',
-						message: 'Amount must be a positive number',
-					};
-					return;
-				}
-			}
-
-			if (body.name?.length) {
-				item.name = body.name.trim();
-			}
-			if (body.description !== undefined) {
-				item.description = body.description?.trim() ?? null;
-			}
-			if (body.link !== undefined) {
-				item.link = body.link?.trim() ?? null;
-			}
-			if (body.location?.length) {
-				item.location = body.location.trim();
-			}
-			if (body.amount !== undefined) {
-				item.amount = amount;
-			}
-
-			item.save();
-
-			ctx.response.status = 200;
-			ctx.response.body = item;
-		} catch (e) {
-			console.error(e);
-			ctx.response.status = 400;
-			ctx.response.body = {
-				error: 'INVALID_REQUEST',
-				message:
-					'Could not process your request, please check for errors and retry',
-			};
+		if (body.name?.length) {
+			item.name = body.name.trim();
 		}
+		if (body.description !== undefined) {
+			item.description = body.description?.trim() ?? null;
+		}
+		if (body.link !== undefined) {
+			item.link = body.link?.trim() ?? null;
+		}
+		if (body.location?.length) {
+			item.location = body.location.trim();
+		}
+		if (body.amount !== undefined) {
+			item.amount = amount;
+		}
+
+		item.save();
+
+		ctx.response.body = item;
 	},
 );
 
 // Delete item
 router.delete(
 	'/:id',
+	hasBody(),
 	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
 	async (ctx) => {
-		try {
-			const id = +ctx.params.id;
-			if (!Number.isInteger(id)) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'INVALID_ID',
-					message: 'ID must be a number',
-				};
-				return;
-			}
-
-			const item = await Item.getByID(id);
-			if (item === null) {
-				ctx.response.status = 400;
-				ctx.response.body = {
-					error: 'ITEM_NOT_FOUND',
-					message: 'Item was not found',
-				};
-				return;
-			}
-
-			item.delete();
-
-			ctx.response.status = 200;
-			ctx.response.body = item;
-		} catch (e) {
-			console.error(e);
-
+		const id = +ctx.params.id;
+		if (!Number.isInteger(id)) {
 			ctx.response.status = 400;
 			ctx.response.body = {
-				error: 'INVALID_REQUEST',
-				message:
-					'Could not process your request, please check for errors and retry',
+				error: 'INVALID_ID',
+				message: 'ID must be a number',
 			};
+			return;
 		}
+
+		const item = await Item.getByID(id);
+		if (item === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ITEM_NOT_FOUND',
+				message: 'Item was not found',
+			};
+			return;
+		}
+
+		item.delete();
+
+		ctx.response.body = item;
 	},
 );
 
