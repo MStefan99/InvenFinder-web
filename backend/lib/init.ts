@@ -1,4 +1,4 @@
-import dbClientPromise from './db.ts';
+import dbPromise from './db.ts';
 import User from './user.ts';
 
 export function init() {
@@ -6,7 +6,7 @@ export function init() {
 }
 
 export async function initDB() {
-	const db = await dbClientPromise;
+	const db = await dbPromise;
 	const rows = await db.query('show databases like "invenfinder"');
 	if (!rows.length) {
 		console.log('Initializing database');

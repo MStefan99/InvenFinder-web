@@ -1,6 +1,6 @@
 import { decode as hexDecode, encode as hexEncode } from '../deps.ts';
 
-import dbClientPromise from './db.ts';
+import dbPromise from './db.ts';
 import {
 	encodePermissions,
 	hasPermissions,
@@ -80,8 +80,8 @@ class User {
 
 	save(): Promise<void> {
 		return new Promise((resolve, reject) => {
-			dbClientPromise.then((client) =>
-				client
+			dbPromise.then((db) =>
+				db
 					.execute(
 						`insert into invenfinder.users(id,
 						                               username,
@@ -117,8 +117,8 @@ class User {
 		);
 		const passwordHash = await pbkdf2(password, passwordSalt);
 
-		const client = await dbClientPromise;
-		const res = await client.execute(
+		const db = await dbPromise;
+		const res = await db.execute(
 			`insert into invenfinder.users(username,
 			                               password_salt,
 			                               password_hash,
@@ -142,8 +142,8 @@ class User {
 	}
 
 	static async getByID(id: number): Promise<User | null> {
-		const client = await dbClientPromise;
-		const rows = await client.query(
+		const db = await dbPromise;
+		const rows = await db.query(
 			`select id, username, password_salt as passwordSalt, password_hash as passwordHash, permissions
 			 from invenfinder.users
 			 where id=?`,
@@ -158,8 +158,8 @@ class User {
 	}
 
 	static async getByUsername(username: string): Promise<User | null> {
-		const client = await dbClientPromise;
-		const rows = await client.query(
+		const db = await dbPromise;
+		const rows = await db.query(
 			`select id, username, password_salt as passwordSalt, password_hash as passwordHash, permissions
 			 from invenfinder.users
 			 where username=?`,
@@ -176,8 +176,8 @@ class User {
 	static async getAll(): Promise<User[]> {
 		const users = [];
 
-		const client = await dbClientPromise;
-		const rows = await client.query(
+		const db = await dbPromise;
+		const rows = await db.query(
 			`select id, username, password_salt as passwordSalt, password_hash as passwordHash, permissions
 			 from invenfinder.users`,
 		);
@@ -204,8 +204,8 @@ class User {
 	}
 
 	async delete(): Promise<void> {
-		const client = await dbClientPromise;
-		await client.execute(
+		const db = await dbPromise;
+		await db.execute(
 			`delete
 			 from invenfinder.users
 			 where id=?`,
