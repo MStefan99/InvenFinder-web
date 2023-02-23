@@ -16,6 +16,6 @@ export async function initDB() {
 			stmt.trim().length && await db.execute(stmt);
 		}
 
-		await User.create('admin', 'admin', 15);
+		await User.create('admin', 'admin', 0xffff);
 	}
 }
