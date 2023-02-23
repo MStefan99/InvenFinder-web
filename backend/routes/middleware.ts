@@ -58,15 +58,16 @@ export function hasCredentials(): Middleware {
 
 export function logger(): Middleware {
 	return async (ctx, next) => {
-		const start = Date.now();
+		const start = new Date();
 		await next();
 		const req = ctx.request;
 		console.log(
 			`${req.method} ${
 				req.url.pathname + req.url.search
-			} from ${req.ip} on ${
-				new Date().toLocaleString()
-			} - ${ctx.response.status} in ${Date.now() - start} ms`,
+			} from ${req.ip} at ${start.getHours()}:${start.getMinutes()}:${start.getSeconds()} ` +
+				`on ${start.getDay()}.${start.getMonth()}.${start.getFullYear()} - ${ctx.response.status} in ${
+					Date.now() - start.getTime()
+				} ms`,
 		);
 	};
 }

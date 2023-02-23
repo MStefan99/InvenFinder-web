@@ -26,15 +26,17 @@ app.use(async (ctx, next) => {
 		await next();
 	} catch (err) {
 		ctx.response.status = 500;
-		if (Deno.env.get('env') === 'development') {
+		console.error(err);
+
+		if (Deno.env.get('ENV') === 'development') {
 			ctx.response.body = {
 				error: 'APP_ERROR',
-				message: 'An error occurred while processing your request',
+				message: `Error: ${err.message}; Stack: ${err.stack}`,
 			};
 		} else {
 			ctx.response.body = {
 				error: 'APP_ERROR',
-				message: `Error: ${err.message}; Stack: ${err.stack}`,
+				message: 'An error occurred while processing your request',
 			};
 		}
 	}
