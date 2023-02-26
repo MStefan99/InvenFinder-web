@@ -45,6 +45,32 @@ class Session {
 		};
 	}
 
+	async save(): Promise<void> {
+		const db = await dbPromise;
+		await db
+			.execute(
+				`insert into invenfinder.sessions(id,
+				                               public_id,
+				                               user_id,
+				                               ip,
+                                 ua,
+				                               time)
+				 values (?, ?, ?, ?, ?, ?)
+				 on duplicate key update public_id = values(public_id),
+				                         user_id = values(user_id),
+				                         ip = values(ip),
+				                         ua = values(ua),
+				                         time = values(time)`,
+				[
+					this.id,
+					this.publicID,
+					this.ip,
+					this.ua,
+					this.time,
+				],
+			);
+	}
+
 	static async create(user: User, ip: string, ua: string): Promise<Session> {
 		const publicID = getRandomString(32);
 		const time = Date.now();

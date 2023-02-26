@@ -78,33 +78,28 @@ class User {
 		};
 	}
 
-	save(): Promise<void> {
-		return new Promise((resolve, reject) => {
-			dbPromise.then((db) =>
-				db
-					.execute(
-						`insert into invenfinder.users(id,
-						                               username,
-						                               password_salt,
-						                               password_hash,
-						                               permissions)
-						 values (?, ?, ?, ?, ?)
-						 on duplicate key update username = values(username),
-						                         password_salt = values(password_salt),
-						                         password_hash = values(password_hash),
-						                         permissions = values(permissions)`,
-						[
-							this.id,
-							this.username,
-							this.passwordSalt,
-							this.passwordHash,
-							encodePermissions(this.permissions),
-						],
-					)
-			)
-				.then(() => resolve())
-				.catch((err) => reject(err));
-		});
+	async save(): Promise<void> {
+		const db = await dbPromise;
+		await db
+			.execute(
+				`insert into invenfinder.users(id,
+				                               username,
+				                               password_salt,
+				                               password_hash,
+				                               permissions)
+				 values (?, ?, ?, ?, ?)
+				 on duplicate key update username = values(username),
+				                         password_salt = values(password_salt),
+				                         password_hash = values(password_hash),
+				                         permissions = values(permissions)`,
+				[
+					this.id,
+					this.username,
+					this.passwordSalt,
+					this.passwordHash,
+					encodePermissions(this.permissions),
+				],
+			);
 	}
 
 	static async create(

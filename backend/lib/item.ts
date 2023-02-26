@@ -29,31 +29,25 @@ class Item {
 		this.amount = props.amount;
 	}
 
-	save(): Promise<void> {
-		return new Promise((resolve, reject) => {
-			dbPromise
-				.then((db) =>
-					db.execute(
-						`insert into invenfinder.items(id, name, description, link, location, amount)
-						 values (?, ?, ?, ?, ?, ?)
-						 on duplicate key update name = values(name),
-						                         description = values(description),
-						                         link = values(link),
-						                         location = values(location),
-						                         amount = values(amount)`,
-						[
-							this.id,
-							this.name,
-							this.description,
-							this.link,
-							this.location,
-							this.amount,
-						],
-					)
-				)
-				.then(() => resolve())
-				.catch((err) => reject(err));
-		});
+	async save(): Promise<void> {
+		const db = await dbPromise;
+		await db.execute(
+			`insert into invenfinder.items(id, name, description, link, location, amount)
+			 values (?, ?, ?, ?, ?, ?)
+			 on duplicate key update name = values(name),
+			                         description = values(description),
+			                         link = values(link),
+			                         location = values(location),
+			                         amount = values(amount)`,
+			[
+				this.id,
+				this.name,
+				this.description,
+				this.link,
+				this.location,
+				this.amount,
+			],
+		);
 	}
 
 	static async create(options: PropsBase): Promise<Item | null> {
@@ -127,7 +121,7 @@ class Item {
 
 		const db = await dbPromise;
 		const rows = await db.query(`select *
-		                                 from invenfinder.items`);
+		                             from invenfinder.items`);
 
 		for (const row of rows) {
 			items.push(new Item(row));
@@ -141,9 +135,9 @@ class Item {
 		const db = await dbPromise;
 		const rows = await db.query(
 			`select *
-		                                 from invenfinder.items
-		                                 where match (name, description)
-			                                       against (?)`,
+			 from invenfinder.items
+			 where match (name, description)
+				       against (?)`,
 			[query],
 		);
 

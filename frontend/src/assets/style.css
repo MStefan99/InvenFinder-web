@@ -57,6 +57,10 @@ a {
 	color: inherit;
 }
 
+.router-link-active {
+	text-decoration: underline;
+}
+
 .clickable {
 	cursor: pointer;
 	border-bottom: 0 solid;
