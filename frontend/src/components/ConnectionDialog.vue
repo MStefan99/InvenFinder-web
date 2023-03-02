@@ -5,26 +5,26 @@
 		form(@submit.prevent="connect()")
 			.mb-3
 				label(for="url-input") URL
-				input#url-input.full(v-model="url" type="text" placeholder="https://example.com")
+				input#url-input.w-full(v-model="url" type="text" placeholder="https://example.com")
 			.mb-3
-				button.full(type="submit" :disabled="connectionState === ConnectionState.TESTING") Connect
+				button.w-full(type="submit" :disabled="connectionState === ConnectionState.TESTING") Connect
 		form(v-if="connectionState === ConnectionState.CONNECTED" @submit.prevent="login()")
 			.mb-3
 				label(for="username-input") Username
-				input#username-input.full(
+				input#username-input.w-full(
 					v-model="username"
 					type="text"
 					placeholder="user"
 					autocomplete="username")
 			.mb-3
 				label(for="password-input") Password
-				input#password-input.full(
+				input#password-input.w-full(
 					v-model="password"
 					type="password"
 					placeholder="password"
 					autocomplete="current-password")
 			.mb-3
-				button.full(type="submit" :disabled="connectionState === ConnectionState.TESTING") Sign in
+				button.w-full(type="submit" :disabled="connectionState === ConnectionState.TESTING") Sign in
 			p.text-red(v-if="authError") {{authError}}
 		span.text-muted {{getAuthenticationState()}}
 </template>

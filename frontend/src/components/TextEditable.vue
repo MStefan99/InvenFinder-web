@@ -6,7 +6,7 @@
 			@click="modelValue && $emit('click', value)") {{value !== null ? label || value : placeholder}}
 		img.icon.ml-2.clickable(src="/src/assets/pen.svg" v-if="!readonly" @click="expanded = true")
 	form(v-else @submit.prevent="$emit('update:modelValue', value); expanded = false")
-		textarea.full(rows="1" v-model="value")
+		textarea.w-full(rows="1" v-model="value")
 		.my-4
 			button.mr-4(type="button" @click="value = props.modelValue; expanded = false") Cancel
 			button.mr-4(type="button" @click="value = null") Clear

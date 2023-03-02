@@ -146,15 +146,14 @@ button:active {
 
 input:not([type='checkbox']):active,
 textarea:active,
-button.full:active {
+button.w-full:active {
 	transform: scale(98.5%);
 }
 
-input.full,
-button.full,
-textarea.full {
+input.w-full,
+button.w-full,
+textarea.w-full {
 	display: inline-block;
-	@apply w-full;
 }
 
 input[type='button'],

@@ -27,18 +27,21 @@
 			form.popup(@submit.prevent="addItem()")
 				p.text-2xl.mb-4 New item
 				label.mb-2(for="name-input") Name
-				input#name-input.mb-4.full(v-model="newItem.name" type="text" placeholder="Some item")
+				input#name-input.mb-4.w-full(v-model="newItem.name" type="text" placeholder="Some item")
 				label.mb-2(for="desc-input") Description
-				textarea#desc-input.mb-4.full(v-model="newItem.description" placeholder="Description")
+				textarea#desc-input.mb-4.w-full(v-model="newItem.description" placeholder="Description")
 				label.mb-2(for="link-input") Link
-				input#link-input.mb-4.full(
+				input#link-input.mb-4.w-full(
 					v-model="newItem.link"
 					type="text"
 					placeholder="https://example.com/your-item")
 				label.mb-2(for="location-input") Location
-				input#location-input.mb-4.full(v-model="newItem.location" type="text" placeholder="Top drawer")
+				input#location-input.mb-4.w-full(
+					v-model="newItem.location"
+					type="text"
+					placeholder="Top drawer")
 				label.mb-2(for="amount-input") Amount
-				input#amount-input.mb-4.full(v-model="newItem.amount" type="number")
+				input#amount-input.mb-4.w-full(v-model="newItem.amount" type="number")
 				button(type="submit") Add item
 </template>
 
