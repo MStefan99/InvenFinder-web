@@ -19,6 +19,7 @@ export const appState = reactive({
 	apiKey: localStorage.getItem('apiKey') ?? null,
 	user: null,
 	setUrl(url) {
+		url = url?.replace(/\/$/, '') ?? null;
 		this.backendURL = url;
 		if (url !== null) {
 			localStorage.setItem('backendURL', url);
