@@ -6,7 +6,14 @@ import itemRouter from './routes/items.ts';
 import userRouter from './routes/users.ts';
 import { init } from './lib/init.ts';
 
-const port = 3007;
+const defaultPort = 3007;
+const parsedPort = Deno.env.has('PORT')
+	? +(Deno.env.get('PORT') as string)
+	: defaultPort;
+const port =
+	Number.isInteger(parsedPort) && parsedPort > 0 && parsedPort < 65535
+		? parsedPort
+		: defaultPort;
 
 const app = new Application();
 const apiRouter = new Router({
@@ -28,7 +35,7 @@ app.use(async (ctx, next) => {
 		ctx.response.status = 500;
 		console.error(err);
 
-		if (Deno.env.get('ENV') === 'development') {
+		if (Deno.env.get('ENV') === 'dev') {
 			ctx.response.body = {
 				error: 'APP_ERROR',
 				message: `Error: ${err.message}; Stack: ${err.stack}`,

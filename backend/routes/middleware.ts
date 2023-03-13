@@ -74,7 +74,7 @@ export function logger(): Middleware {
 
 export function cors(): Middleware {
 	return async (ctx, next) => {
-		if (Deno.env.get('ENV') === 'development') {
+		if (Deno.env.get('ENV') === 'dev') {
 			ctx.response.headers.set('Access-Control-Allow-Origin', '*');
 		} else {
 			const origin = Deno.env.get('CORS_ORIGIN');
