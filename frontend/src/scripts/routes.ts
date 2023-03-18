@@ -54,4 +54,17 @@ const router = createRouter({
 
 router.beforeEach(() => clearPopups());
 
+(async () => {
+	if (import.meta.env.VITE_CRASH_COURSE_URL) {
+		const {sendHit} = await import(
+			/* @vite-ignore */
+			`${import.meta.env.VITE_CRASH_COURSE_URL}/cc?k=${import.meta.env.VITE_CRASH_COURSE_KEY}`
+		);
+		if (sendHit) {
+			sendHit();
+			router.afterEach(sendHit);
+		}
+	}
+})();
+
 export default router;
