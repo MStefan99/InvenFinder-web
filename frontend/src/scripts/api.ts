@@ -16,7 +16,7 @@ type AuthResult = {
 	key: string;
 };
 
-const apiPrefix = '/api';
+const apiPrefix = import.meta.env.VUE_API_PREFIX || '';
 const notConfigured = {error: 'NOT_CONFIGURED', message: 'Not configured'} as ErrorResponse;
 const notAuthenticated = {
 	error: 'NOT_AUTHENTICATED',

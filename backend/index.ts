@@ -16,9 +16,8 @@ const port =
 		: defaultPort;
 
 const app = new Application();
-const apiRouter = new Router({
-	prefix: '/api',
-});
+const apiRouter = new Router();
+const routers = [authRouter, sessionRouter, itemRouter, userRouter];
 
 app.use(logger());
 app.use(cors());
@@ -56,17 +55,10 @@ apiRouter.get('/', (ctx) => {
 app.use(apiRouter.routes());
 app.use(apiRouter.allowedMethods()); // Responds to OPTIONS and 405/501
 
-apiRouter.use(authRouter.routes());
-apiRouter.use(authRouter.allowedMethods());
-
-apiRouter.use(sessionRouter.routes());
-apiRouter.use(sessionRouter.allowedMethods());
-
-apiRouter.use(itemRouter.routes());
-apiRouter.use(itemRouter.allowedMethods());
-
-apiRouter.use(userRouter.routes());
-apiRouter.use(userRouter.allowedMethods());
+for (const router of routers) {
+	apiRouter.use(router.routes());
+	apiRouter.use(router.allowedMethods());
+}
 
 app.use((ctx) => {
 	ctx.response.status = 404;

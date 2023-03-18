@@ -15,7 +15,7 @@ type Store = {
 };
 
 export const appState = reactive({
-	backendURL: localStorage.getItem('backendURL') ?? null,
+	backendURL: localStorage.getItem('backendURL') ?? import.meta.env.VITE_BACKEND_URL ?? null,
 	apiKey: localStorage.getItem('apiKey') ?? null,
 	user: null,
 	setUrl(url) {

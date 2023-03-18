@@ -255,3 +255,5 @@ Temporary Items
 .apdisk
 
 .idea/dataSources*
+
+**/.env*.local
