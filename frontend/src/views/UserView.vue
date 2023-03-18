@@ -44,6 +44,7 @@ onMounted(() => {
 		.getByID(+route.params.id)
 		.then((u) => {
 			user.value = u;
+			window.document.title = `User ${u.username} | Invenfinder`;
 		})
 		.catch((err) => alert('Could not load user details', PopupColor.Red, err.message));
 });

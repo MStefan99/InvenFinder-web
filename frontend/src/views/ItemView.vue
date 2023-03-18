@@ -73,6 +73,7 @@ onMounted(() => {
 		.getByID(id)
 		.then((i) => {
 			item.value = i;
+			window.document.title = i.name + ' | Invenfinder';
 		})
 		.catch((err) => alert('Could not load the item', PopupColor.Red, err.message));
 });

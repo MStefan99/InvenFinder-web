@@ -45,6 +45,8 @@ const newUser = ref<NewUser | null>(null);
 const defaultUser = {username: '', password: '', permissions: 0} as NewUser;
 const router = useRouter();
 
+window.document.title = 'Users | Invenfinder';
+
 function addUser() {
 	Api.users
 		.add(newUser.value)

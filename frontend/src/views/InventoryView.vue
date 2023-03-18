@@ -70,6 +70,8 @@ const query = ref<string>('');
 const router = useRouter();
 let debounceHandle: number | undefined = undefined;
 
+window.document.title = 'Inventory | Invenfinder';
+
 onMounted(loadItems);
 
 function loadItems() {

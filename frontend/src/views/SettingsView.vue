@@ -56,6 +56,8 @@ const passwordsMatch = computed<boolean>(
 		updateUser.value.password === passwordRepeat.value
 );
 
+window.document.title = 'Settings | Invenfinder';
+
 function parseUA(ua: string): string | null {
 	const res = ua.match(/.*? \((.*?); (.*?)([;)]).*/);
 	let os: string | null;

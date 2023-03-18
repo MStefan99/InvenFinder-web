@@ -19,6 +19,8 @@ import {alert, PopupColor} from '../scripts/popups';
 const items = ref<Item[]>();
 const fontSize = ref<number>(1);
 
+window.document.title = 'Labels | Invenfinder';
+
 onMounted(() =>
 	Api.items
 		.getAll()
