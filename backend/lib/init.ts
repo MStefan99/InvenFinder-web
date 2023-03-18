@@ -1,5 +1,6 @@
 import dbPromise from './db.ts';
 import User from './user.ts';
+import log from './log.ts';
 
 export function init() {
 	return Promise.all([initDB()]);
@@ -9,7 +10,7 @@ export async function initDB() {
 	const db = await dbPromise;
 	const rows = await db.query('show databases like "invenfinder"');
 	if (!rows.length) {
-		console.log('Initializing database');
+		log.log('Initializing database');
 
 		const sql = await Deno.readTextFile('./ddl.sql');
 		for (const stmt of sql.split(';')) {

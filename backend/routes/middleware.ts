@@ -1,4 +1,5 @@
 import { Context, Middleware } from '../deps.ts';
+import log from '../lib/log.ts';
 
 async function getBodyLength(ctx: Context) {
 	try {
@@ -61,7 +62,7 @@ export function logger(): Middleware {
 		const start = new Date();
 		await next();
 		const req = ctx.request;
-		console.log(
+		log.log(
 			`${req.method} ${
 				req.url.pathname + req.url.search
 			} from ${req.ip} at ${start.getHours()}:${start.getMinutes()}:${start.getSeconds()} ` +
