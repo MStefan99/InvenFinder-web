@@ -1,5 +1,5 @@
 import { Application, Router } from './deps.ts';
-import { cors, logger } from './routes/middleware.ts';
+import { cors, csv, logger } from './routes/middleware.ts';
 import authRouter from './routes/auth.ts';
 import sessionRouter from './routes/sessions.ts';
 import itemRouter from './routes/items.ts';
@@ -22,6 +22,7 @@ const routers = [authRouter, sessionRouter, itemRouter, userRouter];
 
 app.use(logger());
 app.use(cors());
+app.use(csv());
 
 app.use(async (ctx, next) => {
 	ctx.response.headers.set('Who-Am-I', 'Invenfinder');

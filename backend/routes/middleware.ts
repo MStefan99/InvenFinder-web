@@ -9,6 +9,21 @@ async function getBodyLength(ctx: Context) {
 	}
 }
 
+function parseAccept(ctx: Context): { type: string; quality: number }[] {
+	const accept = ctx.request.headers.get('Accept');
+	if (!accept) {
+		return [];
+	} else {
+		return accept
+			.split(',')
+			.map((entry) => {
+				const [type, quality] = entry.split(';q=');
+				return { type, quality: +quality || 1 };
+			})
+			.sort((type1, type2) => type2.quality - type1.quality);
+	}
+}
+
 export function hasBody(): Middleware {
 	return async (ctx, next) => {
 		if (await getBodyLength(ctx)) {
@@ -89,5 +104,41 @@ export function cors(): Middleware {
 		ctx.response.headers.set('Access-Control-Max-Age', '86400');
 
 		await next();
+	};
+}
+
+export function csv(): Middleware {
+	return async (ctx, next) => {
+		await next();
+		const types = parseAccept(ctx);
+
+		if (types[0].type !== 'text/csv') {
+			return;
+		} else {
+			const data = ctx.response.body;
+			ctx.response.body = '';
+
+			if (Array.isArray(data) && data.length) {
+				const keys = Object.keys(data[0]);
+				ctx.response.body += keys.join(',') + '\n';
+
+				for (const el of data) {
+					ctx.response.body += keys.map((key) =>
+						`"${el[key].toString().replaceAll('"', '""')}"`
+					).join(',') + '\n';
+				}
+			} else if (typeof data === 'object' && data !== null) {
+				const keys = Object.keys(data);
+				ctx.response.body += keys.join(',') + '\n';
+				ctx.response.body += keys.map((key) =>
+					`"${
+						String(data[key as keyof typeof data]).replaceAll(
+							'"',
+							'""',
+						)
+					}"`
+				).join(',') + '\n';
+			}
+		}
 	};
 }
