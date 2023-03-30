@@ -55,13 +55,13 @@ import type {Item, NewItem} from '../scripts/types';
 import {alert, PopupColor} from '../scripts/popups';
 import {useRouter} from 'vue-router';
 
-const defaultItem = {
+const defaultItem: NewItem = {
 	name: '',
 	description: null,
 	link: null,
 	location: '',
 	amount: 10
-} as NewItem;
+};
 
 const items = ref<Item[]>([]);
 const filteredItems = ref<Item[]>([]);

@@ -17,13 +17,13 @@ type AuthResult = {
 };
 
 const apiPrefix = import.meta.env.VUE_API_PREFIX || '';
-const notConfigured = {error: 'NOT_CONFIGURED', message: 'Not configured'} as ErrorResponse;
-const notAuthenticated = {
+const notConfigured: ErrorResponse = {error: 'NOT_CONFIGURED', message: 'Not configured'};
+const notAuthenticated: ErrorResponse = {
 	error: 'NOT_AUTHENTICATED',
 	message: 'You must sign in to do this'
-} as ErrorResponse;
-const requestFailed = {error: 'REQ_FAILED', message: 'Request failed'} as ErrorResponse;
-const notImplemented = {error: 'NOT_IMPLEMENTED', message: 'Not implemented'} as ErrorResponse;
+};
+const requestFailed: ErrorResponse = {error: 'REQ_FAILED', message: 'Request failed'};
+const notImplemented: ErrorResponse = {error: 'NOT_IMPLEMENTED', message: 'Not implemented'};
 
 enum RequestMethod {
 	GET = 'GET',

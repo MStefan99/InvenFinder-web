@@ -9,12 +9,11 @@ type Store = {
 	user: User | null;
 	setUrl: (url: string | null) => void;
 	setApiKey: (key: string | null) => void;
-	setConnectionDialogOpen: (open: boolean) => void;
 	setUser: (user: User | null) => void;
 	hasPermissions: (permissions: PERMISSIONS[]) => boolean;
 };
 
-export const appState = reactive({
+export const appState = reactive<Store>({
 	backendURL: localStorage.getItem('backendURL') ?? import.meta.env.VITE_BACKEND_URL ?? null,
 	apiKey: localStorage.getItem('apiKey') ?? null,
 	user: null,
@@ -45,6 +44,6 @@ export const appState = reactive({
 			return hasPermissions(permissions, this.user.permissions);
 		}
 	}
-} as Store);
+});
 
 export default appState;

@@ -42,7 +42,7 @@ import {useRouter} from 'vue-router';
 
 const users = ref<User[]>();
 const newUser = ref<NewUser | null>(null);
-const defaultUser = {username: '', password: '', permissions: 0} as NewUser;
+const defaultUser: NewUser = {username: '', password: '', permissions: 0};
 const router = useRouter();
 
 window.document.title = 'Users | Invenfinder';
