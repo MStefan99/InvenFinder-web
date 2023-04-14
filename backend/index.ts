@@ -6,6 +6,7 @@ import itemRouter from './routes/items.ts';
 import userRouter from './routes/users.ts';
 import { init } from './lib/init.ts';
 import log from './lib/log.ts';
+import rateLimiter from './lib/rateLimiter.ts';
 
 const defaultPort = 3007;
 const parsedPort = Deno.env.has('PORT')
@@ -24,7 +25,7 @@ app.use(logger());
 app.use(cors());
 app.use(csv());
 
-app.use(async (ctx, next) => {
+app.use(rateLimiter(), async (ctx, next) => {
 	ctx.response.headers.set('Who-Am-I', 'Invenfinder');
 	await next();
 });
@@ -62,7 +63,7 @@ for (const router of routers) {
 	apiRouter.use(router.allowedMethods());
 }
 
-app.use((ctx) => {
+app.use(rateLimiter(), (ctx) => {
 	ctx.response.status = 404;
 	ctx.response.body = {
 		error: 'NOT_FOUND',

@@ -4,20 +4,33 @@ import auth from '../lib/auth.ts';
 import { parsePermissions, PERMISSIONS } from '../../common/permissions.ts';
 import User from '../lib/user.ts';
 import { hasBody } from './middleware.ts';
+import rateLimiter from '../lib/rateLimiter.ts';
 
 const router = new Router({
 	prefix: '/users',
 });
 
 // Get a list of all users
-router.get('/', auth.permissions([PERMISSIONS.MANAGE_USERS]), async (ctx) => {
-	ctx.response.body = await User.getAll();
-});
+router.get(
+	'/',
+	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
+	async (ctx) => {
+		ctx.response.body = await User.getAll();
+	},
+);
 
 // Get a user by ID
 router.get(
 	'/:id',
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
 	async (ctx) => {
 		if (!ctx.params.id?.length) {
 			ctx.response.status = 400;
@@ -46,6 +59,10 @@ router.get(
 router.get(
 	'/username/:username',
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
 	async (ctx) => {
 		if (!ctx.params.username?.length) {
 			ctx.response.status = 400;
@@ -75,6 +92,10 @@ router.post(
 	'/',
 	hasBody(),
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
 	async (ctx) => {
 		const body = await ctx.request.body({ type: 'json' }).value;
 		if (!body.username?.length) {
@@ -110,6 +131,10 @@ router.patch(
 	'/:id',
 	hasBody(),
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
 	async (ctx) => {
 		const body = await ctx.request.body({ type: 'json' }).value;
 		if (!ctx.params.id?.length) {
@@ -153,6 +178,10 @@ router.delete(
 	'/:id',
 	hasBody(),
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
 	async (ctx) => {
 		if (!ctx.params.id?.length) {
 			ctx.response.status = 400;

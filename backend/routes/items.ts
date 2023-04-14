@@ -4,41 +4,65 @@ import auth from '../lib/auth.ts';
 import Item from '../lib/item.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
 import { hasBody } from './middleware.ts';
+import rateLimiter from '../lib/rateLimiter.ts';
 
 const router = new Router({
 	prefix: '/items',
 });
 
 // Get all items
-router.get('/', auth.authenticated(), async (ctx) => {
-	const query = ctx.request.url.searchParams.get('q');
+router.get(
+	'/',
+	auth.authenticated(),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
+	async (ctx) => {
+		const query = ctx.request.url.searchParams.get('q');
 
-	if (query?.length) {
-		ctx.response.body = await Item.search(query);
-		return;
-	}
+		if (query?.length) {
+			ctx.response.body = await Item.search(query);
+			return;
+		}
 
-	ctx.response.body = await Item.getAll();
-});
+		ctx.response.body = await Item.getAll();
+	},
+);
 
 // Get item by ID
-router.get('/:id', auth.authenticated(), async (ctx) => {
-	const parsedID = +ctx.params.id;
+router.get(
+	'/:id',
+	auth.authenticated(),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
+	async (ctx) => {
+		const parsedID = +ctx.params.id;
 
-	if (Number.isNaN(parsedID)) {
-		ctx.response.status = 400;
-		ctx.response.body = { error: 'ID_NAN', message: 'ID must be a number' };
-		return;
-	}
+		if (Number.isNaN(parsedID)) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ID_NAN',
+				message: 'ID must be a number',
+			};
+			return;
+		}
 
-	ctx.response.body = await Item.getByID(parsedID);
-});
+		ctx.response.body = await Item.getByID(parsedID);
+	},
+);
 
 // Add item
 router.post(
 	'/',
 	hasBody(),
 	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
 	async (ctx) => {
 		const body = await ctx.request.body({ type: 'json' }).value;
 
@@ -85,6 +109,10 @@ router.put(
 	'/:id/amount',
 	hasBody(),
 	auth.permissions([PERMISSIONS.EDIT_ITEM_AMOUNT]),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
 	async (ctx) => {
 		const id = +ctx.params.id;
 		if (!Number.isInteger(id)) {
@@ -128,6 +156,10 @@ router.patch(
 	'/:id',
 	hasBody(),
 	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
 	async (ctx) => {
 		const id = +ctx.params.id;
 		if (!Number.isInteger(id)) {
@@ -189,6 +221,10 @@ router.delete(
 	'/:id',
 	hasBody(),
 	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
 	async (ctx) => {
 		const id = +ctx.params.id;
 		if (!Number.isInteger(id)) {
