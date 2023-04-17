@@ -2,11 +2,18 @@ import {reactive} from 'vue';
 
 import type {User} from './types';
 import {PERMISSIONS, hasPermissions} from '../../../common/permissions';
+import Api from './api';
+
+type CrashCourse = {
+	sendLog: (message: string, level: number, tag: string | null) => Promise<true>;
+	sendHit: () => Promise<true>;
+};
 
 type Store = {
 	backendURL: string | null;
 	apiKey: string | null;
 	user: User | null;
+	crashCourse: CrashCourse | null;
 	setUrl: (url: string | null) => void;
 	setApiKey: (key: string | null) => void;
 	setUser: (user: User | null) => void;
@@ -17,22 +24,16 @@ export const appState = reactive<Store>({
 	backendURL: localStorage.getItem('backendURL') ?? import.meta.env.VITE_BACKEND_URL ?? null,
 	apiKey: localStorage.getItem('apiKey') ?? null,
 	user: null,
-	setUrl(url) {
-		url = url?.replace(/\/$/, '') ?? null;
+	crashCourse: null,
+	setUrl(url: string) {
+		url = url.replace(/\/$/, '');
 		this.backendURL = url;
-		if (url !== null) {
-			localStorage.setItem('backendURL', url);
-		} else {
-			localStorage.removeItem('backendURL');
-		}
+		localStorage.setItem('backendURL', url);
+		loadCrashCourse();
 	},
-	setApiKey(key) {
+	setApiKey(key: string) {
 		this.apiKey = key;
-		if (key !== null) {
-			localStorage.setItem('apiKey', key);
-		} else {
-			localStorage.removeItem('apiKey');
-		}
+		localStorage.setItem('apiKey', key);
 	},
 	setUser(user: User | null): void {
 		this.user = user;
@@ -47,3 +48,18 @@ export const appState = reactive<Store>({
 });
 
 export default appState;
+
+function loadCrashCourse() {
+	Api.connection.settings().then(async (s) => {
+		const crashCourse = (await import(
+			/* @vite-ignore */
+			`${s.crashCourseURL}/cc?k=${s.crashCourseKey}`
+		)) as CrashCourse;
+		if (crashCourse) {
+			appState.crashCourse = crashCourse;
+			crashCourse.sendHit();
+		}
+	});
+}
+
+loadCrashCourse();

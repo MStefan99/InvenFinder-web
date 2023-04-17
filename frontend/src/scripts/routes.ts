@@ -6,6 +6,7 @@ import UserView from '../views/UserView.vue';
 import ItemView from '../views/ItemView.vue';
 import LabelView from '../views/LabelView.vue';
 import {clearPopups} from './popups';
+import appState from './store';
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -53,18 +54,6 @@ const router = createRouter({
 });
 
 router.beforeEach(() => clearPopups());
-
-(async () => {
-	if (import.meta.env.VITE_CRASH_COURSE_URL) {
-		const {sendHit} = await import(
-			/* @vite-ignore */
-			`${import.meta.env.VITE_CRASH_COURSE_URL}/cc?k=${import.meta.env.VITE_CRASH_COURSE_KEY}`
-		);
-		if (sendHit) {
-			sendHit();
-			router.afterEach(sendHit);
-		}
-	}
-})();
+router.afterEach(() => appState.crashCourse?.sendHit());
 
 export default router;

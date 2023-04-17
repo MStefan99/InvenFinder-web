@@ -55,6 +55,13 @@ apiRouter.get('/', (ctx) => {
 	ctx.response.body = { message: 'Welcome!' };
 });
 
+apiRouter.get('/settings', (ctx) => {
+	ctx.response.body = {
+		crashCourseURL: Deno.env.get('CRASH_COURSE_URL') ?? null,
+		crashCourseKey: Deno.env.get('CRASH_COURSE_KEY') ?? null,
+	};
+});
+
 app.use(apiRouter.routes());
 app.use(apiRouter.allowedMethods()); // Responds to OPTIONS and 405/501
 

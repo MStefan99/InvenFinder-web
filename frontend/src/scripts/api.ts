@@ -11,9 +11,14 @@ type ErrorResponse = {
 	message: string;
 };
 
-type AuthResult = {
+type AuthResponse = {
 	user: User;
 	key: string;
+};
+
+type SettingsResponse = {
+	crashCourseURL: string | null;
+	crashCourseKey: string | null;
 };
 
 const apiPrefix = import.meta.env.VUE_API_PREFIX || '';
@@ -40,14 +45,14 @@ type RequestParams = {
 	query?: Record<string, string>;
 };
 
-function request<T>(path: string, params: RequestParams): Promise<T> {
+function request<T>(path: string, params?: RequestParams): Promise<T> {
 	return new Promise((resolve, reject) => {
 		if (!appState.backendURL) {
 			reject(notConfigured);
 			return;
 		}
 
-		if (params.auth && !appState.apiKey) {
+		if (params?.auth && !appState.apiKey) {
 			reject(notAuthenticated);
 			return;
 		}
@@ -62,16 +67,16 @@ function request<T>(path: string, params: RequestParams): Promise<T> {
 			query && Object.keys(query).length ? '?' + new URLSearchParams(query).toString() : '';
 
 		fetch(appState.backendURL + apiPrefix + path + queryString, {
-			method: params.method ?? 'GET',
+			method: params?.method ?? 'GET',
 			headers: {
-				...(!!params.auth && {
+				...(!!params?.auth && {
 					'API-Key': appState.apiKey as string // Safe because of an if condition above
 				}),
-				...(params.method !== RequestMethod.GET && {
+				...(params?.method !== RequestMethod.GET && {
 					'Content-Type': 'application/json'
 				})
 			},
-			...(!!params.body && {body: JSON.stringify(params.body)})
+			...(!!params?.body && {body: JSON.stringify(params.body)})
 		})
 			.then((res) => {
 				if (res.ok) {
@@ -108,13 +113,14 @@ function booleanify(promise: Promise<unknown>): Promise<boolean> {
 
 export const ConnectionAPI = {
 	testURL: (host: string | null) => connect(host),
-	test: () => connect(appState.backendURL)
+	test: () => connect(appState.backendURL),
+	settings: () => request<SettingsResponse>('/settings')
 };
 
 export const AuthAPI = {
 	login: (username: User['username'], password: NewUser['password']) =>
 		new Promise<User>((resolve, reject) => {
-			request<AuthResult>('/login', {method: RequestMethod.POST, body: {username, password}})
+			request<AuthResponse>('/login', {method: RequestMethod.POST, body: {username, password}})
 				.then((data) => {
 					appState.setApiKey(data.key);
 					appState.setUser(data.user);
@@ -124,7 +130,7 @@ export const AuthAPI = {
 		}),
 	register: (username: User['username'], password: NewUser['password']) =>
 		new Promise<User>((resolve, reject) => {
-			request<AuthResult>('/register', {method: RequestMethod.POST, body: {username, password}})
+			request<AuthResponse>('/register', {method: RequestMethod.POST, body: {username, password}})
 				.then((data) => {
 					appState.setApiKey(data.key);
 					appState.setUser(data.user);
