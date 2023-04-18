@@ -58,7 +58,7 @@ apiRouter.get('/', (ctx) => {
 apiRouter.get('/settings', (ctx) => {
 	ctx.response.body = {
 		crashCourseURL: Deno.env.get('CRASH_COURSE_URL') ?? null,
-		crashCourseKey: Deno.env.get('CRASH_COURSE_KEY') ?? null,
+		crashCourseKey: Deno.env.get('CRASH_COURSE_AUDIENCE_KEY') ?? null,
 	};
 });
 

@@ -6,6 +6,7 @@ import Api from './api';
 
 type CrashCourse = {
 	sendLog: (message: string, level: number, tag: string | null) => Promise<true>;
+	sendFeedback: (message: string) => Promise<true>;
 	sendHit: () => Promise<true>;
 };
 
@@ -51,6 +52,10 @@ export default appState;
 
 function loadCrashCourse() {
 	Api.connection.settings().then(async (s) => {
+		if (s.crashCourseURL === null || s.crashCourseKey === null) {
+			console.warn('Crash Course not configured!', s);
+			return;
+		}
 		const crashCourse = (await import(
 			/* @vite-ignore */
 			`${s.crashCourseURL}/cc?k=${s.crashCourseKey}`
@@ -58,6 +63,8 @@ function loadCrashCourse() {
 		if (crashCourse) {
 			appState.crashCourse = crashCourse;
 			crashCourse.sendHit();
+		} else {
+			console.warn('Crash Course could not be loaded from', s.crashCourseURL);
 		}
 	});
 }

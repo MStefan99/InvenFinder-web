@@ -12,6 +12,7 @@ footer
 	span Invenfinder
 	.print
 		p.text-muted Do not edit, this file was generated automatically by InvenFinder
+	span.clickable(@click="sendFeedback()") Send feedback
 </template>
 
 <script setup lang="ts">
@@ -21,6 +22,7 @@ import NavBar from './components/NavBar.vue';
 import PopupContainer from './components/PopupContainer.vue';
 import Api from './scripts/api';
 import appState from './scripts/store';
+import {PopupColor, alert, prompt} from './scripts/popups';
 
 onMounted(checkConnection);
 
@@ -28,6 +30,31 @@ function checkConnection() {
 	Api.auth.me().then((user) => {
 		appState.setUser(user);
 	});
+}
+
+async function sendFeedback() {
+	const message = await prompt(
+		'Send feedback',
+		PopupColor.Accent,
+		'Your feedback helps make InvenFinder better. Please type your message in the field below.'
+	);
+
+	appState.crashCourse
+		.sendFeedback(message)
+		.then(() =>
+			alert(
+				'Feedback sent',
+				PopupColor.Green,
+				'Thank you! All feedback helps make InvenFinder better.'
+			)
+		)
+		.catch(() =>
+			alert(
+				'Feedback was not sent',
+				PopupColor.Red,
+				'Failed to send feedback. Please check your connection and try again.'
+			)
+		);
 }
 </script>
 

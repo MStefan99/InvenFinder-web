@@ -109,6 +109,9 @@ main {
 }
 
 footer {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
 	padding: 1rem min(2rem, 5%);
 	background-color: var(--color-shadow);
 	@apply text-muted;

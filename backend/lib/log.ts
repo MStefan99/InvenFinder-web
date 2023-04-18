@@ -10,7 +10,8 @@ const print = [
 
 function submitLog(message: string, level: number) {
 	if (
-		!Deno.env.has('CRASH_COURSE_URL') || !Deno.env.has('CRASH_COURSE_KEY')
+		!Deno.env.has('CRASH_COURSE_URL') ||
+		!Deno.env.has('CRASH_COURSE_TELEMETRY_KEY')
 	) {
 		print[level]?.(message);
 		return Promise.resolve();
