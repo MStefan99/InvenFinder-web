@@ -33,11 +33,12 @@ export const activeConfirm = ref<{
 export const activePrompt = ref<{
 	prompt: Prompt;
 	resolve: (res: string) => void;
+	reject: (err?: Error) => void;
 } | null>(null);
 
 export function alert(title: string, type: PopupColor, details?: string): Promise<void> {
 	return new Promise<void>((resolve) => {
-		const alert = {title, details, type} as Alert;
+		const alert: Alert = {title, details, type};
 
 		setTimeout(() => {
 			activeAlerts.splice(activeAlerts.indexOf(alert), 1);
@@ -70,11 +71,15 @@ export function prompt(title: string, type: PopupColor, details?: string) {
 		throw new Error('Only one popup is allowed at a time');
 	}
 
-	return new Promise<string>((resolve) => {
+	return new Promise<string>((resolve, reject) => {
 		activePrompt.value = {
 			prompt: {title, details, type},
 			resolve: (result: string) => {
 				resolve(result);
+				activePrompt.value = null;
+			},
+			reject: (err?: Error) => {
+				reject(err);
 				activePrompt.value = null;
 			}
 		};

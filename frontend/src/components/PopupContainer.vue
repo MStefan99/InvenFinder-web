@@ -18,7 +18,7 @@
 			.details {{activePrompt.prompt.details}}
 			form.flex.mt-4(@submit.prevent="resolvePrompt()")
 				input.mr-4.flex-grow(type="text" v-model="promptValue" :class="activePrompt.prompt.type")
-				button.mr-4(@click="resolveConfirm(false)") Cancel
+				button.mr-4(@click="rejectPrompt()") Cancel
 				button(type="submit" :class="activePrompt.prompt.type") Submit
 </template>
 
@@ -34,6 +34,11 @@ function resolveConfirm(value: boolean) {
 
 function resolvePrompt() {
 	activePrompt.value?.resolve(promptValue.value);
+	promptValue.value = '';
+}
+
+function rejectPrompt() {
+	activePrompt.value.reject(new Error('Prompt canceled'));
 	promptValue.value = '';
 }
 </script>
@@ -64,6 +69,7 @@ function resolvePrompt() {
 .confirm,
 .prompt {
 	border: 6px solid var(--color-accent);
+	color: var(--color-accent);
 	background-color: var(--color-overlay);
 	backdrop-filter: blur(1em);
 	border-radius: 1ch;
