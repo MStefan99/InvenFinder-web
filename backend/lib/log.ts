@@ -21,7 +21,9 @@ function submitLog(message: string, level: number) {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
-			'Telemetry-Key': Deno.env.get('CRASH_COURSE_KEY') as string, // Safe because of the check above
+			'Telemetry-Key': Deno.env.get(
+				'CRASH_COURSE_TELEMETRY_KEY',
+			) as string, // Safe because of the check above
 		},
 		body: JSON.stringify({
 			level,
@@ -36,7 +38,7 @@ function log(message: string, level: number) {
 	const submit = async () => {
 		const log = logCache.shift();
 		if (!log) {
-			return; // Should never get here but TS complains otherwise
+			return; // Should never get here but TS complains without this check
 		}
 
 		await submitLog(log.message, log.level).then(() => {
