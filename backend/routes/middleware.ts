@@ -93,16 +93,29 @@ export function logger(): Middleware {
 export function cors(): Middleware {
 	return async (ctx, next) => {
 		if (Deno.env.get('ENV') === 'dev') {
-			ctx.response.headers.set('Access-Control-Allow-Origin', '*');
+			ctx.response.headers.set(
+				'Access-Control-Allow-Origin',
+				ctx.request.headers.get('origin') ?? '*',
+			);
 		} else {
 			const origin = Deno.env.get('CORS_ORIGIN');
 			origin &&
 				ctx.response.headers.set('Access-Control-Allow-Origin', origin);
 		}
 
-		ctx.response.headers.set('Access-Control-Allow-Headers', '*');
-		ctx.response.headers.set('Access-Control-Allow-Methods', '*');
-		ctx.response.headers.set('Access-Control-Expose-Headers', '*');
+		ctx.response.headers.set('Access-Control-Allow-Credentials', 'true');
+		ctx.response.headers.set(
+			'Access-Control-Allow-Headers',
+			ctx.request.headers.get('Access-Control-Request-Headers') ?? '*',
+		);
+		ctx.response.headers.set(
+			'Access-Control-Allow-Methods',
+			ctx.request.headers.get('Access-Control-Request-Method') ?? '*',
+		);
+		ctx.response.headers.set(
+			'Access-Control-Expose-Headers',
+			ctx.request.headers.get('Access-Control-Request-Headers') ?? '*',
+		);
 		ctx.response.headers.set('Access-Control-Max-Age', '86400');
 
 		await next();

@@ -107,7 +107,7 @@ router.post(
 // Upload file for an item
 router.post(
 	'/:id/upload',
-	hasBody(),
+	// hasBody(), // TODO: check for empty body
 	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
 	async (ctx) => {
 		const id = +ctx.params.id;
@@ -119,8 +119,7 @@ router.post(
 			};
 			return;
 		}
-		const body = await ctx.request.body({ type: 'form-data' }).value
-			.read();
+		const body = await ctx.request.body({ type: 'form-data' }).value.read();
 
 		const item = await Item.getByID(id);
 		if (item === null) {
@@ -151,9 +150,11 @@ router.post(
 			item.save();
 		}
 
-		// TODO: fix
 		ctx.response.status = 303;
-		ctx.response.headers.set('Location', 'back');
+		ctx.response.headers.set(
+			'Location',
+			ctx.request.headers.get('Origin') + '/items/' + id,
+		);
 	},
 );
 

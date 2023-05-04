@@ -33,7 +33,7 @@
 			placeholder="No link"
 			text-class="text-muted"
 			clickable
-			@click="openURL(item.link)"
+			@click="openLink(item.link)"
 			@update:modelValue="editItem()"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 		button.mr-4.mb-4(
@@ -47,7 +47,7 @@
 			:action="appState.backendURL + '/items/' + item.id + '/upload'"
 			method="post"
 			enctype="multipart/form-data"
-			onsubmit="authRequest()")
+			@submit="authenticate()")
 			input(type="file" name="document")
 			button.mr-4.mb-4 Upload file
 		button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
@@ -87,16 +87,16 @@ onMounted(() => {
 		.catch((err) => alert('Could not load the item', PopupColor.Red, err.message));
 });
 
-function openURL(url: string) {
-	Api.auth
-		.getCookie()
-		.then(
-			() =>
-				(window.location.href = url.replace(
-					/^file:/,
-					`${appState.backendURL}/items/${item.value.id}/upload/`
-				))
-		);
+async function authenticate() {
+	await Api.auth.getCookie();
+}
+
+async function openLink(url: string) {
+	if (url.match(/^file:/)) {
+		url = url.replace(/^file:/, `${appState.backendURL}/items/${item.value.id}/upload/`);
+		await Api.auth.getCookie();
+	}
+	window.location.href = url;
 }
 
 function editItem() {
