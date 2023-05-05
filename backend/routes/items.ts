@@ -1,4 +1,4 @@
-import { path, Router, send } from '../deps.ts';
+import { Middleware, path, Router, send } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
 import Item from '../lib/item.ts';
@@ -11,6 +11,24 @@ const router = new Router({
 });
 const uploadDir = Deno.env.get('UPLOAD_DIR') ??
 	path.join(path.fromFileUrl(import.meta.url), '../../upload');
+
+function uploadsEnabled(): Middleware {
+	if (Deno.env.has('NO_UPLOADS')) {
+		return (ctx, _next) => {
+			ctx.response.status = 422;
+			ctx.response.body = {
+				error: 'UPLOADS_DISABLED',
+				message:
+					'File uploads are disabled for this Invenfinder installation',
+			};
+			return;
+		};
+	} else {
+		return async (_ctx, next) => {
+			await next();
+		};
+	}
+}
 
 // Get all items
 router.get(
@@ -109,6 +127,7 @@ router.post(
 // Upload file for an item
 router.post(
 	'/:id/upload',
+	uploadsEnabled(),
 	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
 	async (ctx) => {
 		const id = +ctx.params.id;
@@ -174,11 +193,16 @@ router.post(
 );
 
 // Get file for an item
-router.get('/:id/upload/:file', auth.authenticated(), async (ctx) => {
-	await send(ctx, path.join(ctx.params.id, ctx.params.file), {
-		root: uploadDir,
-	});
-});
+router.get(
+	'/:id/upload/:file',
+	uploadsEnabled(),
+	auth.authenticated(),
+	async (ctx) => {
+		await send(ctx, path.join(ctx.params.id, ctx.params.file), {
+			root: uploadDir,
+		});
+	},
+);
 
 // Change item amount
 router.put(
