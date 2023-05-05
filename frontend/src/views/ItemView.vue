@@ -40,7 +40,7 @@
 				a.block(
 					v-for="link in text.split(`\n`)"
 					:key="link"
-					:href="link.replace(/file:/, appState.backendURL + '/items/' + item.id + '/upload/')") {{link}}
+					:href="link.replace(/file:/, appState.backendURL + '/items/' + item.id + '/upload/')") {{link.replace('file:', 'File: ')}}
 		button.mr-4.mb-4(
 			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
 			@click="editAmount(false)") Take from storage

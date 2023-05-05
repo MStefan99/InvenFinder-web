@@ -1,4 +1,4 @@
-import { basename, dirname, Router, send } from '../deps.ts';
+import { path, Router, send } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
 import Item from '../lib/item.ts';
@@ -9,6 +9,8 @@ import rateLimiter from '../lib/rateLimiter.ts';
 const router = new Router({
 	prefix: '/items',
 });
+const uploadDir = Deno.env.get('UPLOAD_DIR') ??
+	path.join(path.fromFileUrl(import.meta.url), '../../upload');
 
 // Get all items
 router.get(
@@ -107,7 +109,6 @@ router.post(
 // Upload file for an item
 router.post(
 	'/:id/upload',
-	// hasBody(), // TODO: check for empty body
 	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
 	async (ctx) => {
 		const id = +ctx.params.id;
@@ -119,7 +120,9 @@ router.post(
 			};
 			return;
 		}
-		const body = await ctx.request.body({ type: 'form-data' }).value.read();
+		const body = await ctx.request.body({ type: 'form-data' }).value.read({
+			maxFileSize: 25 * 1024 * 1024,
+		});
 
 		const item = await Item.getByID(id);
 		if (item === null) {
@@ -131,36 +134,36 @@ router.post(
 			return;
 		}
 
-		if (body.files?.length) {
-			item.link = '';
-			try {
-				await Deno.remove('./upload', { recursive: true });
-			} catch {
-				// Nothing to do here
-			}
-
-			for (const file of body.files) {
-				const dir = `./upload/${ctx.params.id}`;
-
-				const filePath = (dir + `/${file.originalName}`).replace(
-					/\s+/g,
-					'_',
-				);
-				if (!file.filename) {
-					return; // If failed to write to disk
-				}
-				await Deno.mkdir(dir, { recursive: true });
-				await Deno.rename(file.filename, filePath);
-				item.link += 'file:' + basename(file.originalName) + '\n';
-			}
-
-			body.files[0].filename &&
-				await Deno.remove(dirname(body.files[0].filename), {
-					recursive: true,
-				});
-
-			item.save();
+		const files = body.files?.filter((f) => f.originalName);
+		if (!files?.length) {
+			return;
 		}
+
+		try {
+			await Deno.remove(path.join(uploadDir, item.id.toString()));
+		} catch {
+			// Nothing to do here
+		}
+
+		item.link = '';
+		for (const file of files) {
+			const itemDir = path.join(uploadDir, ctx.params.id);
+			const filePath = path.join(itemDir, file.originalName);
+			if (!file.filename) {
+				continue; // If failed to write to disk
+			}
+			await Deno.mkdir(itemDir, { recursive: true });
+			await Deno.rename(file.filename, filePath);
+			item.link += 'file:' + path.basename(file.originalName) + '\n';
+		}
+
+		const savedFile = files.find((f) => f.filename);
+		savedFile?.filename &&
+			await Deno.remove(path.dirname(savedFile.filename), {
+				recursive: true,
+			});
+
+		item.save();
 
 		ctx.response.status = 303;
 		ctx.response.headers.set(
@@ -172,7 +175,9 @@ router.post(
 
 // Get file for an item
 router.get('/:id/upload/:file', auth.authenticated(), async (ctx) => {
-	await send(ctx, `./upload/${ctx.params.id}/${ctx.params.file}`);
+	await send(ctx, path.join(ctx.params.id, ctx.params.file), {
+		root: uploadDir,
+	});
 });
 
 // Change item amount
@@ -273,12 +278,9 @@ router.patch(
 		}
 		if (body.link !== undefined) {
 			if (item.link?.match(/^file:/)) {
-				await Deno.remove(
-					dirname(item.link.replace(/^file:/, './upload/' + item.id)),
-					{
-						recursive: true,
-					},
-				);
+				await Deno.remove(path.join(uploadDir, item.id.toString()), {
+					recursive: true,
+				});
 			}
 			item.link = body.link?.trim() ?? null;
 		}
