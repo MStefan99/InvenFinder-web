@@ -131,22 +131,34 @@ router.post(
 			return;
 		}
 
-		if (body.files?.[0].filename) {
-			const dir = `./upload/${ctx.params.id}`;
-			const file = dir + `/${body.files[0].originalName}`;
-
+		if (body.files?.length) {
+			item.link = '';
 			try {
-				await Deno.remove(dir, { recursive: true });
+				await Deno.remove('./upload', { recursive: true });
 			} catch {
 				// Nothing to do here
 			}
-			await Deno.mkdir(dir, { recursive: true });
-			await Deno.rename(body.files[0].filename, file);
-			await Deno.remove(dirname(body.files[0].filename), {
-				recursive: true,
-			});
 
-			item.link = 'file:' + basename(body.files[0].originalName);
+			for (const file of body.files) {
+				const dir = `./upload/${ctx.params.id}`;
+
+				const filePath = (dir + `/${file.originalName}`).replace(
+					/\s+/g,
+					'_',
+				);
+				if (!file.filename) {
+					return; // If failed to write to disk
+				}
+				await Deno.mkdir(dir, { recursive: true });
+				await Deno.rename(file.filename, filePath);
+				item.link += 'file:' + basename(file.originalName) + '\n';
+			}
+
+			body.files[0].filename &&
+				await Deno.remove(dirname(body.files[0].filename), {
+					recursive: true,
+				});
+
 			item.save();
 		}
 
@@ -262,7 +274,7 @@ router.patch(
 		if (body.link !== undefined) {
 			if (item.link?.match(/^file:/)) {
 				await Deno.remove(
-					dirname(item.link.replace(/^file:/, '.')),
+					dirname(item.link.replace(/^file:/, './upload/' + item.id)),
 					{
 						recursive: true,
 					},

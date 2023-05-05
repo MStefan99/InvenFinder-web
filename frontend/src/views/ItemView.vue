@@ -36,6 +36,11 @@
 			@click="openLink(item.link)"
 			@update:modelValue="editItem()"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
+			template(v-slot="{text}")
+				a.block(
+					v-for="link in text.split(`\n`)"
+					:key="link"
+					:href="link.replace(/file:/, appState.backendURL + '/items/' + item.id + '/upload/')") {{link}}
 		button.mr-4.mb-4(
 			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
 			@click="editAmount(false)") Take from storage
@@ -48,7 +53,7 @@
 			method="post"
 			enctype="multipart/form-data"
 			@submit="authenticate()")
-			input(type="file" name="document")
+			input(type="file" multiple name="document")
 			button.mr-4.mb-4 Upload file
 		button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
 </template>
@@ -82,7 +87,6 @@ onMounted(() => {
 		.then((i) => {
 			item.value = i;
 			window.document.title = i.name + ' | Invenfinder';
-			item.value.link.replace(/^file:\//, appState.backendURL);
 		})
 		.catch((err) => alert('Could not load the item', PopupColor.Red, err.message));
 });
