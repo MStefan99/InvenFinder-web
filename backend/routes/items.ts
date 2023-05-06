@@ -1,4 +1,4 @@
-import { Router } from '../deps.ts';
+import { Middleware, path, Router, send } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
 import Item from '../lib/item.ts';
@@ -9,6 +9,26 @@ import rateLimiter from '../lib/rateLimiter.ts';
 const router = new Router({
 	prefix: '/items',
 });
+const uploadDir = Deno.env.get('UPLOAD_DIR') ??
+	path.join(path.fromFileUrl(import.meta.url), '../../upload');
+
+function uploadsEnabled(): Middleware {
+	if (Deno.env.has('NO_UPLOADS')) {
+		return (ctx, _next) => {
+			ctx.response.status = 422;
+			ctx.response.body = {
+				error: 'UPLOADS_DISABLED',
+				message:
+					'File uploads are disabled for this Invenfinder installation',
+			};
+			return;
+		};
+	} else {
+		return async (_ctx, next) => {
+			await next();
+		};
+	}
+}
 
 // Get all items
 router.get(
@@ -101,6 +121,95 @@ router.post(
 
 		ctx.response.status = 201;
 		ctx.response.body = item;
+	},
+);
+
+// Upload file for an item
+router.post(
+	'/:id/upload',
+	uploadsEnabled(),
+	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	async (ctx) => {
+		const id = +ctx.params.id;
+		if (!Number.isInteger(id)) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'INVALID_ID',
+				message: 'ID must be a number',
+			};
+			return;
+		}
+		const body = await ctx.request.body({ type: 'form-data' }).value.read({
+			maxFileSize: 25 * 1024 * 1024,
+		});
+
+		const item = await Item.getByID(id);
+		if (item === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ITEM_NOT_FOUND',
+				message: 'Item was not found',
+			};
+			return;
+		}
+
+		const files = body.files?.filter((f) => f.originalName);
+		if (!files?.length) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'NO_FILES',
+				message:
+					'No files were uploaded, please select at least one file and try again',
+			};
+			return;
+		}
+
+		try {
+			await Deno.remove(path.join(uploadDir, item.id.toString()), {
+				recursive: true,
+			});
+		} catch {
+			// Nothing to do here
+		}
+
+		const fileNames = [];
+		for (const file of files) {
+			const itemDir = path.join(uploadDir, ctx.params.id);
+			const filePath = path.join(itemDir, file.originalName);
+			if (!file.filename) {
+				continue; // If failed to write to disk
+			}
+			await Deno.mkdir(itemDir, { recursive: true });
+			await Deno.rename(file.filename, filePath);
+			fileNames.push('file:' + path.basename(file.originalName));
+		}
+
+		const savedFile = files.find((f) => f.filename);
+		savedFile?.filename &&
+			await Deno.remove(path.dirname(savedFile.filename), {
+				recursive: true,
+			});
+
+		item.link = fileNames.join('\n');
+		item.save();
+
+		ctx.response.status = 303;
+		ctx.response.headers.set(
+			'Location',
+			ctx.request.headers.get('Origin') + '/items/' + id,
+		);
+	},
+);
+
+// Get file for an item
+router.get(
+	'/:id/upload/:file',
+	uploadsEnabled(),
+	auth.authenticated(),
+	async (ctx) => {
+		await send(ctx, path.join(ctx.params.id, ctx.params.file), {
+			root: uploadDir,
+		});
 	},
 );
 
@@ -201,6 +310,11 @@ router.patch(
 			item.description = body.description?.trim() ?? null;
 		}
 		if (body.link !== undefined) {
+			if (item.link?.match(/^file:/)) {
+				await Deno.remove(path.join(uploadDir, item.id.toString()), {
+					recursive: true,
+				});
+			}
 			item.link = body.link?.trim() ?? null;
 		}
 		if (body.location?.length) {

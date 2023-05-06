@@ -17,8 +17,14 @@ type AuthResponse = {
 };
 
 type SettingsResponse = {
-	crashCourseURL: string | null;
-	crashCourseKey: string | null;
+	crashCourse: {
+		url: string | null;
+		key: string | null;
+	};
+	features: {
+		accounts: boolean;
+		uploads: boolean;
+	};
 };
 
 const apiPrefix = import.meta.env.VUE_API_PREFIX || '';
@@ -43,6 +49,7 @@ type RequestParams = {
 	method?: RequestMethod;
 	body?: unknown;
 	query?: Record<string, string>;
+	credentials?: true;
 };
 
 function request<T>(path: string, params?: RequestParams): Promise<T> {
@@ -76,6 +83,7 @@ function request<T>(path: string, params?: RequestParams): Promise<T> {
 					'Content-Type': 'application/json'
 				})
 			},
+			...(params?.credentials && {credentials: 'include'}),
 			...(!!params?.body && {body: JSON.stringify(params.body)})
 		})
 			.then((res) => {
@@ -140,6 +148,7 @@ export const AuthAPI = {
 		}),
 	test: () => booleanify(request('/auth', {auth: true})),
 	me: () => request<User>('/me', {auth: true}),
+	getCookie: () => request<MessageResponse>('/get-cookie', {auth: true, credentials: true}),
 	edit: (user: UpdateUser) =>
 		request<User>('/me', {auth: true, method: RequestMethod.PATCH, body: user}),
 	logout: () =>

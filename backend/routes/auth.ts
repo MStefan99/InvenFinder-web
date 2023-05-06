@@ -1,4 +1,4 @@
-import { Router } from '../deps.ts';
+import { Middleware, Router } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
 import User from '../lib/user.ts';
@@ -9,24 +9,48 @@ import rateLimiter from '../lib/rateLimiter.ts';
 
 const router = new Router();
 
+function accountsEnabled(): Middleware {
+	if (Deno.env.has('NO_ACCOUNTS')) {
+		return (ctx, _next) => {
+			ctx.response.status = 422;
+			ctx.response.body = {
+				error: 'ACCOUNTS_DISABLED',
+				message:
+					'Account management is disabled for this Invenfinder installation',
+			};
+			return;
+		};
+	} else {
+		return async (_ctx, next) => {
+			await next();
+		};
+	}
+}
+
 // Register
-router.post('/register', hasCredentials(), rateLimiter(), async (ctx) => {
-	const body = await ctx.request.body({ type: 'json' }).value;
+router.post(
+	'/register',
+	accountsEnabled(),
+	hasCredentials(),
+	rateLimiter(),
+	async (ctx) => {
+		const body = await ctx.request.body({ type: 'json' }).value;
 
-	const user = await User.create(
-		body.username.trim(),
-		body.password,
-		[],
-	);
-	const session = await Session.create(
-		user,
-		ctx.request.ip,
-		ctx.request.headers.get('user-agent') ?? 'Unknown',
-	);
+		const user = await User.create(
+			body.username.trim(),
+			body.password,
+			[],
+		);
+		const session = await Session.create(
+			user,
+			ctx.request.ip,
+			ctx.request.headers.get('user-agent') ?? 'Unknown',
+		);
 
-	ctx.response.status = 201;
-	ctx.response.body = { key: session.publicID, user };
-});
+		ctx.response.status = 201;
+		ctx.response.body = { key: session.publicID, user };
+	},
+);
 
 // Log in
 router.post(
@@ -100,6 +124,15 @@ router.get(
 		}
 	},
 );
+
+// Get temporary cookie for requests without header support
+router.get('/get-cookie', auth.authenticated(), async (ctx) => {
+	await ctx.cookies.set('SID', ctx.request.headers.get('API-Key'), {
+		httpOnly: true,
+	});
+	ctx.response.body = { message: 'Cookie set' };
+	ctx.response.status = 200;
+});
 
 // Edit user currently logged in as
 router.patch(

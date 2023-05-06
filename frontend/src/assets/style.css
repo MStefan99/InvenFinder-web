@@ -128,13 +128,15 @@ input {
 }
 
 input,
-button {
+button,
+.btn {
 	transition: color 0.1s ease, background-color 0.1s ease;
 }
 
 input,
 textarea,
-button {
+button,
+.btn {
 	@apply rounded-xl shadow;
 	border: 0.1rem solid var(--color-accent);
 	color: var(--color-foreground);
@@ -143,13 +145,15 @@ button {
 	transition: transform 0.1s ease, color 0.1s ease, background-color 0.1s ease;
 }
 
-button:active {
+button:active,
+.btn:active {
 	transform: scale(92%);
 }
 
 input:not([type='checkbox']):active,
 textarea:active,
-button.w-full:active {
+button.w-full:active,
+.btn.w-full:active {
 	transform: scale(98.5%);
 }
 
@@ -161,53 +165,68 @@ textarea.w-full {
 
 input[type='button'],
 input[type='submit'],
-button {
+button,
+.btn {
 	color: var(--color-accent);
 	user-select: none;
 }
 
-button:not([disabled]):not(:active) {
+button:not([disabled]):not(:active),
+.btn:not([disabled]):not(:active) {
 	@apply cursor-pointer;
 	background-color: var(--color-background);
 }
 
-button:not([disabled]):active {
+button:not([disabled]):active,
+.btn:not([disabled]):active {
 	@apply shadow-inner;
 }
 
-button:not([disabled]):hover {
+button:not([disabled]):hover,
+.btn:not([disabled]):hover {
 	background-color: var(--color-accent);
 	color: var(--color-background);
 }
 
-button[disabled] {
+button[disabled],
+.btn[disabled] {
 	@apply text-muted bg-light border-muted cursor-not-allowed;
 }
 
-button.green {
+input[type='file'] {
+	display: none;
+}
+
+button.green,
+.btn.green {
 	color: var(--color-green);
 	border-color: var(--color-green);
 }
 
-button.green:not([disabled]):hover {
+button.green:not([disabled]):hover,
+.btn.green:not([disabled]):hover {
 	background-color: var(--color-green);
 }
 
-button.yellow {
+button.yellow,
+.btn.yellow {
 	color: var(--color-yellow);
 	border-color: var(--color-yellow);
 }
 
-button.yellow:not([disabled]):hover {
+button.yellow:not([disabled]):hover,
+.btn.yellow:not([disabled]):hover {
 	background-color: var(--color-yellow);
 }
 
-button.red {
+button.red,
+.btn.red {
 	color: var(--color-red);
 	border-color: var(--color-red);
 }
 
-button.red:not([disabled]):hover {
+button.red:not([disabled]):hover,
+.btn.red:not([disabled]):hover {
 	background-color: var(--color-red);
 }
 

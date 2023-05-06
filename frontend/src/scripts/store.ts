@@ -19,6 +19,10 @@ type Store = {
 	setApiKey: (key: string | null) => void;
 	setUser: (user: User | null) => void;
 	hasPermissions: (permissions: PERMISSIONS[]) => boolean;
+	features: {
+		accounts: boolean;
+		uploads: boolean;
+	};
 };
 
 export const appState = reactive<Store>({
@@ -26,11 +30,12 @@ export const appState = reactive<Store>({
 	apiKey: localStorage.getItem('apiKey') ?? null,
 	user: null,
 	crashCourse: null,
+	features: {accounts: false, uploads: false},
 	setUrl(url: string) {
 		url = url.replace(/\/$/, '');
 		this.backendURL = url;
 		localStorage.setItem('backendURL', url);
-		loadCrashCourse();
+		loadSettings();
 	},
 	setApiKey(key: string) {
 		this.apiKey = key;
@@ -50,23 +55,25 @@ export const appState = reactive<Store>({
 
 export default appState;
 
-function loadCrashCourse() {
+function loadSettings() {
 	Api.connection.settings().then(async (s) => {
-		if (s.crashCourseURL === null || s.crashCourseKey === null) {
+		appState.features = s.features;
+
+		if (s.crashCourse.url === null || s.crashCourse.key === null) {
 			console.warn('Crash Course not configured!', s);
 			return;
 		}
 		const crashCourse = (await import(
 			/* @vite-ignore */
-			`${s.crashCourseURL}/cc?k=${s.crashCourseKey}`
+			`${s.crashCourse.url}/cc?k=${s.crashCourse.key}`
 		)) as CrashCourse;
 		if (crashCourse) {
 			appState.crashCourse = crashCourse;
 			crashCourse.sendHit();
 		} else {
-			console.warn('Crash Course could not be loaded from', s.crashCourseURL);
+			console.warn('Crash Course could not be loaded from', s.crashCourse.url);
 		}
 	});
 }
 
-loadCrashCourse();
+loadSettings();

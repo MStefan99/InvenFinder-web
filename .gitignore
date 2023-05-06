@@ -254,6 +254,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+
 .idea/dataSources*
 
 **/.env*.local

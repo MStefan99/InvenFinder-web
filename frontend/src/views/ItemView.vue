@@ -9,6 +9,7 @@
 					text-class="text-2xl font-bold"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 					@update:modelValue="editItem()")
+				h3 Location
 				.flex.items-baseline.mb-4
 					img.icon.mr-2(src="/src/assets/shelf.svg")
 					TextEditable.grow(
@@ -22,20 +23,25 @@
 					v-model="item.amount"
 					@update:modelValue="editItem()"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
+		h3 Description
 		TextEditable.mb-2(
 			v-model="item.description"
 			placeholder="No description"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 			@update:modelValue="editItem()")
+		h3 Links
 		TextEditable.mb-4(
 			v-model="item.link"
 			label="More details"
 			placeholder="No link"
 			text-class="text-muted"
 			clickable
-			@click="openURL(item.link)"
+			@click="openLink(item.link)"
 			@update:modelValue="editItem()"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
+			template(v-slot="{text}")
+				button.block.mb-2(v-for="link in text.split(`\n`)" :key="link" @click="openFile(link)") {{link.replace('file:', 'File: ')}}
+		h3 Actions
 		button.mr-4.mb-4(
 			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
 			@click="editAmount(false)") Take from storage
@@ -43,6 +49,19 @@
 			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
 			@click="editAmount(true)") Put in storage
 		button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
+		form.flex.mb-4(
+			v-if="appState.features.uploads && appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
+			:action="appState.backendURL + '/items/' + item.id + '/upload'"
+			method="post"
+			enctype="multipart/form-data"
+			@submit.prevent="(e) => { Api.auth.getCookie(); e.target.submit(); }")
+			label.btn.mr-4 {{fileLabel}}
+				input.mr-4(
+					type="file"
+					multiple
+					name="document"
+					@change="(e) => (fileLabel = e.target.files ? e.target.files.length + ' files selected' : 'Select files to upload')")
+			button Upload files
 </template>
 
 <script setup lang="ts">
@@ -59,6 +78,7 @@ import {alert, confirm, PopupColor, prompt} from '../scripts/popups';
 const item = ref<Item | null>(null);
 const route = useRoute();
 const router = useRouter();
+const fileLabel = ref<string>('Select files to upload');
 
 onMounted(() => {
 	const idParam = route.params.id instanceof Array ? route.params.id[0] : route.params.id;
@@ -78,8 +98,10 @@ onMounted(() => {
 		.catch((err) => alert('Could not load the item', PopupColor.Red, err.message));
 });
 
-function openURL(url: string) {
-	window.location.href = url;
+async function openFile(fileName: string) {
+	fileName = fileName.replace(/^file:/, `${appState.backendURL}/items/${item.value.id}/upload/`);
+	await Api.auth.getCookie();
+	window.location.href = fileName;
 }
 
 function editItem() {
@@ -147,5 +169,11 @@ async function deleteItem() {
 <style scoped>
 input {
 	@apply block;
+}
+
+h3 {
+	display: block;
+	margin-bottom: 0.6em;
+	font-weight: bold;
 }
 </style>
