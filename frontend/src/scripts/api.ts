@@ -17,8 +17,14 @@ type AuthResponse = {
 };
 
 type SettingsResponse = {
-	crashCourseURL: string | null;
-	crashCourseKey: string | null;
+	crashCourse: {
+		url: string | null;
+		key: string | null;
+	};
+	features: {
+		accounts: boolean;
+		uploads: boolean;
+	};
 };
 
 const apiPrefix = import.meta.env.VUE_API_PREFIX || '';

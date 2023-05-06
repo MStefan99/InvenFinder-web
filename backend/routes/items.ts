@@ -155,16 +155,24 @@ router.post(
 
 		const files = body.files?.filter((f) => f.originalName);
 		if (!files?.length) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'NO_FILES',
+				message:
+					'No files were uploaded, please select at least one file and try again',
+			};
 			return;
 		}
 
 		try {
-			await Deno.remove(path.join(uploadDir, item.id.toString()));
+			await Deno.remove(path.join(uploadDir, item.id.toString()), {
+				recursive: true,
+			});
 		} catch {
 			// Nothing to do here
 		}
 
-		item.link = '';
+		const fileNames = [];
 		for (const file of files) {
 			const itemDir = path.join(uploadDir, ctx.params.id);
 			const filePath = path.join(itemDir, file.originalName);
@@ -173,7 +181,7 @@ router.post(
 			}
 			await Deno.mkdir(itemDir, { recursive: true });
 			await Deno.rename(file.filename, filePath);
-			item.link += 'file:' + path.basename(file.originalName) + '\n';
+			fileNames.push('file:' + path.basename(file.originalName));
 		}
 
 		const savedFile = files.find((f) => f.filename);
@@ -182,6 +190,7 @@ router.post(
 				recursive: true,
 			});
 
+		item.link = fileNames.join('\n');
 		item.save();
 
 		ctx.response.status = 303;
