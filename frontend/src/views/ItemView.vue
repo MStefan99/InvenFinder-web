@@ -41,15 +41,6 @@
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 			template(v-slot="{text}")
 				button.block.mb-2(v-for="link in text.split(`\n`)" :key="link" @click="openFile(link)") {{link.replace('file:', 'File: ')}}
-		h3 Actions
-		button.mr-4.mb-4(v-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])" @click="loanItem()") Loan this item
-		button.mr-4.mb-4(
-			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
-			@click="editAmount(false)") Take from storage
-		button.mr-4.mb-4(
-			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
-			@click="editAmount(true)") Put in storage
-		button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
 		form.flex.mb-4(
 			v-if="appState.features.uploads && appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 			:action="appState.backendURL + '/items/' + item.id + '/upload'"
@@ -63,6 +54,15 @@
 					name="document"
 					@change="(e) => (fileLabel = e.target.files ? e.target.files.length + ' files selected' : 'Select files to upload')")
 			button Upload files
+		h3 Actions
+		button.mr-4.mb-4(v-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])" @click="loanItem()") Loan this item
+		button.mr-4.mb-4(
+			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
+			@click="editAmount(false)") Take from storage
+		button.mr-4.mb-4(
+			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
+			@click="editAmount(true)") Put in storage
+		button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
 		div(v-if="loans.length")
 			div(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 				h3.text-accent.text-xl.my-4 Loans for this item
@@ -92,7 +92,7 @@
 								td
 									button.mx-4(@click="deleteLoan(loan, true)") Returned
 									button.red(@click="deleteLoan(loan, false)") Delete
-			div(v-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS]) && myLoans.length")
+			div(v-else-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS]) && myLoans.length")
 				h3.text-accent.text-xl.my-4 My loans for this item
 				table
 					tbody

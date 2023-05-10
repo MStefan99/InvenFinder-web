@@ -7,6 +7,7 @@ import ItemView from '../views/ItemView.vue';
 import LabelView from '../views/LabelView.vue';
 import {clearPopups} from './popups';
 import appState from './store';
+import LoansView from '../views/LoansView.vue';
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -22,6 +23,16 @@ const routes: Array<RouteRecordRaw> = [
 		component: InventoryView
 	},
 	{
+		path: '/items/:id',
+		name: 'item',
+		component: ItemView
+	},
+	{
+		path: '/loans',
+		name: 'loans',
+		component: LoansView
+	},
+	{
 		path: '/users',
 		name: 'users',
 		component: UsersView
@@ -35,11 +46,6 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/settings',
 		name: 'settings',
 		component: SettingsView
-	},
-	{
-		path: '/items/:id',
-		name: 'item',
-		component: ItemView
 	},
 	{
 		path: '/labels',
