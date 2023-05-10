@@ -1,8 +1,8 @@
 import { Middleware, path, Router, send } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
-import Item from '../lib/item.ts';
-import Loan from '../lib/loan.ts';
+import Item from '../orm/item.ts';
+import Loan from '../orm/loan.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
 import { hasBody } from './middleware.ts';
 import rateLimiter from '../lib/rateLimiter.ts';
@@ -76,17 +76,74 @@ router.get(
 );
 
 // Get item loans
-router.get('/:id/loans', auth.authenticated(), async (ctx) => {
-	const id = +ctx.params.id;
+router.get(
+	'/:id/loans',
+	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	async (ctx) => {
+		const id = +ctx.params.id;
 
-	if (Number.isNaN(id)) {
-		ctx.response.status = 400;
-		ctx.response.body = { error: 'ID_NAN', message: 'ID must be a number' };
-		return;
-	}
+		if (Number.isNaN(id)) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ID_NAN',
+				message: 'ID must be a number',
+			};
+			return;
+		}
 
-	ctx.response.body = await Loan.getByItem(id);
-});
+		const item = await Item.getByID(id);
+		if (item === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ITEM_NOT_FOUND',
+				message: 'Item was not found',
+			};
+			return;
+		}
+
+		ctx.response.body = await Loan.getByItem(item);
+	},
+);
+
+// Get item loans by user
+router.get(
+	'/:id/loans/mine',
+	auth.permissions([PERMISSIONS.LOAN_ITEMS]),
+	async (ctx) => {
+		const id = +ctx.params.id;
+
+		if (Number.isNaN(id)) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ID_NAN',
+				message: 'ID must be a number',
+			};
+			return;
+		}
+
+		const item = await Item.getByID(id);
+		if (item === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ITEM_NOT_FOUND',
+				message: 'Item was not found',
+			};
+			return;
+		}
+
+		const user = await auth.methods.getUser(ctx);
+		if (user === null) {
+			ctx.response.status = 500;
+			ctx.response.body = {
+				error: 'USER_NOT_FOUND',
+				message: 'User was not found',
+			};
+			return;
+		}
+
+		ctx.response.body = await Loan.getByItemAndUser(item, user);
+	},
+);
 
 // Add item
 router.post(
@@ -262,15 +319,6 @@ router.post('/:id/loans', hasBody(), auth.authenticated(), async (ctx) => {
 	}
 
 	const amount = +body.amount;
-	if (!Number.isInteger(amount) || item.amount - amount < 0) {
-		ctx.response.status = 400;
-		ctx.response.body = {
-			error: 'INVALID_AMOUNT',
-			message: 'Resulting amount must be a positive number',
-		};
-		return;
-	}
-
 	const loan = await Loan.create({
 		userID: user.id,
 		itemID: item.id,
@@ -278,7 +326,7 @@ router.post('/:id/loans', hasBody(), auth.authenticated(), async (ctx) => {
 	});
 
 	ctx.response.status = 201;
-	ctx.response.body = loan;
+	ctx.response.body = { ...loan, username: user.username };
 });
 
 // Change item amount

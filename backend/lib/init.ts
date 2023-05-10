@@ -1,5 +1,5 @@
 import dbPromise from './db.ts';
-import User from './user.ts';
+import User from '../orm/user.ts';
 import log from './log.ts';
 
 export function init() {

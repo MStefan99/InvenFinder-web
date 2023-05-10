@@ -1,7 +1,7 @@
 import { Context, Middleware } from '../deps.ts';
 
-import Session from './session.ts';
-import User from './user.ts';
+import Session from '../orm/session.ts';
+import User from '../orm/user.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
 
 async function getSession(ctx: Context): Promise<Session | null> {

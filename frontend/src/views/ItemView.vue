@@ -63,36 +63,49 @@
 					name="document"
 					@change="(e) => (fileLabel = e.target.files ? e.target.files.length + ' files selected' : 'Select files to upload')")
 			button Upload files
-		div(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
-			h3.text-accent.text-xl.my-4 Loans for this item
-			h4.text-accent.text-lg.my-4 New
-			table
-				tbody
-					tr(v-for="loan in loans.filter((l) => !l.approved)" :key="loan.id")
-						td
-							b {{loan.username}}
-						td is asking to loan
-						td {{loan.amount}}
-						td items
-						td
-							button.mx-4(@click="approveLoan(loan)") Approve
-							button.red(@click="deleteLoan(loan)") Reject
-			h4.text-accent.text-lg.my-4 Approved
-			table
-				tbody
-					tr(v-for="loan in loans.filter((l) => l.approved)" :key="loan.id")
-						td
-							b {{loan.username}}
-						td has loaned
-						td {{loan.amount}}
-						td items
-						td
-							button.mx-4(@click="deleteLoan(loan, true)") Returned
-							button.red(@click="deleteLoan(loan, false)") Delete
+		div(v-if="loans.length")
+			div(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
+				h3.text-accent.text-xl.my-4 Loans for this item
+				div(v-if="pendingLoans.length")
+					h4.text-accent.text-lg.my-4 New
+					table
+						tbody
+							tr(v-for="loan in pendingLoans" :key="loan.id")
+								td
+									b {{loan.username}}
+								td is asking to loan
+								td {{loan.amount}}
+								td items
+								td
+									button.mx-4(@click="approveLoan(loan)") Approve
+									button.red(@click="deleteLoan(loan)") Reject
+				div(v-if="approvedLoans.length")
+					h4.text-accent.text-lg.my-4 Approved
+					table
+						tbody
+							tr(v-for="loan in approvedLoans" :key="loan.id")
+								td
+									b {{loan.username}}
+								td has loaned
+								td {{loan.amount}}
+								td items
+								td
+									button.mx-4(@click="deleteLoan(loan, true)") Returned
+									button.red(@click="deleteLoan(loan, false)") Delete
+			div(v-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS]) && myLoans.length")
+				h3.text-accent.text-xl.my-4 My loans for this item
+				table
+					tbody
+						tr(v-for="loan in myLoans" :key="loan.id")
+							td My loan for
+							td {{loan.amount}}
+							td items
+							td(v-if="loan.approved") was approved
+							td(v-else) is pending approval
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 
 import TextEditable from '../components/TextEditable.vue';
@@ -103,10 +116,14 @@ import {PERMISSIONS} from '../../../common/permissions';
 import {alert, confirm, PopupColor, prompt} from '../scripts/popups';
 
 const item = ref<Item | null>(null);
-const loans = ref<Loan[]>([]);
 const route = useRoute();
 const router = useRouter();
 const fileLabel = ref<string>('Select files to upload');
+
+const loans = ref<Loan[]>([]);
+const pendingLoans = computed(() => loans.value.filter((l) => !l.approved));
+const approvedLoans = computed(() => loans.value.filter((l) => l.approved));
+const myLoans = computed(() => loans.value.filter((l) => l.userID === appState.user.id));
 
 onMounted(() => {
 	const idParam = route.params.id instanceof Array ? route.params.id[0] : route.params.id;
@@ -128,6 +145,11 @@ onMounted(() => {
 	if (appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])) {
 		Api.loans
 			.getByItem(id)
+			.then((l) => (loans.value = l))
+			.catch((err) => alert('Could not load the loans', PopupColor.Red, err.message));
+	} else if (appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])) {
+		Api.loans
+			.getMineByItem(id)
 			.then((l) => (loans.value = l))
 			.catch((err) => alert('Could not load the loans', PopupColor.Red, err.message));
 	}
@@ -154,9 +176,13 @@ async function loanItem() {
 		);
 	}
 
-	Api.loans.add(item.value.id, amount).then(() => {
-		alert('Loan request placed', PopupColor.Green, 'Loan request successfully placed');
-	});
+	Api.loans
+		.add(item.value.id, amount)
+		.then((l) => {
+			loans.value.push(l);
+			alert('Loan request placed', PopupColor.Green, 'Loan request successfully placed');
+		})
+		.catch((err) => alert('Could not place loan request', PopupColor.Red, err.message));
 }
 
 function editItem() {
@@ -171,11 +197,28 @@ function editItem() {
 
 function approveLoan(loan: Loan) {
 	loan.approved = true;
-	Api.loans.edit(loan);
+	Api.loans
+		.edit(loan)
+		.then(() => {
+			item.value.amount -= loan.amount;
+		})
+		.catch((err) => {
+			alert('Could not approve this loan request', PopupColor.Red, err.message);
+			loan.approved = false;
+		});
 }
 
 function deleteLoan(loan: Loan, returned?: boolean) {
-	Api.loans.delete(loan, returned);
+	Api.loans
+		.delete(loan, returned)
+		.then(() => {
+			loans.value.splice(loans.value.indexOf(loan), 1);
+
+			if (returned) {
+				item.value.amount += loan.amount;
+			}
+		})
+		.catch((err) => alert('Could not delete this loan', PopupColor.Red, err.message));
 }
 
 async function editAmount(add = false) {

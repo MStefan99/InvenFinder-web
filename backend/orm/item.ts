@@ -1,4 +1,4 @@
-import dbPromise from './db.ts';
+import dbPromise from '../lib/db.ts';
 
 type PropsBase = {
 	name: string;

@@ -1,6 +1,6 @@
 import { decode as hexDecode, encode as hexEncode } from '../deps.ts';
 
-import dbPromise from './db.ts';
+import dbPromise from '../lib/db.ts';
 import {
 	encodePermissions,
 	hasPermissions,

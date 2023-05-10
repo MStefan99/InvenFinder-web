@@ -206,7 +206,14 @@ export const LoanAPI = {
 		request<Loan[]>('/items/' + itemID + '/loans', {
 			auth: true
 		}),
-	// TODO: getByUser() and owner edit/delete
+	getMineByItem: (itemID: Item['id']) =>
+		request<Loan[]>('/items/' + itemID + '/loans/mine', {
+			auth: true
+		}),
+	getMine: () =>
+		request<Loan[]>('/loans/mine', {
+			auth: true
+		}),
 	edit: (loan: Loan) =>
 		request<Loan>('/loans/' + loan.id, {auth: true, method: RequestMethod.PATCH, body: loan}),
 	delete: (loan: Loan, returned?: boolean) =>

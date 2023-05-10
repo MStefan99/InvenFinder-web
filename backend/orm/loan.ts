@@ -1,4 +1,6 @@
-import dbClientPromise from './db.ts';
+import dbClientPromise from '../lib/db.ts';
+import Item from './item.ts';
+import User from './user.ts';
 
 type PropsBase = {
 	userID: number;
@@ -97,7 +99,7 @@ class Loan {
 		}
 	}
 
-	static async getByItem(itemID: number): Promise<Loan[]> {
+	static async getByItem(item: Item): Promise<Loan[]> {
 		const loans = [];
 
 		const client = await dbClientPromise;
@@ -106,7 +108,7 @@ class Loan {
 			 from invenfinder.loans
 				      join invenfinder.users on loans.userID=users.id
 			 where itemID=?`,
-			[itemID],
+			[item.id],
 		);
 
 		for (const row of rows) {
@@ -115,16 +117,16 @@ class Loan {
 		return loans;
 	}
 
-	static async getByUser(userID: number): Promise<Loan[]> {
+	static async getByUser(user: User): Promise<Loan[]> {
 		const loans = [];
 
 		const client = await dbClientPromise;
 		const rows = await client.query(
-			`select loans.id as id, userID, itemID, amount, approved, username
+			`select loans.id as id, userID, itemID, amount, approved
 			 from invenfinder.loans
 				      join invenfinder.users on loans.userID=users.id
 			 where userID=?`,
-			[userID],
+			[user.id],
 		);
 
 		for (const row of rows) {
@@ -133,20 +135,20 @@ class Loan {
 		return loans;
 	}
 
-	static async getForItemAndUser(
-		itemsID: number,
-		userID: number,
+	static async getByItemAndUser(
+		item: Item,
+		user: User,
 	): Promise<Loan[]> {
 		const loans = [];
 
 		const client = await dbClientPromise;
 		const rows = await client.query(
-			`select loans.id as id, userID, itemID, amount, approved, username
+			`select loans.id as id, userID, itemID, amount, approved
 			 from invenfinder.loans
 				      join invenfinder.users on loans.userID=users.id
 			 where itemID=?
 				 and userID=?`,
-			[itemsID, userID],
+			[item.id, user.id],
 		);
 
 		for (const row of rows) {

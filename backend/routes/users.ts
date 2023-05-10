@@ -2,9 +2,10 @@ import { Router } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
 import { parsePermissions, PERMISSIONS } from '../../common/permissions.ts';
-import User from '../lib/user.ts';
+import User from '../orm/user.ts';
 import { hasBody } from './middleware.ts';
 import rateLimiter from '../lib/rateLimiter.ts';
+import Loan from '../orm/loan.ts';
 
 const router = new Router({
 	prefix: '/users',
@@ -198,6 +199,17 @@ router.delete(
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
+			};
+			return;
+		}
+
+		const loans = await Loan.getByUser(user);
+		if (loans.length) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'EXISTING_LOANS',
+				message:
+					'You have to return all loaned items to delete your account',
 			};
 			return;
 		}

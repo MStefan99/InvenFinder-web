@@ -1,8 +1,8 @@
 import { Middleware, Router } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
-import User from '../lib/user.ts';
-import Session from '../lib/session.ts';
+import User from '../orm/user.ts';
+import Session from '../orm/session.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
 import { hasBody, hasCredentials } from './middleware.ts';
 import rateLimiter from '../lib/rateLimiter.ts';

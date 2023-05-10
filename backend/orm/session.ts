@@ -1,6 +1,6 @@
 import { encode as hexEncode } from '../deps.ts';
 
-import dbPromise from './db.ts';
+import dbPromise from '../lib/db.ts';
 import User from './user.ts';
 
 function getRandomString(byteCount: number): string {

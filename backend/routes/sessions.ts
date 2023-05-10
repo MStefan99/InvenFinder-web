@@ -1,7 +1,7 @@
 import { Router } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
-import Session from '../lib/session.ts';
+import Session from '../orm/session.ts';
 import rateLimiter from '../lib/rateLimiter.ts';
 
 const router = new Router({
