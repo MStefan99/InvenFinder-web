@@ -12,6 +12,7 @@ type LoanProps = PropsBase & {
 	id: number;
 	approved: boolean;
 	username?: string;
+	itemName?: string;
 };
 
 class Loan {
@@ -21,6 +22,7 @@ class Loan {
 	amount: number;
 	approved: boolean;
 	username?: string;
+	itemName?: string;
 
 	constructor(props: LoanProps) {
 		this.id = props.id;
@@ -29,6 +31,7 @@ class Loan {
 		this.amount = props.amount;
 		this.approved = !!props.approved;
 		this.username = props.username;
+		this.itemName = props.itemName;
 	}
 
 	save(): Promise<void> {
@@ -122,9 +125,9 @@ class Loan {
 
 		const client = await dbClientPromise;
 		const rows = await client.query(
-			`select loans.id as id, userID, itemID, amount, approved
+			`select loans.id as id, userID, itemID, loans.amount, approved, items.name as itemName
 			 from invenfinder.loans
-				      join invenfinder.users on loans.userID=users.id
+				      join invenfinder.items on loans.itemID=items.id
 			 where userID=?`,
 			[user.id],
 		);
@@ -145,7 +148,6 @@ class Loan {
 		const rows = await client.query(
 			`select loans.id as id, userID, itemID, amount, approved
 			 from invenfinder.loans
-				      join invenfinder.users on loans.userID=users.id
 			 where itemID=?
 				 and userID=?`,
 			[item.id, user.id],

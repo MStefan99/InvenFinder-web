@@ -72,6 +72,7 @@ function rejectPrompt() {
 	color: var(--color-accent);
 	background-color: var(--color-overlay);
 	backdrop-filter: blur(1em);
+	-webkit-backdrop-filter: blur(1em);
 	border-radius: 1ch;
 	padding: 1em;
 	margin-bottom: 2em;

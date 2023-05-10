@@ -93,6 +93,7 @@ nav {
 	flex-flow: row wrap;
 	justify-content: space-between;
 	backdrop-filter: blur(1rem);
+	-webkit-backdrop-filter: blur(1rem);
 	border-radius: 0 0 1rem 1rem;
 	@apply shadow-neutral-300/10 shadow-xl;
 }
@@ -103,9 +104,15 @@ nav .clickable:not(:last-child) {
 }
 
 main {
-	padding: 2rem min(2rem, 5%);
+	padding: 2rem 16px;
 	margin: 0 auto;
-	width: min(90vw, 1024px);
+	width: min(100%, 768px);
+}
+
+@media screen and (min-width: 1024px) {
+	main {
+		width: min(75%, 1024px);
+	}
 }
 
 footer {
@@ -147,7 +154,7 @@ button,
 
 button:active,
 .btn:active {
-	transform: scale(92%);
+	transform: scale(95%);
 }
 
 input:not([type='checkbox']):active,
@@ -288,6 +295,7 @@ input[type='checkbox']:active:before {
 	background-color: var(--color-overlay);
 	box-shadow: 0 0 3rem var(--color-shadow);
 	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
 }
 
 .popup-wrapper .popup {

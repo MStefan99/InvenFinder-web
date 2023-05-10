@@ -1,5 +1,15 @@
 import appState from './store';
-import type {User, Session, Item, NewUser, NewItem, UpdateUser, Loan} from './types';
+import type {
+	User,
+	Session,
+	Item,
+	NewUser,
+	NewItem,
+	UpdateUser,
+	Loan,
+	ItemLoan,
+	UserLoan
+} from './types';
 
 type MessageResponse = {
 	code: string;
@@ -203,7 +213,7 @@ export const LoanAPI = {
 			body: {amount}
 		}),
 	getByItem: (itemID: Item['id']) =>
-		request<Loan[]>('/items/' + itemID + '/loans', {
+		request<UserLoan[]>('/items/' + itemID + '/loans', {
 			auth: true
 		}),
 	getMineByItem: (itemID: Item['id']) =>
@@ -211,7 +221,7 @@ export const LoanAPI = {
 			auth: true
 		}),
 	getMine: () =>
-		request<Loan[]>('/loans/mine', {
+		request<ItemLoan[]>('/loans/mine', {
 			auth: true
 		}),
 	edit: (loan: Loan) =>

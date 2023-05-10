@@ -60,7 +60,10 @@ function loadSettings() {
 		appState.features = s.features;
 
 		if (s.crashCourse.url === null || s.crashCourse.key === null) {
-			console.warn('Crash Course not configured!', s);
+			console.warn(
+				'Warning, Crash Course not configured! Errors will not be sent for further analysis.',
+				s.crashCourse
+			);
 			return;
 		}
 		const crashCourse = (await import(
