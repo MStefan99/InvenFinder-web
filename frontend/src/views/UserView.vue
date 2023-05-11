@@ -5,24 +5,28 @@
 		label(for="username-input") Username
 		input#username-input.block.my-2(type="text" v-model="user.username")
 	h3.text-accent.text-lg.mb-4 Permissions
-	form.permissions(@submit.prevent="editUser()")
+	form.permissions.mb-4(@submit.prevent="editUser()")
 		PermissionSelector.mb-4(v-model="user.permissions")
 		.row
 			button(type="submit") Save
 			button.red(type="button" @click="deleteUser()") Delete
+	UserLoans(:loans="loans")
+		span User has no active loans
 </template>
 
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
-import type {User} from '../scripts/types';
+import type {ItemLoan, User} from '../scripts/types';
 import {useRoute, useRouter} from 'vue-router';
 import Api from '../scripts/api';
 import appState from '../scripts/store';
 import {hasPermissions, PERMISSIONS} from '../../../common/permissions';
 import {alert, confirm, PopupColor} from '../scripts/popups';
 import PermissionSelector from '../components/PermissionSelector.vue';
+import UserLoans from '../components/UserLoans.vue';
 
 const user = ref<User | null>(null);
+const loans = ref<ItemLoan[]>([]);
 const route = useRoute();
 const router = useRouter();
 
@@ -46,6 +50,12 @@ onMounted(() => {
 		.then((u) => {
 			user.value = u;
 			window.document.title = `User ${u.username} | Invenfinder`;
+			Api.loans
+				.getByUser(+route.params.id)
+				.then((l) => {
+					loans.value = l;
+				})
+				.catch((err) => alert('Could not load loans', PopupColor.Red, err.message));
 		})
 		.catch((err) => alert('Could not load user details', PopupColor.Red, err.message));
 });

@@ -12,7 +12,7 @@ const router = new Router({
 
 // Loan requests are retrieved and added through the item router
 
-// Get user loans
+// Get current user loans
 router.get('/mine', auth.permissions([PERMISSIONS.LOAN_ITEMS]), async (ctx) => {
 	const user = await auth.methods.getUser(ctx);
 	if (user === null) {

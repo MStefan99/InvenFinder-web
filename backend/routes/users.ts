@@ -88,6 +88,34 @@ router.get(
 	},
 );
 
+// Get user loans
+router.get(
+	'/:id/loans',
+	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	async (ctx) => {
+		if (!ctx.params.id?.length) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'NO_ID',
+				message: 'ID must be provided',
+			};
+			return;
+		}
+
+		const user = await User.getByID(+ctx.params.id);
+		if (user === null) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'USER_NOT_FOUND',
+				message: 'User was not found',
+			};
+			return;
+		}
+
+		ctx.response.body = await Loan.getByUser(user);
+	},
+);
+
 // Add a new user
 router.post(
 	'/',

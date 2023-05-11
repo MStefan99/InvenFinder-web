@@ -213,18 +213,13 @@ export const LoanAPI = {
 			method: RequestMethod.POST,
 			body: {amount}
 		}),
-	getByItem: (itemID: Item['id']) =>
-		request<UserLoan[]>('/items/' + itemID + '/loans', {
-			auth: true
-		}),
+	getMine: () => request<ItemLoan[]>('/loans/mine', {auth: true}),
 	getMineByItem: (itemID: Item['id']) =>
-		request<Loan[]>('/items/' + itemID + '/loans/mine', {
-			auth: true
-		}),
-	getMine: () =>
-		request<ItemLoan[]>('/loans/mine', {
-			auth: true
-		}),
+		request<Loan[]>('/items/' + itemID + '/loans/mine', {auth: true}),
+	getByItem: (itemID: Item['id']) =>
+		request<UserLoan[]>('/items/' + itemID + '/loans', {auth: true}),
+	getByUser: (userID: User['id']) =>
+		request<ItemLoan[]>('/users/' + userID + '/loans', {auth: true}),
 	edit: (loan: Loan) =>
 		request<Loan>('/loans/' + loan.id, {auth: true, method: RequestMethod.PATCH, body: loan}),
 	delete: (loan: Loan, returned?: boolean) =>
