@@ -426,10 +426,18 @@ router.patch(
 			item.description = body.description?.trim() ?? null;
 		}
 		if (body.link !== undefined) {
+			const links = body.link?.split('\n') as string[] ?? [];
 			if (item.link?.match(/^file:/)) {
-				await Deno.remove(path.join(uploadDir, item.id.toString()), {
-					recursive: true,
-				});
+				const files = await Deno.readDir(
+					path.join(uploadDir, item.id.toString()),
+				);
+				for await (const file of files) {
+					if (!links.some((l) => l.match(file.name))) {
+						await Deno.remove(
+							path.join(uploadDir, item.id.toString(), file.name),
+						);
+					}
+				}
 			}
 			item.link = body.link?.trim() ?? null;
 		}
