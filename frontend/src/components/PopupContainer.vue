@@ -9,8 +9,8 @@
 		.confirm(v-if="activeConfirm" :class="activeConfirm.confirm.type")
 			.title {{activeConfirm.confirm.title}}
 			.details {{activeConfirm.confirm.details}}
-			.mt-4
-				button.mr-4(@click="resolveConfirm(true)" :class="activeConfirm.confirm.type") Yes
+			.row.mt-4
+				button(@click="resolveConfirm(true)" :class="activeConfirm.confirm.type") Yes
 				button(@click="resolveConfirm(false)") No
 	Transition(name="popup")
 		.prompt(v-if="activePrompt" :class="activePrompt.prompt.type")
@@ -54,7 +54,7 @@ function rejectPrompt() {
 .alerts {
 	position: absolute;
 	right: 10vw;
-	padding: 2em;
+	margin: 2em;
 }
 
 .confirm,

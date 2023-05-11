@@ -1,19 +1,24 @@
 <template lang="pug">
 .editable
-	div(v-if="!expanded || readonly")
-		.flex.items-baseline
-			.editable-content
-				slot(
-					:class="[textClass, {'underline cursor-pointer': modelValue && clickable}]"
-					:text="value")
-					span(@click="modelValue && $emit('click', value)") {{value !== null ? label || value : placeholder}}
-			img.icon.ml-2.clickable(src="/src/assets/pen.svg" v-if="!readonly" @click="expanded = true")
-	form(v-else @submit.prevent="$emit('update:modelValue', value); expanded = false")
-		textarea.w-full(rows="1" v-model="value")
-		.my-4
-			button.mr-4(type="button" @click="value = props.modelValue; expanded = false") Cancel
-			button.mr-4(type="button" @click="value = null") Clear
-			button.green(type="submit") Save
+	Transition(mode="out-in")
+		div(v-if="!expanded || readonly")
+			.flex.items-baseline
+				.editable-content
+					slot(
+						:class="[textClass, {'underline cursor-pointer': modelValue && clickable}]"
+						:text="value")
+						span(@click="modelValue && $emit('click', value)") {{value !== null ? label || value : placeholder}}
+				img.icon.ml-2.clickable(src="/src/assets/pen.svg" v-if="!readonly" @click="expanded = true")
+		form(v-else @submit.prevent="$emit('update:modelValue', value); expanded = false")
+			textarea.w-full(
+				v-if="!!multiline"
+				:rows="typeof value === 'string' ? value.split(`\n`).length : 2"
+				v-model="value")
+			input.w-full(v-else :type="type" v-model="value")
+			.row.my-4
+				button(type="button" @click="value = props.modelValue; expanded = false") Cancel
+				button(type="button" @click="value = null") Clear
+				button.green(type="submit") Save
 </template>
 
 <script setup lang="ts">
@@ -26,6 +31,8 @@ const props = defineProps<{
 	textClass?: string;
 	readonly?: boolean;
 	clickable?: boolean;
+	multiline?: boolean;
+	type?: string;
 }>();
 
 defineEmits<{

@@ -341,6 +341,18 @@ input[type='checkbox']:active:before {
 	transform: scale(120%);
 }
 
+/* Default transition */
+.v-enter-active,
+.v-leave-active {
+	transition: opacity 0.2s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+	opacity: 0;
+}
+
+/* Print */
 @media print {
 	.no-print {
 		display: none;

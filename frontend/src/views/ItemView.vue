@@ -21,12 +21,14 @@
 				img.icon.mr-2(src="/src/assets/warehouse.svg")
 				TextEditable(
 					v-model="item.amount"
+					type="number"
 					@update:modelValue="editItem()"
 					:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 		h3 Description
 		TextEditable.mb-2(
 			v-model="item.description"
 			placeholder="No description"
+			multiline
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 			@update:modelValue="editItem()")
 		h3 Links
@@ -35,8 +37,7 @@
 			label="More details"
 			placeholder="No links"
 			text-class="text-muted"
-			clickable
-			@click="openLink(item.link)"
+			multiline
 			@update:modelValue="editItem()"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 			template(v-slot="{text}")
@@ -47,60 +48,52 @@
 			method="post"
 			enctype="multipart/form-data"
 			@submit.prevent="(e) => { Api.auth.getCookie(); e.target.submit(); }")
-			label.btn.mr-4 {{fileLabel}}
-				input.mr-4(
-					type="file"
-					multiple
-					name="document"
-					@change="(e) => (fileLabel = e.target.files ? e.target.files.length + ' files selected' : 'Select files to upload')")
-			button Upload files
-		button.mr-4.mb-4(v-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])" @click="loanItem()") Loan this item
-		button.mr-4.mb-4(
-			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
-			@click="editAmount(false)") Take from storage
-		button.mr-4.mb-4(
-			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
-			@click="editAmount(true)") Put in storage
-		button.red.mb-4(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
+			.row
+				label.btn {{fileLabel}}
+					input(
+						type="file"
+						multiple
+						name="document"
+						@change="(e) => (fileLabel = e.target.files ? e.target.files.length + ' files selected' : 'Select files to upload')")
+				button Upload files
+		.row
+			button(v-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])" @click="loanItem()") Loan this item
+			button(
+				v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
+				@click="editAmount(false)") Take from storage
+			button(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])" @click="editAmount(true)") Put in storage
+			button.red(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
 		div(v-if="loans.length")
 			div(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 				h3.text-accent.text-xl.my-4 Loans for this item
 				div(v-if="pendingLoans.length")
-					h4.text-accent.text-lg.my-4 New
-					table
-						tbody
-							tr(v-for="loan in pendingLoans" :key="loan.id")
-								td
-									b {{loan.username}}
-								td is asking to loan
-								td {{loan.amount}}
-								td items
-								td
-									button.mx-4(@click="approveLoan(loan)") Approve
-									button.red(@click="deleteLoan(loan)") Reject
+					h4.text-accent.text-lg.my-4 Pending
+					.row(v-for="loan in pendingLoans" :key="loan.id")
+						p.self-center
+							b {{loan.username}}
+							|
+							| is asking to loan {{loan.amount}} items
+						.row
+							button(@click="approveLoan(loan)") Approve
+							button.red(@click="deleteLoan(loan)") Reject
 				div(v-if="approvedLoans.length")
 					h4.text-accent.text-lg.my-4 Approved
-					table
-						tbody
-							tr(v-for="loan in approvedLoans" :key="loan.id")
-								td
-									b {{loan.username}}
-								td has loaned
-								td {{loan.amount}}
-								td items
-								td
-									button.mx-4(@click="deleteLoan(loan, true)") Returned
-									button.red(@click="deleteLoan(loan, false)") Delete
+					.row(v-for="loan in approvedLoans" :key="loan.id")
+						p.self-center
+							b {{loan.username}}
+							|
+							| has loaned {{loan.amount}} items
+						.row
+							button(@click="deleteLoan(loan, true)") Returned
+							button.red(@click="deleteLoan(loan, false)") Delete
 			div(v-else-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS]) && myLoans.length")
-				h3.text-accent.text-xl.my-4 My loans for this item
-				table
-					tbody
-						tr(v-for="loan in myLoans" :key="loan.id")
-							td Your loan for
-							td {{loan.amount}}
-							td items
-							td(v-if="loan.approved") was approved
-							td(v-else) is pending approval
+				h4.text-accent.text-lg.my-4 My loans for this item
+				.row(v-for="loan in myLoans" :key="loan.id")
+					p.self-center Your loan for #[b {{loan.amount}}] items
+						|
+						|
+						span(v-if="loan.approved") was approved
+						span(v-else) is pending approval
 </template>
 
 <script setup lang="ts">

@@ -7,8 +7,9 @@
 	h3.text-accent.text-lg.mb-4 Permissions
 	form.permissions(@submit.prevent="editUser()")
 		PermissionSelector.mb-4(v-model="user.permissions")
-		button.mr-4(type="submit") Save
-		button.red(type="button" @click="deleteUser()") Delete
+		.row
+			button(type="submit") Save
+			button.red(type="button" @click="deleteUser()") Delete
 </template>
 
 <script setup lang="ts">
