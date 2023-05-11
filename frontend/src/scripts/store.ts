@@ -10,22 +10,7 @@ type CrashCourse = {
 	sendHit: () => Promise<true>;
 };
 
-type Store = {
-	backendURL: string | null;
-	apiKey: string | null;
-	user: User | null;
-	crashCourse: CrashCourse | null;
-	setUrl: (url: string | null) => void;
-	setApiKey: (key: string | null) => void;
-	setUser: (user: User | null) => void;
-	hasPermissions: (permissions: PERMISSIONS[]) => boolean;
-	features: {
-		accounts: boolean;
-		uploads: boolean;
-	};
-};
-
-export const appState = reactive<Store>({
+export const appState = reactive({
 	backendURL: localStorage.getItem('backendURL') ?? import.meta.env.VITE_BACKEND_URL ?? null,
 	apiKey: localStorage.getItem('apiKey') ?? null,
 	user: null,
@@ -44,11 +29,17 @@ export const appState = reactive<Store>({
 	setUser(user: User | null): void {
 		this.user = user;
 	},
-	hasPermissions(permissions: PERMISSIONS[]): boolean {
+	hasPermissions(permissions: PERMISSIONS[], any = false): boolean {
 		if (this.user === null) {
 			return false;
 		} else {
-			return hasPermissions(permissions, this.user.permissions);
+			console.log(
+				permissions,
+				this.user.permissions,
+				any,
+				hasPermissions(permissions, this.user.permissions, any)
+			);
+			return hasPermissions(permissions, this.user.permissions, any);
 		}
 	}
 });

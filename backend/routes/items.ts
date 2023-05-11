@@ -78,7 +78,7 @@ router.get(
 // Get item loans
 router.get(
 	'/:id/loans',
-	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	async (ctx) => {
 		const id = +ctx.params.id;
 
@@ -108,7 +108,7 @@ router.get(
 // Get item loans by user
 router.get(
 	'/:id/loans/mine',
-	auth.permissions([PERMISSIONS.LOAN_ITEMS]),
+	auth.hasPermissions([PERMISSIONS.LOAN_ITEMS]),
 	async (ctx) => {
 		const id = +ctx.params.id;
 
@@ -149,7 +149,7 @@ router.get(
 router.post(
 	'/',
 	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -199,7 +199,7 @@ router.post(
 router.post(
 	'/:id/upload',
 	uploadsEnabled(),
-	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	async (ctx) => {
 		const id = +ctx.params.id;
 		if (!Number.isInteger(id)) {
@@ -333,7 +333,7 @@ router.post('/:id/loans', hasBody(), auth.authenticated(), async (ctx) => {
 router.put(
 	'/:id/amount',
 	hasBody(),
-	auth.permissions([PERMISSIONS.EDIT_ITEM_AMOUNT]),
+	auth.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -380,7 +380,7 @@ router.put(
 router.patch(
 	'/:id',
 	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -458,7 +458,7 @@ router.patch(
 router.delete(
 	'/:id',
 	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),

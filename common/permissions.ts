@@ -82,10 +82,13 @@ export function encodePermissions(p: number | PERMISSIONS[] | undefined): number
 
 export function hasPermissions(
 	requestedPermissions: number | PERMISSIONS[],
-	grantedPermissions: number | PERMISSIONS[]
+	grantedPermissions: number | PERMISSIONS[],
+	any = false
 ): boolean {
 	const requestedValue = encodePermissions(requestedPermissions);
 	const grantedValue = encodePermissions(grantedPermissions);
 
-	return (grantedValue & requestedValue) === requestedValue;
+	return any
+		? !!(grantedValue & requestedValue)
+		: (grantedValue & requestedValue) === requestedValue;
 }

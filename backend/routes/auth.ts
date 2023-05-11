@@ -135,7 +135,7 @@ router.get('/get-cookie', auth.authenticated(), async (ctx) => {
 	ctx.response.status = 200;
 });
 
-// Edit user currently logged in as
+// Edit user
 router.patch(
 	'/me',
 	hasBody(),
@@ -160,7 +160,7 @@ router.patch(
 		if (body.password?.length) {
 			await user.setPassword(body.password);
 		}
-		if (await auth.test.permissions(ctx, [PERMISSIONS.MANAGE_USERS])) {
+		if (await auth.test.hasPermissions(ctx, [PERMISSIONS.MANAGE_USERS])) {
 			if (body.username?.length) {
 				user.username = body.username.trim();
 			}
@@ -171,7 +171,6 @@ router.patch(
 		}
 
 		await user.save();
-
 		ctx.response.body = user;
 	},
 );

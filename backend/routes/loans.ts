@@ -13,25 +13,29 @@ const router = new Router({
 // Loan requests are retrieved and added through the item router
 
 // Get current user loans
-router.get('/mine', auth.permissions([PERMISSIONS.LOAN_ITEMS]), async (ctx) => {
-	const user = await auth.methods.getUser(ctx);
-	if (user === null) {
-		ctx.response.status = 500;
-		ctx.response.body = {
-			error: 'USER_NOT_FOUND',
-			message: 'User was not found',
-		};
-		return;
-	}
+router.get(
+	'/mine',
+	auth.hasPermissions([PERMISSIONS.LOAN_ITEMS]),
+	async (ctx) => {
+		const user = await auth.methods.getUser(ctx);
+		if (user === null) {
+			ctx.response.status = 500;
+			ctx.response.body = {
+				error: 'USER_NOT_FOUND',
+				message: 'User was not found',
+			};
+			return;
+		}
 
-	ctx.response.body = await Loan.getByUser(user);
-});
+		ctx.response.body = await Loan.getByUser(user);
+	},
+);
 
 // Change loan status
 router.patch(
 	'/:id',
 	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	async (ctx) => {
 		const body = await ctx.request.body({ type: 'json' }).value;
 
@@ -89,7 +93,7 @@ router.patch(
 router.delete(
 	'/:id',
 	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	async (ctx) => {
 		const body = await ctx.request.body({ type: 'json' }).value;
 

@@ -194,8 +194,11 @@ class User {
 		this.passwordHash = await pbkdf2(password, this.passwordSalt);
 	}
 
-	hasPermissions(permissions: [PERMISSIONS] | number): boolean {
-		return hasPermissions(permissions, this.permissions);
+	hasPermissions(
+		permissions: PERMISSIONS[] | number,
+		any?: boolean,
+	): boolean {
+		return hasPermissions(permissions, this.permissions, any);
 	}
 
 	async delete(): Promise<void> {

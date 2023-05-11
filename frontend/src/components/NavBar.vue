@@ -7,7 +7,7 @@ div
 				v-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])"
 				:to="{name: 'loans'}") My loans
 			RouterLink.clickable(
-				v-if="appState.hasPermissions([PERMISSIONS.MANAGE_USERS])"
+				v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS, PERMISSIONS.MANAGE_USERS], true)"
 				:to="{name: 'users'}") Users
 			RouterLink.clickable(:to="{name: 'settings'}") Settings
 		span

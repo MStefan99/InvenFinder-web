@@ -14,7 +14,10 @@ const router = new Router({
 // Get a list of all users
 router.get(
 	'/',
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions(
+		[PERMISSIONS.MANAGE_ITEMS, PERMISSIONS.MANAGE_USERS],
+		true,
+	),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -27,7 +30,10 @@ router.get(
 // Get a user by ID
 router.get(
 	'/:id',
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions(
+		[PERMISSIONS.MANAGE_ITEMS, PERMISSIONS.MANAGE_USERS],
+		true,
+	),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -59,7 +65,7 @@ router.get(
 // Get a user by username
 router.get(
 	'/username/:username',
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_USERS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -91,7 +97,7 @@ router.get(
 // Get user loans
 router.get(
 	'/:id/loans',
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	async (ctx) => {
 		if (!ctx.params.id?.length) {
 			ctx.response.status = 400;
@@ -120,7 +126,7 @@ router.get(
 router.post(
 	'/',
 	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_USERS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -159,7 +165,7 @@ router.post(
 router.patch(
 	'/:id',
 	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_USERS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -205,7 +211,7 @@ router.patch(
 // Delete user
 router.delete(
 	'/:id',
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_USERS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),

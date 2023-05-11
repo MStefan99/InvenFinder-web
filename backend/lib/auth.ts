@@ -39,13 +39,14 @@ export default {
 			return !!session;
 		},
 
-		async permissions(
+		async hasPermissions(
 			ctx: Context,
-			permissions: [PERMISSIONS],
+			permissions: PERMISSIONS[],
+			any?: boolean,
 		): Promise<boolean> {
 			const user = await getUser(ctx);
 
-			return user?.hasPermissions(permissions) ?? false;
+			return user?.hasPermissions(permissions, any) ?? false;
 		},
 	},
 
@@ -68,7 +69,7 @@ export default {
 		};
 	},
 
-	permissions(permissions: [PERMISSIONS]): Middleware {
+	hasPermissions(permissions: PERMISSIONS[], any?: boolean): Middleware {
 		return async (ctx, next) => {
 			if (!(await this.test.authenticated(ctx))) {
 				ctx.response.status = 401;
@@ -76,21 +77,9 @@ export default {
 					error: 'NOT_AUTHENTICATED',
 					message: 'You must sign in to do this',
 				};
-			} else if (!(await this.test.permissions(ctx, permissions))) {
-				ctx.response.status = 403;
-				ctx.response.body = {
-					error: 'NOT_AUTHORIZED',
-					message: 'You are not allowed to do this',
-				};
-			} else {
-				await next();
-			}
-		};
-	},
-
-	condition(cb: (ctx: Context) => Promise<boolean>): Middleware {
-		return async (ctx, next) => {
-			if (!(await cb(ctx))) {
+			} else if (
+				!(await this.test.hasPermissions(ctx, permissions, any))
+			) {
 				ctx.response.status = 403;
 				ctx.response.body = {
 					error: 'NOT_AUTHORIZED',

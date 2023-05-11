@@ -1,16 +1,21 @@
 <template lang="pug">
 #user(v-if="user")
 	h2.text-accent.text-2xl.mb-4 User
-	.mb-6
-		label(for="username-input") Username
-		input#username-input.block.my-2(type="text" v-model="user.username")
-	h3.text-accent.text-lg.mb-4 Permissions
-	form.permissions.mb-4(@submit.prevent="editUser()")
-		PermissionSelector.mb-4(v-model="user.permissions")
-		.row
-			button(type="submit") Save
-			button.red(type="button" @click="deleteUser()") Delete
-	UserLoans(:loans="loans")
+	.mb-4
+		label.mb-2(for="username-input") Username
+		TextEditable(
+			type="text"
+			v-model="user.username"
+			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_USERS])"
+			@update:modelValue="editUser()")
+	div(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_USERS])")
+		h3.text-accent.text-lg.mb-4 Permissions
+		form.permissions.mb-4(@submit.prevent="editUser()")
+			PermissionSelector.mb-4(v-model="user.permissions")
+			.row
+				button(type="submit") Save
+				button.red(type="button" @click="deleteUser()") Delete
+	UserLoans(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" :loans="loans")
 		span User has no active loans
 </template>
 
@@ -24,6 +29,7 @@ import {hasPermissions, PERMISSIONS} from '../../../common/permissions';
 import {alert, confirm, PopupColor} from '../scripts/popups';
 import PermissionSelector from '../components/PermissionSelector.vue';
 import UserLoans from '../components/UserLoans.vue';
+import TextEditable from '../components/TextEditable.vue';
 
 const user = ref<User | null>(null);
 const loans = ref<ItemLoan[]>([]);
@@ -31,7 +37,7 @@ const route = useRoute();
 const router = useRouter();
 
 onMounted(() => {
-	if (!appState.hasPermissions([PERMISSIONS.MANAGE_USERS])) {
+	if (!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS, PERMISSIONS.MANAGE_USERS], true)) {
 		alert('Not allowed', PopupColor.Red, 'You do not have permissions to view this page');
 		return;
 	}
@@ -50,14 +56,16 @@ onMounted(() => {
 		.then((u) => {
 			user.value = u;
 			window.document.title = `User ${u.username} | Invenfinder`;
-			Api.loans
-				.getByUser(+route.params.id)
-				.then((l) => {
-					loans.value = l;
-				})
-				.catch((err) => alert('Could not load loans', PopupColor.Red, err.message));
 		})
 		.catch((err) => alert('Could not load user details', PopupColor.Red, err.message));
+
+	appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS]) &&
+		Api.loans
+			.getByUser(+route.params.id)
+			.then((l) => {
+				loans.value = l;
+			})
+			.catch((err) => alert('Could not load loans', PopupColor.Red, err.message));
 });
 
 async function editUser() {
@@ -82,7 +90,10 @@ async function editUser() {
 
 	Api.users
 		.edit(user.value)
-		.then(() => alert('User saved', PopupColor.Green, 'User was saved successfully'))
+		.then(() => {
+			alert('User saved', PopupColor.Green, 'User was saved successfully');
+			user.value.id === appState.user.id && Api.auth.me().then((u) => appState.setUser(u));
+		})
 		.catch((err) => alert('Could not save the user', PopupColor.Red, err.message));
 }
 

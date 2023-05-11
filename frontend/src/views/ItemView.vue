@@ -68,7 +68,7 @@
 				h3.text-accent.text-xl.my-4 Loans for this item
 				div(v-if="pendingLoans.length")
 					h4.text-accent.text-lg.my-4 Pending
-					.row(v-for="loan in pendingLoans" :key="loan.id")
+					.row.mb-4(v-for="loan in pendingLoans" :key="loan.id")
 						p.self-center
 							b {{loan.username}}
 							|
@@ -78,7 +78,7 @@
 							button.red(@click="deleteLoan(loan)") Reject
 				div(v-if="approvedLoans.length")
 					h4.text-accent.text-lg.my-4 Approved
-					.row(v-for="loan in approvedLoans" :key="loan.id")
+					.row.mb-4(v-for="loan in approvedLoans" :key="loan.id")
 						p.self-center
 							b {{loan.username}}
 							|
