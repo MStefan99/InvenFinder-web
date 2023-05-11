@@ -235,15 +235,7 @@ router.post(
 			return;
 		}
 
-		try {
-			await Deno.remove(path.join(uploadDir, item.id.toString()), {
-				recursive: true,
-			});
-		} catch {
-			// Nothing to do here
-		}
-
-		const fileNames = [];
+		const fileNames = item.link?.split('\n') ?? [];
 		for (const file of files) {
 			const itemDir = path.join(uploadDir, ctx.params.id);
 			const filePath = path.join(itemDir, file.originalName);
