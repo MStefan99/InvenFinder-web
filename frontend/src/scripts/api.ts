@@ -172,7 +172,8 @@ export const AuthAPI = {
 					resolve(true);
 				})
 				.catch((err) => reject(err));
-		})
+		}),
+	delete: () => request<User>('/me', {auth: true, method: RequestMethod.DELETE})
 };
 
 export const SessionAPI = {

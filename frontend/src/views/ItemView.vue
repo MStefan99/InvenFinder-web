@@ -33,14 +33,14 @@
 		TextEditable.mb-4(
 			v-model="item.link"
 			label="More details"
-			placeholder="No link"
+			placeholder="No links"
 			text-class="text-muted"
 			clickable
 			@click="openLink(item.link)"
 			@update:modelValue="editItem()"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 			template(v-slot="{text}")
-				button.block.mb-2(v-for="link in text.split(`\n`)" :key="link" @click="openFile(link)") {{link.replace('file:', 'File: ')}}
+				button.block.mb-2(v-for="link in text?.split(`\n`)" :key="link" @click="openLink(link)") {{link.replace('file:', 'File: ')}}
 		form.flex.mb-4(
 			v-if="appState.features.uploads && appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 			:action="appState.backendURL + '/items/' + item.id + '/upload'"
@@ -54,7 +54,6 @@
 					name="document"
 					@change="(e) => (fileLabel = e.target.files ? e.target.files.length + ' files selected' : 'Select files to upload')")
 			button Upload files
-		h3 Actions
 		button.mr-4.mb-4(v-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])" @click="loanItem()") Loan this item
 		button.mr-4.mb-4(
 			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
@@ -97,7 +96,7 @@
 				table
 					tbody
 						tr(v-for="loan in myLoans" :key="loan.id")
-							td My loan for
+							td Your loan for
 							td {{loan.amount}}
 							td items
 							td(v-if="loan.approved") was approved
@@ -155,10 +154,12 @@ onMounted(() => {
 	}
 });
 
-async function openFile(fileName: string) {
-	fileName = fileName.replace(/^file:/, `${appState.backendURL}/items/${item.value.id}/upload/`);
-	await Api.auth.getCookie();
-	window.location.href = fileName;
+async function openLink(link: string) {
+	if (link.startsWith('file:')) {
+		link = link.replace(/^file:/, `${appState.backendURL}/items/${item.value.id}/upload/`);
+		await Api.auth.getCookie();
+	}
+	window.location.href = link;
 }
 
 async function loanItem() {

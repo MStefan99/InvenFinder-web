@@ -20,7 +20,7 @@
 			autocomplete="new-password")
 		p.mb-2.text-red(v-if="(updateUser.password ?? '') !== passwordRepeat") Passwords do not match
 		button(type="submit" :disabled="!passwordsMatch") Save
-	.sessions
+	.sessions.mb-4
 		h3.text-accent.text-xl.my-4 Active sessions
 		table.w-full
 			thead
@@ -35,7 +35,9 @@
 					td {{new Date(session.time).toLocaleString()}}
 					td
 						button(@click="logout(session)") Sign out
-			button(@click="logoutAll()") Sign out everywhere
+	.row
+		button(@click="logoutAll()") Sign out everywhere
+		button.red(v-if="appState.features.accounts" @click="deleteAccount()") Delete account
 </template>
 
 <script setup lang="ts">
@@ -44,7 +46,7 @@ import {computed, onMounted, ref} from 'vue';
 import appState from '../scripts/store';
 import Api from '../scripts/api';
 import type {Session, UpdateUser} from '../scripts/types';
-import {alert, PopupColor} from '../scripts/popups';
+import {alert, PopupColor, confirm} from '../scripts/popups';
 
 const sessions = ref<Session[]>([]);
 const updateUser = ref<UpdateUser>({id: appState.user.id});
@@ -125,6 +127,29 @@ onMounted(() =>
 		.then((s) => (sessions.value = s))
 		.catch((err) => alert('Could not load sessions', PopupColor.Red, err.message))
 );
+
+async function deleteAccount() {
+	if (
+		!(await confirm(
+			'Are you sure you want to delete your account?',
+			PopupColor.Red,
+			'All information associated with your user account will be deleted immediately'
+		))
+	) {
+		return;
+	}
+
+	Api.auth
+		.delete()
+		.then(() =>
+			alert(
+				'Account deleted',
+				PopupColor.Green,
+				'Your account and all your information was deleted successfully'
+			)
+		)
+		.catch((err) => alert('Could not delete account', PopupColor.Red, err.message));
+}
 </script>
 
 <style scoped>

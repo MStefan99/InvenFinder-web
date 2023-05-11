@@ -124,6 +124,15 @@ footer {
 	@apply text-muted;
 }
 
+.row {
+	@apply flex gap-4;
+	flex-flow: row wrap;
+}
+
+.row.w-full > * {
+	@apply flex-grow;
+}
+
 /* Forms */
 textarea,
 label {

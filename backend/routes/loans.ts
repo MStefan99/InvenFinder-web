@@ -65,11 +65,8 @@ router.patch(
 			return;
 		}
 
-		console.log('loans', body, loan);
 		if (body.approved === true && !loan.approved) {
-			console.log('approved');
 			if (item.amount - loan.amount < 0) {
-				console.log('not enough');
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'INVALID_AMOUNT',

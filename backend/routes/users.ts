@@ -177,7 +177,6 @@ router.patch(
 // Delete user
 router.delete(
 	'/:id',
-	hasBody(),
 	auth.permissions([PERMISSIONS.MANAGE_USERS]),
 	rateLimiter({
 		tag: 'user',
@@ -203,19 +202,7 @@ router.delete(
 			return;
 		}
 
-		const loans = await Loan.getByUser(user);
-		if (loans.length) {
-			ctx.response.status = 400;
-			ctx.response.body = {
-				error: 'EXISTING_LOANS',
-				message:
-					'You have to return all loaned items to delete your account',
-			};
-			return;
-		}
-
 		user.delete();
-
 		ctx.response.body = user;
 	},
 );
