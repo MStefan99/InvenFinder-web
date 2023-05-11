@@ -1,28 +1,21 @@
 <template lang="pug">
 #loans
 	h2.text-accent.text-2xl.mb-4 My loans
-	div(v-if="pendingLoans.length")
-		h4.text-accent.text-lg.my-4 Pending
-		table.w-full
-			thead
-				tr
-					th Item
-					th Amount
-			tbody
-				tr(v-for="loan in pendingLoans" :key="loan.id")
-					td {{loan.itemName}}
-					td {{loan.amount}}
-	div(v-if="approvedLoans.length")
+	.approved(v-if="approvedLoans.length")
 		h4.text-accent.text-lg.my-4 Approved
-		table.w-full
-			thead
-				tr
-					th Item
-					th Amount
-			tbody
-				tr(v-for="loan in approvedLoans" :key="loan.id")
-					td {{loan.itemName}}
-					td {{loan.amount}}
+		.loan.my-2(v-for="loan in approvedLoans" :key="loan.id")
+			b {{loan.amount}}
+			span.mr-2 x
+			RouterLink.underline(:to="{name: 'item', params: {id: loan.itemID}}")
+				b {{loan.itemName}}
+	.pending(v-if="pendingLoans.length")
+		h4.text-accent.text-lg.my-4 Pending
+		.loan.my-2(v-for="loan in pendingLoans" :key="loan.id")
+			b {{loan.amount}}
+			span.mr-2 x
+			RouterLink.underline(:to="{name: 'item', params: {id: loan.itemID}}")
+				b {{loan.itemName}}
+	span(v-if="!loans.length") You currently have no active loans
 </template>
 
 <script setup lang="ts">
