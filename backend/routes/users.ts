@@ -50,7 +50,7 @@ router.get(
 
 		const user = await User.getByID(+ctx.params.id);
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -82,7 +82,7 @@ router.get(
 
 		const user = await User.getByUsername(ctx.params.username);
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -110,7 +110,7 @@ router.get(
 
 		const user = await User.getByID(+ctx.params.id);
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -134,7 +134,7 @@ router.post(
 	async (ctx) => {
 		const body = await ctx.request.body({ type: 'json' }).value;
 		if (!body.username?.length) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'NO_USERNAME',
 				message: 'Username must be provided',
@@ -183,7 +183,7 @@ router.patch(
 
 		const user = await User.getByID(+ctx.params.id);
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -228,7 +228,7 @@ router.delete(
 
 		const user = await User.getByID(+ctx.params.id);
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',

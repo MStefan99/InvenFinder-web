@@ -63,7 +63,7 @@ router.post(
 		const user = await User.getByUsername(body.username.trim());
 
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -115,7 +115,7 @@ router.get(
 
 		if (!user) {
 			// Should in theory never get here
-			ctx.response.status = 500;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -149,7 +149,7 @@ router.patch(
 
 		const user = await auth.methods.getUser(ctx);
 		if (user === null) {
-			ctx.response.status = 500;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -203,7 +203,7 @@ router.delete(
 	async (ctx) => {
 		const user = await auth.methods.getUser(ctx);
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',

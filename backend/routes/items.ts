@@ -93,7 +93,7 @@ router.get(
 
 		const item = await Item.getByID(id);
 		if (item === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',
@@ -123,7 +123,7 @@ router.get(
 
 		const item = await Item.getByID(id);
 		if (item === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',
@@ -133,7 +133,7 @@ router.get(
 
 		const user = await auth.methods.getUser(ctx);
 		if (user === null) {
-			ctx.response.status = 500;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -216,7 +216,7 @@ router.post(
 
 		const item = await Item.getByID(id);
 		if (item === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',
@@ -292,7 +292,7 @@ router.post('/:id/loans', hasBody(), auth.authenticated(), async (ctx) => {
 
 	const user = await auth.methods.getUser(ctx);
 	if (user === null) {
-		ctx.response.status = 500;
+		ctx.response.status = 404;
 		ctx.response.body = {
 			error: 'USER_NOT_FOUND',
 			message: 'User was not found',
@@ -302,7 +302,7 @@ router.post('/:id/loans', hasBody(), auth.authenticated(), async (ctx) => {
 
 	const item = await Item.getByID(id);
 	if (item === null) {
-		ctx.response.status = 400;
+		ctx.response.status = 404;
 		ctx.response.body = {
 			error: 'ITEM_NOT_FOUND',
 			message: 'Item was not found',
@@ -353,7 +353,7 @@ router.put(
 
 		const item = await Item.getByID(id);
 		if (item === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',
@@ -391,7 +391,7 @@ router.patch(
 
 		const item = await Item.getByID(id);
 		if (item === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',
@@ -468,7 +468,7 @@ router.delete(
 
 		const item = await Item.getByID(id);
 		if (item === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',

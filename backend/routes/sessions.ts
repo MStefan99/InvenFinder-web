@@ -19,7 +19,7 @@ router.get(
 	async (ctx) => {
 		const user = await auth.methods.getUser(ctx);
 		if (user === null) {
-			ctx.response.status = 500;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -44,7 +44,7 @@ router.delete(
 		const otherSession = await Session.getByPublicID(ctx.params.id);
 
 		if (currentSession === null || otherSession === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'SESSION_NOT_FOUND',
 				message: 'Session was not found',
@@ -78,7 +78,7 @@ router.delete(
 	async (ctx) => {
 		const user = await auth.methods.getUser(ctx);
 		if (user === null) {
-			ctx.response.status = 500;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',

@@ -19,7 +19,7 @@ router.get(
 	async (ctx) => {
 		const user = await auth.methods.getUser(ctx);
 		if (user === null) {
-			ctx.response.status = 500;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -109,7 +109,7 @@ router.delete(
 
 		const loan = await Loan.getByID(id);
 		if (loan === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'LOAN_NOT_FOUND',
 				message: 'Loan was not found',
@@ -119,7 +119,7 @@ router.delete(
 
 		const item = await Item.getByID(loan.itemID);
 		if (item === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',
