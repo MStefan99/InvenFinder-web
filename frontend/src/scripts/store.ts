@@ -33,12 +33,6 @@ export const appState = reactive({
 		if (this.user === null) {
 			return false;
 		} else {
-			console.log(
-				permissions,
-				this.user.permissions,
-				any,
-				hasPermissions(permissions, this.user.permissions, any)
-			);
 			return hasPermissions(permissions, this.user.permissions, any);
 		}
 	}

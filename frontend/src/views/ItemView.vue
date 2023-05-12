@@ -47,7 +47,7 @@
 			:action="appState.backendURL + '/items/' + item.id + '/upload'"
 			method="post"
 			enctype="multipart/form-data"
-			@submit.prevent="(e) => { Api.auth.getCookie(); e.target.submit(); }")
+			@submit.prevent="(e) => submitForm(e)")
 			.row
 				label.btn {{fileLabel}}
 					input(
@@ -146,6 +146,12 @@ onMounted(() => {
 			.catch((err) => alert('Could not load the loans', PopupColor.Red, err.message));
 	}
 });
+
+async function submitForm(e: SubmitEvent) {
+	e.preventDefault();
+	await Api.auth.getCookie();
+	(e.target as HTMLFormElement).submit();
+}
 
 async function openLink(link: string) {
 	if (link.startsWith('file:')) {
