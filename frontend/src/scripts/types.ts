@@ -55,3 +55,7 @@ export type UserLoan = {
 export type ItemLoan = {
 	itemName: string;
 } & Loan;
+
+export type EditLoan = {
+	itemAmount: number;
+} & Loan;

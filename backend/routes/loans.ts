@@ -125,8 +125,8 @@ router.patch(
 		} else {
 			if (typeof body.amount === 'number' && loan.approved) {
 				item.amount += loan.amount - body.amount;
-				loan.amount = body.amount;
 			}
+			loan.amount = body.amount;
 
 			if (
 				typeof body.approved === 'boolean' &&
@@ -151,7 +151,7 @@ router.patch(
 		}
 
 		loan.save();
-		ctx.response.body = loan;
+		ctx.response.body = { ...loan, itemAmount: item.amount };
 	},
 );
 

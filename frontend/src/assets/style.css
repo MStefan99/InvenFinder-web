@@ -125,7 +125,7 @@ footer {
 }
 
 .row {
-	@apply flex gap-4;
+	@apply flex items-center gap-4;
 	flex-flow: row wrap;
 }
 

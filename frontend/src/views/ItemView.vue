@@ -69,20 +69,24 @@
 				div(v-if="pendingLoans.length")
 					h4.text-accent.text-lg.my-4 Pending
 					.row.mb-4(v-for="loan in pendingLoans" :key="loan.id")
-						p.self-center
+						p.self-center.inline-flex.gap-1
 							b {{loan.username}}
 							|
-							| is asking to loan {{loan.amount}} items
+							| is asking to loan
+							TextEditable.inline(type="number" v-model="loan.amount" @update:modelValue="editLoan(loan)")
+							span items
 						.row
-							button(@click="approveLoan(loan)") Approve
-							button.red(@click="deleteLoan(loan)") Reject
+							button(@click="approveLoan(loan, true)") Approve
+							button.red(@click="deleteLoan(loan)") Delete
 				div(v-if="approvedLoans.length")
 					h4.text-accent.text-lg.my-4 Approved
 					.row.mb-4(v-for="loan in approvedLoans" :key="loan.id")
-						p.self-center
+						p.self-center.inline-flex.gap-1
 							b {{loan.username}}
 							|
-							| has loaned {{loan.amount}} items
+							| has loaned
+							TextEditable.inline(type="number" v-model="loan.amount" @update:modelValue="editLoan(loan)")
+							span items
 						.row
 							button(@click="deleteLoan(loan, true)") Returned
 							button.red(@click="deleteLoan(loan, false)") Delete
@@ -172,14 +176,6 @@ async function loanItem() {
 		alert('Incorrect amount', PopupColor.Red, 'The amount cannot be negative or zero');
 	}
 
-	if (amount > item.value.amount) {
-		alert(
-			'Not enough items',
-			PopupColor.Red,
-			'There are not enough items available, please choose a smaller amount'
-		);
-	}
-
 	Api.loans
 		.add(item.value.id, amount)
 		.then((l) => {
@@ -199,23 +195,28 @@ function editItem() {
 			);
 }
 
-function approveLoan(loan: Loan) {
-	loan.approved = true;
+function approveLoan(loan: Loan, approved: boolean) {
+	loan.approved = approved;
 	Api.loans
 		.edit(loan)
-		.then(() => {
-			item.value.amount -= loan.amount;
+		.then((l) => {
+			item.value.amount = l.itemAmount;
 		})
 		.catch((err) => {
 			alert('Could not approve this loan request', PopupColor.Red, err.message);
-			loan.approved = false;
+			loan.approved = !approved;
 		});
 }
 
 function editLoan(loan: Loan) {
-	Api.loans.edit(loan).catch((err) => {
-		alert('Could not edit this loan', PopupColor.Red, err.message);
-	});
+	Api.loans
+		.edit(loan)
+		.then((l) => {
+			item.value.amount = l.itemAmount;
+		})
+		.catch((err) => {
+			alert('Could not edit this loan', PopupColor.Red, err.message);
+		});
 }
 
 function deleteLoan(loan: Loan, returned?: boolean) {

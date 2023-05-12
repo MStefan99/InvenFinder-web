@@ -8,7 +8,8 @@ import type {
 	UpdateUser,
 	Loan,
 	ItemLoan,
-	UserLoan
+	UserLoan,
+	EditLoan
 } from './types';
 
 type MessageResponse = {
@@ -221,7 +222,7 @@ export const LoanAPI = {
 	getByUser: (userID: User['id']) =>
 		request<ItemLoan[]>('/users/' + userID + '/loans', {auth: true}),
 	edit: (loan: Loan) =>
-		request<Loan>('/loans/' + loan.id, {auth: true, method: RequestMethod.PATCH, body: loan}),
+		request<EditLoan>('/loans/' + loan.id, {auth: true, method: RequestMethod.PATCH, body: loan}),
 	delete: (loan: Loan, returned?: boolean) =>
 		request<Loan>('/loans/' + loan.id, {auth: true, method: RequestMethod.DELETE, body: {returned}})
 };
