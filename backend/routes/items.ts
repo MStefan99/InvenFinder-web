@@ -290,6 +290,15 @@ router.post('/:id/loans', hasBody(), auth.authenticated(), async (ctx) => {
 		return;
 	}
 
+	if (!Number.isInteger(body.amount) && body.amount < 1) {
+		ctx.response.status = 400;
+		ctx.response.body = {
+			error: 'INVALID_AMOUNT',
+			message: 'Amount must be a positive number',
+		};
+		return;
+	}
+
 	const user = await auth.methods.getUser(ctx);
 	if (user === null) {
 		ctx.response.status = 404;
@@ -342,11 +351,11 @@ router.put(
 		}
 
 		const body = await ctx.request.body({ type: 'json' }).value;
-		if (body.amount === undefined || +body.amount < 0) {
+		if (!Number.isInteger(body.amount) && body.amount < 1) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'INVALID_AMOUNT',
-				message: 'Amount must be a positive number',
+				message: 'Amount must be a non-negative number',
 			};
 			return;
 		}
@@ -405,7 +414,7 @@ router.patch(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'INVALID_AMOUNT',
-					message: 'Amount must be a positive number',
+					message: 'Amount must be a non-negative number',
 				};
 				return;
 			}

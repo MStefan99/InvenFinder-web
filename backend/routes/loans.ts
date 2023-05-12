@@ -52,7 +52,7 @@ router.patch(
 			return;
 		}
 
-		if (typeof body.amount === 'number' && body.amount < 0) {
+		if (!Number.isInteger(body.amount) && body.amount < 1) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'INVALID_AMOUNT',

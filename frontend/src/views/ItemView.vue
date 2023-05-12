@@ -174,6 +174,7 @@ async function loanItem() {
 
 	if (amount < 1) {
 		alert('Incorrect amount', PopupColor.Red, 'The amount cannot be negative or zero');
+		return;
 	}
 
 	Api.loans
