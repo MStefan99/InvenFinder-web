@@ -1,14 +1,13 @@
 <template lang="pug">
 .editable
 	Transition(mode="out-in")
-		div(v-if="!expanded || readonly")
-			.flex.items-baseline
-				.editable-content
-					slot(
+		.inline-flex.items-baseline(v-if="!expanded || readonly")
+			span.editable-content
+				slot(:text="value")
+					span(
 						:class="[textClass, {'underline cursor-pointer': modelValue && clickable}]"
-						:text="value")
-						span(@click="modelValue && $emit('click', value)") {{value !== null ? label || value : placeholder}}
-				img.icon.ml-2.clickable(src="/src/assets/pen.svg" v-if="!readonly" @click="expanded = true")
+						@click="modelValue && $emit('click', value)") {{value !== null ? label || value : placeholder}}
+			img.icon.ml-2.clickable(src="/src/assets/pen.svg" v-if="!readonly" @click="expanded = true")
 		form(v-else @submit.prevent="$emit('update:modelValue', value); expanded = false")
 			textarea.w-full(
 				v-if="!!multiline"

@@ -88,12 +88,16 @@
 							button.red(@click="deleteLoan(loan, false)") Delete
 			div(v-else-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS]) && myLoans.length")
 				h4.text-accent.text-lg.my-4 My loans for this item
-				.row(v-for="loan in myLoans" :key="loan.id")
-					p.self-center Your loan for #[b {{loan.amount}}] items
-						|
-						|
-						span(v-if="loan.approved") was approved
-						span(v-else) is pending approval
+				.flex.flex-wrap.gap-1(v-for="loan in myLoans" :key="loan.id")
+					span Your loan for
+					TextEditable.inline(
+						type="number"
+						v-model="loan.amount"
+						:readonly="loan.approved"
+						text-class="font-bold"
+						@update:modelValue="editLoan(loan)")
+					span(v-if="loan.approved") items was approved
+					span(v-else) items is pending approval
 </template>
 
 <script setup lang="ts">
@@ -206,6 +210,12 @@ function approveLoan(loan: Loan) {
 			alert('Could not approve this loan request', PopupColor.Red, err.message);
 			loan.approved = false;
 		});
+}
+
+function editLoan(loan: Loan) {
+	Api.loans.edit(loan).catch((err) => {
+		alert('Could not edit this loan', PopupColor.Red, err.message);
+	});
 }
 
 function deleteLoan(loan: Loan, returned?: boolean) {

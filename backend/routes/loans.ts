@@ -31,11 +31,14 @@ router.get(
 	},
 );
 
-// Change loan status
+// Edit loan
 router.patch(
 	'/:id',
 	hasBody(),
-	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions(
+		[PERMISSIONS.LOAN_ITEMS, PERMISSIONS.MANAGE_ITEMS],
+		true,
+	),
 	async (ctx) => {
 		const body = await ctx.request.body({ type: 'json' }).value;
 
@@ -49,9 +52,18 @@ router.patch(
 			return;
 		}
 
+		if (typeof body.amount === 'number' && body.amount < 0) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'INVALID_AMOUNT',
+				message: 'Amount must be a positive number',
+			};
+			return;
+		}
+
 		const loan = await Loan.getByID(id);
 		if (loan === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'LOAN_NOT_FOUND',
 				message: 'Loan was not found',
@@ -61,7 +73,7 @@ router.patch(
 
 		const item = await Item.getByID(loan.itemID);
 		if (item === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',
@@ -69,8 +81,64 @@ router.patch(
 			return;
 		}
 
-		if (body.approved === true && !loan.approved) {
-			if (item.amount - loan.amount < 0) {
+		if (
+			!(await auth.test.hasPermissions(ctx, [PERMISSIONS.MANAGE_ITEMS]))
+		) {
+			const user = await auth.methods.getUser(ctx);
+			if (!user) {
+				return;
+			}
+
+			if (loan.userID !== user.id) {
+				ctx.response.status = 404;
+				ctx.response.body = {
+					error: 'LOAN_NOT_FOUND',
+					message: 'Loan was not found',
+				};
+				return;
+			}
+
+			if (
+				typeof body.approved === 'boolean' &&
+				body.approved !== loan.approved
+			) {
+				ctx.response.status = 403;
+				ctx.response.body = {
+					error: 'NOT_AUTHORIZED',
+					message: 'You are not allowed to approve loan requests',
+				};
+				return;
+			}
+
+			if (typeof body.amount === 'number') {
+				if (loan.approved) {
+					ctx.response.status = 400;
+					ctx.response.body = {
+						error: 'ALREADY_APPROVED',
+						message:
+							'You cannot change the amount since the loan has already been approved',
+					};
+					return;
+				}
+				loan.amount = body.amount;
+			}
+		} else {
+			if (typeof body.amount === 'number' && loan.approved) {
+				item.amount += loan.amount - body.amount;
+				loan.amount = body.amount;
+			}
+
+			if (
+				typeof body.approved === 'boolean' &&
+				body.approved !== loan.approved
+			) {
+				item.amount = body.approved
+					? item.amount - loan.amount
+					: item.amount + loan.amount;
+				loan.approved = body.approved;
+			}
+
+			if (item.amount < 0) {
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'INVALID_AMOUNT',
@@ -78,13 +146,11 @@ router.patch(
 				};
 				return;
 			}
-			loan.approved = true;
-			item.amount -= loan.amount;
 
-			loan.save();
 			item.save();
 		}
 
+		loan.save();
 		ctx.response.body = loan;
 	},
 );
