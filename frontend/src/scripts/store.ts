@@ -5,12 +5,27 @@ import {PERMISSIONS, hasPermissions} from '../../../common/permissions';
 import Api from './api';
 
 type CrashCourse = {
-	sendLog: (message: string, level: number, tag: string | null) => Promise<true>;
+	sendLog: (message: string, level: number, tag?: string) => Promise<true>;
 	sendFeedback: (message: string) => Promise<true>;
 	sendHit: () => Promise<true>;
 };
 
-export const appState = reactive({
+type Store = {
+	backendURL: string | null;
+	apiKey: string | null;
+	user: User | null;
+	crashCourse: CrashCourse | null;
+	setUrl: (url: string | null) => void;
+	setApiKey: (key: string | null) => void;
+	setUser: (user: User | null) => void;
+	hasPermissions: (permissions: PERMISSIONS[], any?: boolean) => boolean;
+	features: {
+		accounts: boolean;
+		uploads: boolean;
+	};
+};
+
+export const appState = reactive<Store>({
 	backendURL: localStorage.getItem('backendURL') ?? import.meta.env.VITE_BACKEND_URL ?? null,
 	apiKey: localStorage.getItem('apiKey') ?? null,
 	user: null,
