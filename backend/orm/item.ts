@@ -129,15 +129,20 @@ class Item {
 		return items;
 	}
 
-	static async search(query: string): Promise<Item[]> {
+	static async search(query: string, boolean?: boolean): Promise<Item[]> {
 		const items = [];
 
 		const db = await dbPromise;
 		const rows = await db.query(
-			`select *
-			 from invenfinder.items
-			 where match (name, description)
-				       against (?)`,
+			boolean
+				? `select *
+				 from invenfinder.items
+				 where match (name, description)
+					       against (? in boolean mode)`
+				: `select *
+				   from invenfinder.items
+				   where match (name, description)
+					         against (?)`,
 			[query],
 		);
 

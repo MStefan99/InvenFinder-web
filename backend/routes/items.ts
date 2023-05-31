@@ -41,9 +41,10 @@ router.get(
 	}),
 	async (ctx) => {
 		const query = ctx.request.url.searchParams.get('q');
+		const boolean = ctx.request.url.searchParams.get('boolean');
 
 		if (query?.length) {
-			ctx.response.body = await Item.search(query);
+			ctx.response.body = await Item.search(query, !!boolean);
 			return;
 		}
 

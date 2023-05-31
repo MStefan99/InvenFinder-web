@@ -41,7 +41,7 @@
 			@update:modelValue="editItem()"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 			template(v-slot="{text}")
-				button.block.mb-2(v-for="link in text?.split(`\n`)" :key="link" @click="openLink(link)") {{link.replace('file:', 'File: ')}}
+				button.block.mb-2(v-for="link in text.split(`\n`)" :key="link" @click="openLink(link)") {{link.replace('file:', 'File: ')}}
 		form.flex.mb-4(
 			v-if="appState.features.uploads && appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 			:action="appState.backendURL + '/items/' + item.id + '/upload'"

@@ -192,7 +192,8 @@ export const ItemAPI = {
 	add: (item: NewItem) =>
 		request<Item>('/items', {auth: true, method: RequestMethod.POST, body: item}),
 	getAll: () => request<Item[]>('/items', {auth: true}),
-	search: (query: string) => request<Item[]>('/items', {auth: true, query: {q: query}}),
+	search: (query: string) =>
+		request<Item[]>('/items', {auth: true, query: {q: query, boolean: 'true'}}),
 	getByID: (id: Item['id']) => request<Item>('/items/' + id, {auth: true}),
 	getByLocation: () => Promise.reject<Item>(notImplemented),
 	editAmount: (id: Item['id'], amount: Item['amount']) =>
