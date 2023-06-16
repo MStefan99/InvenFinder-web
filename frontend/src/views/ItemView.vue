@@ -40,7 +40,7 @@
 			@update:modelValue="editItem()"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 			template(v-slot="{text}")
-				button.block.mb-2(v-for="link in text.split(`\n`)" :key="link" @click="openFile(link)") {{link.replace('file:', 'File: ')}}
+				button.block.mb-2(v-for="link in text?.split(`\n`)" :key="link" @click="openFile(link)") {{link.replace('file:', 'File: ')}}
 		h3 Actions
 		button.mr-4.mb-4(
 			v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])"
