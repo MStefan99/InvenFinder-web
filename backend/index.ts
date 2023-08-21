@@ -65,6 +65,7 @@ apiRouter.get('/settings', (ctx) => {
 		features: {
 			accounts: !Deno.env.get('NO_ACCOUNTS'),
 			uploads: !Deno.env.get('NO_UPLOADS'),
+			loans: !Deno.env.get('NO_LOANS'),
 		},
 	};
 });

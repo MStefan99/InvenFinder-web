@@ -5,7 +5,7 @@ div
 			span(v-if="appState.user")
 				RouterLink.clickable(:to="{name: 'inventory'}") Inventory
 				RouterLink.clickable(
-					v-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])"
+					v-if="appState.features.loans && appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])"
 					:to="{name: 'loans'}") My loans
 				RouterLink.clickable(
 					v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS, PERMISSIONS.MANAGE_USERS], true)"

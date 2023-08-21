@@ -35,6 +35,7 @@ type SettingsResponse = {
 	features: {
 		accounts: boolean;
 		uploads: boolean;
+		loans: boolean;
 	};
 };
 

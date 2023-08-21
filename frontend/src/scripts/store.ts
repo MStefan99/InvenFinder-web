@@ -22,6 +22,7 @@ type Store = {
 	features: {
 		accounts: boolean;
 		uploads: boolean;
+		loans: boolean;
 	};
 };
 
@@ -30,7 +31,7 @@ export const appState = reactive<Store>({
 	apiKey: localStorage.getItem('apiKey') ?? null,
 	user: null,
 	crashCourse: null,
-	features: {accounts: false, uploads: false},
+	features: {accounts: false, uploads: false, loans: false},
 	setUrl(url: string) {
 		url = url.replace(/\/$/, '');
 		this.backendURL = url;

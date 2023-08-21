@@ -1,5 +1,5 @@
 <template lang="pug">
-#loans
+#loans(v-if="appState.features.loans")
 	h2.text-accent.text-2xl.mb-4 {{title ?? 'Loans'}}
 	.approved(v-if="approvedLoans.length")
 		h4.text-accent.text-lg.my-4 Approved
@@ -21,6 +21,7 @@
 <script setup lang="ts">
 import type {ItemLoan} from '../scripts/types';
 import {computed} from 'vue';
+import appState from '../scripts/store';
 
 const props = defineProps<{loans: ItemLoan[]; title?: string}>();
 const pendingLoans = computed(() => props.loans.filter((l) => !l.approved));

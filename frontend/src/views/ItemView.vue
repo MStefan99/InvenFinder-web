@@ -63,7 +63,7 @@
 				@click="editAmount(false)") Take from storage
 			button(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])" @click="editAmount(true)") Put in storage
 			button.red(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
-		div(v-if="loans.length")
+		div(v-if="appState.features.loans && loans.length")
 			div(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 				h3.text-accent.text-xl.my-4 Loans for this item
 				div(v-if="pendingLoans.length")
