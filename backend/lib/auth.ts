@@ -1,7 +1,7 @@
 import { Context, Middleware } from '../deps.ts';
 
-import Session from './session.ts';
-import User from './user.ts';
+import Session from '../orm/session.ts';
+import User from '../orm/user.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
 
 async function getSession(ctx: Context): Promise<Session | null> {
@@ -39,13 +39,14 @@ export default {
 			return !!session;
 		},
 
-		async permissions(
+		async hasPermissions(
 			ctx: Context,
-			permissions: [PERMISSIONS],
+			permissions: PERMISSIONS[],
+			any?: boolean,
 		): Promise<boolean> {
 			const user = await getUser(ctx);
 
-			return user?.hasPermissions(permissions) ?? false;
+			return user?.hasPermissions(permissions, any) ?? false;
 		},
 	},
 
@@ -68,7 +69,7 @@ export default {
 		};
 	},
 
-	permissions(permissions: [PERMISSIONS]): Middleware {
+	hasPermissions(permissions: PERMISSIONS[], any?: boolean): Middleware {
 		return async (ctx, next) => {
 			if (!(await this.test.authenticated(ctx))) {
 				ctx.response.status = 401;
@@ -76,7 +77,9 @@ export default {
 					error: 'NOT_AUTHENTICATED',
 					message: 'You must sign in to do this',
 				};
-			} else if (!(await this.test.permissions(ctx, permissions))) {
+			} else if (
+				!(await this.test.hasPermissions(ctx, permissions, any))
+			) {
 				ctx.response.status = 403;
 				ctx.response.body = {
 					error: 'NOT_AUTHORIZED',

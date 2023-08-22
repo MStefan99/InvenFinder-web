@@ -1,5 +1,16 @@
 import appState from './store';
-import type {User, Session, Item, NewUser, NewItem, UpdateUser} from './types';
+import type {
+	User,
+	Session,
+	Item,
+	NewUser,
+	NewItem,
+	UpdateUser,
+	Loan,
+	ItemLoan,
+	UserLoan,
+	EditLoan
+} from './types';
 
 type MessageResponse = {
 	code: string;
@@ -24,6 +35,7 @@ type SettingsResponse = {
 	features: {
 		accounts: boolean;
 		uploads: boolean;
+		loans: boolean;
 	};
 };
 
@@ -162,7 +174,8 @@ export const AuthAPI = {
 					resolve(true);
 				})
 				.catch((err) => reject(err));
-		})
+		}),
+	delete: () => request<User>('/me', {auth: true, method: RequestMethod.DELETE})
 };
 
 export const SessionAPI = {
@@ -180,7 +193,8 @@ export const ItemAPI = {
 	add: (item: NewItem) =>
 		request<Item>('/items', {auth: true, method: RequestMethod.POST, body: item}),
 	getAll: () => request<Item[]>('/items', {auth: true}),
-	search: (query: string) => request<Item[]>('/items', {auth: true, query: {q: query}}),
+	search: (query: string) =>
+		request<Item[]>('/items', {auth: true, query: {q: query, boolean: 'true'}}),
 	getByID: (id: Item['id']) => request<Item>('/items/' + id, {auth: true}),
 	getByLocation: () => Promise.reject<Item>(notImplemented),
 	editAmount: (id: Item['id'], amount: Item['amount']) =>
@@ -193,6 +207,26 @@ export const ItemAPI = {
 		request<Item>('/items/' + item.id, {auth: true, method: RequestMethod.PATCH, body: item}),
 	delete: (item: Item) =>
 		booleanify(request<Item>('/items/' + item.id, {auth: true, method: RequestMethod.DELETE}))
+};
+
+export const LoanAPI = {
+	add: (itemID: Item['id'], amount: Loan['amount']) =>
+		request<Loan>('/items/' + itemID + '/loans', {
+			auth: true,
+			method: RequestMethod.POST,
+			body: {amount}
+		}),
+	getMine: () => request<ItemLoan[]>('/loans/mine', {auth: true}),
+	getMineByItem: (itemID: Item['id']) =>
+		request<Loan[]>('/items/' + itemID + '/loans/mine', {auth: true}),
+	getByItem: (itemID: Item['id']) =>
+		request<UserLoan[]>('/items/' + itemID + '/loans', {auth: true}),
+	getByUser: (userID: User['id']) =>
+		request<ItemLoan[]>('/users/' + userID + '/loans', {auth: true}),
+	edit: (loan: Loan) =>
+		request<EditLoan>('/loans/' + loan.id, {auth: true, method: RequestMethod.PATCH, body: loan}),
+	delete: (loan: Loan, returned?: boolean) =>
+		request<Loan>('/loans/' + loan.id, {auth: true, method: RequestMethod.DELETE, body: {returned}})
 };
 
 export const UserAPI = {
@@ -218,5 +252,6 @@ export default {
 	sessions: SessionAPI,
 	auth: AuthAPI,
 	items: ItemAPI,
+	loans: LoanAPI,
 	users: UserAPI
 };

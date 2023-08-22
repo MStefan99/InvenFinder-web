@@ -25,10 +25,6 @@ export type Session = {
 	time: number;
 };
 
-export type Item = {
-	id: number;
-} & NewItem;
-
 export type NewItem = {
 	name: string;
 	description: string | null;
@@ -36,3 +32,30 @@ export type NewItem = {
 	location: string;
 	amount: number;
 };
+
+export type Item = {
+	id: number;
+} & NewItem;
+
+export type LoanRequest = {
+	userID: number;
+	itemID: number;
+	amount: number;
+};
+
+export type Loan = {
+	id: number;
+	approved: boolean;
+} & LoanRequest;
+
+export type UserLoan = {
+	username: string;
+} & Loan;
+
+export type ItemLoan = {
+	itemName: string;
+} & Loan;
+
+export type EditLoan = {
+	itemAmount: number;
+} & Loan;

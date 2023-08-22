@@ -10,13 +10,17 @@ module.exports = {
 			colors: {
 				foreground: 'var(--color-foreground)',
 				background: 'var(--color-background)',
-				light: 'var(--color-light)',
 				muted: 'var(--color-muted)',
+				light: 'var(--color-light)',
 				accent: 'var(--color-accent)',
 				red: 'var(--color-red)',
 				yellow: 'var(--color-yellow)',
 				green: 'var(--color-red)',
-				blue: 'var(--color-blue)'
+				blue: 'var(--color-blue)',
+				'red-bright': 'var(--color-red-bright)',
+				'yellow-bright': 'var(--color-yellow-bright)',
+				'green-bright': 'var(--color-green-bright)',
+				'blue-bright': 'var(--color-blue-bright)'
 			}
 		}
 	},

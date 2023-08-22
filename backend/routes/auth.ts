@@ -1,11 +1,12 @@
 import { Middleware, Router } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
-import User from '../lib/user.ts';
-import Session from '../lib/session.ts';
+import User from '../orm/user.ts';
+import Session from '../orm/session.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
 import { hasBody, hasCredentials } from './middleware.ts';
 import rateLimiter from '../lib/rateLimiter.ts';
+import Loan from '../orm/loan.ts';
 
 const router = new Router();
 
@@ -62,7 +63,7 @@ router.post(
 		const user = await User.getByUsername(body.username.trim());
 
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -114,7 +115,7 @@ router.get(
 
 		if (!user) {
 			// Should in theory never get here
-			ctx.response.status = 500;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -134,7 +135,7 @@ router.get('/get-cookie', auth.authenticated(), async (ctx) => {
 	ctx.response.status = 200;
 });
 
-// Edit user currently logged in as
+// Edit user
 router.patch(
 	'/me',
 	hasBody(),
@@ -148,7 +149,7 @@ router.patch(
 
 		const user = await auth.methods.getUser(ctx);
 		if (user === null) {
-			ctx.response.status = 500;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -159,7 +160,7 @@ router.patch(
 		if (body.password?.length) {
 			await user.setPassword(body.password);
 		}
-		if (await auth.test.permissions(ctx, [PERMISSIONS.MANAGE_USERS])) {
+		if (await auth.test.hasPermissions(ctx, [PERMISSIONS.MANAGE_USERS])) {
 			if (body.username?.length) {
 				user.username = body.username.trim();
 			}
@@ -170,7 +171,6 @@ router.patch(
 		}
 
 		await user.save();
-
 		ctx.response.body = user;
 	},
 );
@@ -188,6 +188,42 @@ router.get(
 
 		const session = await auth.methods.getSession(ctx);
 		session?.delete();
+	},
+);
+
+// Delete user currently logged in as
+router.delete(
+	'/me',
+	accountsEnabled(),
+	auth.authenticated(),
+	rateLimiter({
+		tag: 'user',
+		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
+	}),
+	async (ctx) => {
+		const user = await auth.methods.getUser(ctx);
+		if (user === null) {
+			ctx.response.status = 404;
+			ctx.response.body = {
+				error: 'USER_NOT_FOUND',
+				message: 'User was not found',
+			};
+			return;
+		}
+
+		const loans = await Loan.getByUser(user);
+		if (loans.length) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'EXISTING_LOANS',
+				message:
+					'You have to return all loaned items to delete your account',
+			};
+			return;
+		}
+
+		user.delete();
+		ctx.response.body = user;
 	},
 );
 

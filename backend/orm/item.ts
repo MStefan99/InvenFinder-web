@@ -1,4 +1,4 @@
-import dbPromise from './db.ts';
+import dbPromise from '../lib/db.ts';
 
 type PropsBase = {
 	name: string;
@@ -8,7 +8,7 @@ type PropsBase = {
 	amount: number;
 };
 
-type Props = PropsBase & {
+type ItemProps = PropsBase & {
 	id: number;
 };
 
@@ -20,7 +20,7 @@ class Item {
 	location: string;
 	amount: number;
 
-	constructor(props: Props) {
+	constructor(props: ItemProps) {
 		this.id = props.id;
 		this.name = props.name;
 		this.description = props.description;
@@ -129,15 +129,20 @@ class Item {
 		return items;
 	}
 
-	static async search(query: string): Promise<Item[]> {
+	static async search(query: string, boolean?: boolean): Promise<Item[]> {
 		const items = [];
 
 		const db = await dbPromise;
 		const rows = await db.query(
-			`select *
-			 from invenfinder.items
-			 where match (name, description)
-				       against (?)`,
+			boolean
+				? `select *
+				 from invenfinder.items
+				 where match (name, description)
+					       against (? in boolean mode)`
+				: `select *
+				   from invenfinder.items
+				   where match (name, description)
+					         against (?)`,
 			[query],
 		);
 

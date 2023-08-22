@@ -12,7 +12,7 @@ footer
 	span Invenfinder
 	.print
 		p.text-muted Do not edit, this file was generated automatically by InvenFinder
-	span.clickable(@click="sendFeedback()") Send feedback
+	span.clickable(v-if="appState.crashCourse" @click="sendFeedback()") Send feedback
 </template>
 
 <script setup lang="ts">

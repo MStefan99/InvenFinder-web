@@ -1,9 +1,9 @@
 <template lang="pug">
 #inventory
 	h2.text-accent.text-2xl.mb-4 Inventory
-	.flex.my-2
-		input.grow.mr-2(placeholder="Search here..." v-model="query" @input="search(query)")
-		button.mr-2(@click="query = ''; search(query)") Clear
+	.row.my-2
+		input.grow(placeholder="Search here..." v-model="query" @input="search(query)")
+		button(@click="query = ''; search(query)") Clear
 	#items-table
 		p.filler(v-if="!items.length") Oh no, your inventory is empty! Once you have some items, they will appear here
 		p.filler(v-else-if="!filteredItems.length") No items matched your search. Please try something else

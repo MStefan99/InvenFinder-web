@@ -1,6 +1,6 @@
 import { decode as hexDecode, encode as hexEncode } from '../deps.ts';
 
-import dbPromise from './db.ts';
+import dbPromise from '../lib/db.ts';
 import {
 	encodePermissions,
 	hasPermissions,
@@ -194,8 +194,11 @@ class User {
 		this.passwordHash = await pbkdf2(password, this.passwordSalt);
 	}
 
-	hasPermissions(permissions: [PERMISSIONS] | number): boolean {
-		return hasPermissions(permissions, this.permissions);
+	hasPermissions(
+		permissions: PERMISSIONS[] | number,
+		any?: boolean,
+	): boolean {
+		return hasPermissions(permissions, this.permissions, any);
 	}
 
 	async delete(): Promise<void> {

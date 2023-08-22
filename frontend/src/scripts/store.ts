@@ -5,7 +5,7 @@ import {PERMISSIONS, hasPermissions} from '../../../common/permissions';
 import Api from './api';
 
 type CrashCourse = {
-	sendLog: (message: string, level: number, tag: string | null) => Promise<true>;
+	sendLog: (message: string, level: number, tag?: string) => Promise<true>;
 	sendFeedback: (message: string) => Promise<true>;
 	sendHit: () => Promise<true>;
 };
@@ -18,10 +18,11 @@ type Store = {
 	setUrl: (url: string | null) => void;
 	setApiKey: (key: string | null) => void;
 	setUser: (user: User | null) => void;
-	hasPermissions: (permissions: PERMISSIONS[]) => boolean;
+	hasPermissions: (permissions: PERMISSIONS[], any?: boolean) => boolean;
 	features: {
 		accounts: boolean;
 		uploads: boolean;
+		loans: boolean;
 	};
 };
 
@@ -30,7 +31,7 @@ export const appState = reactive<Store>({
 	apiKey: localStorage.getItem('apiKey') ?? null,
 	user: null,
 	crashCourse: null,
-	features: {accounts: false, uploads: false},
+	features: {accounts: false, uploads: false, loans: false},
 	setUrl(url: string) {
 		url = url.replace(/\/$/, '');
 		this.backendURL = url;
@@ -44,11 +45,11 @@ export const appState = reactive<Store>({
 	setUser(user: User | null): void {
 		this.user = user;
 	},
-	hasPermissions(permissions: PERMISSIONS[]): boolean {
+	hasPermissions(permissions: PERMISSIONS[], any = false): boolean {
 		if (this.user === null) {
 			return false;
 		} else {
-			return hasPermissions(permissions, this.user.permissions);
+			return hasPermissions(permissions, this.user.permissions, any);
 		}
 	}
 });
@@ -60,7 +61,10 @@ function loadSettings() {
 		appState.features = s.features;
 
 		if (s.crashCourse.url === null || s.crashCourse.key === null) {
-			console.warn('Crash Course not configured!', s);
+			console.warn(
+				'Warning, Crash Course not configured! Errors will not be sent for further analysis.',
+				s.crashCourse
+			);
 			return;
 		}
 		const crashCourse = (await import(

@@ -2,9 +2,10 @@ import { Router } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
 import { parsePermissions, PERMISSIONS } from '../../common/permissions.ts';
-import User from '../lib/user.ts';
+import User from '../orm/user.ts';
 import { hasBody } from './middleware.ts';
 import rateLimiter from '../lib/rateLimiter.ts';
+import Loan from '../orm/loan.ts';
 
 const router = new Router({
 	prefix: '/users',
@@ -13,7 +14,10 @@ const router = new Router({
 // Get a list of all users
 router.get(
 	'/',
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions(
+		[PERMISSIONS.MANAGE_ITEMS, PERMISSIONS.MANAGE_USERS],
+		true,
+	),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -26,7 +30,10 @@ router.get(
 // Get a user by ID
 router.get(
 	'/:id',
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions(
+		[PERMISSIONS.MANAGE_ITEMS, PERMISSIONS.MANAGE_USERS],
+		true,
+	),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -43,7 +50,7 @@ router.get(
 
 		const user = await User.getByID(+ctx.params.id);
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -58,7 +65,7 @@ router.get(
 // Get a user by username
 router.get(
 	'/username/:username',
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_USERS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -75,7 +82,7 @@ router.get(
 
 		const user = await User.getByUsername(ctx.params.username);
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -87,11 +94,39 @@ router.get(
 	},
 );
 
+// Get user loans
+router.get(
+	'/:id/loans',
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
+	async (ctx) => {
+		if (!ctx.params.id?.length) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'NO_ID',
+				message: 'ID must be provided',
+			};
+			return;
+		}
+
+		const user = await User.getByID(+ctx.params.id);
+		if (user === null) {
+			ctx.response.status = 404;
+			ctx.response.body = {
+				error: 'USER_NOT_FOUND',
+				message: 'User was not found',
+			};
+			return;
+		}
+
+		ctx.response.body = await Loan.getByUser(user);
+	},
+);
+
 // Add a new user
 router.post(
 	'/',
 	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_USERS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -99,7 +134,7 @@ router.post(
 	async (ctx) => {
 		const body = await ctx.request.body({ type: 'json' }).value;
 		if (!body.username?.length) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'NO_USERNAME',
 				message: 'Username must be provided',
@@ -130,7 +165,7 @@ router.post(
 router.patch(
 	'/:id',
 	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_USERS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -148,7 +183,7 @@ router.patch(
 
 		const user = await User.getByID(+ctx.params.id);
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -176,8 +211,7 @@ router.patch(
 // Delete user
 router.delete(
 	'/:id',
-	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_USERS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_USERS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -194,7 +228,7 @@ router.delete(
 
 		const user = await User.getByID(+ctx.params.id);
 		if (user === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'USER_NOT_FOUND',
 				message: 'User was not found',
@@ -203,7 +237,6 @@ router.delete(
 		}
 
 		user.delete();
-
 		ctx.response.body = user;
 	},
 );

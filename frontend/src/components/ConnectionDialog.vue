@@ -23,8 +23,13 @@
 					type="password"
 					placeholder="password"
 					autocomplete="current-password")
-			.mb-3
-				button.w-full(type="submit" :disabled="connectionState === ConnectionState.TESTING") Sign in
+			.mb-3.row.w-full
+				button(type="submit" :disabled="connectionState === ConnectionState.TESTING") Sign in
+				button(
+					v-if="appState.features.accounts"
+					type="button"
+					:disabled="connectionState === ConnectionState.TESTING"
+					@click="register()") Sign up
 			p.text-red(v-if="authError") {{authError}}
 		span.text-muted {{getAuthenticationState()}}
 </template>
@@ -106,6 +111,21 @@ function login() {
 
 	Api.auth
 		.login(username.value, password.value)
+		.then(() => {
+			connectionState.value = ConnectionState.AUTHENTICATED;
+			emit('close');
+		})
+		.catch((err) => {
+			connectionState.value = ConnectionState.CONNECTED;
+			authError.value = err.message;
+		});
+}
+
+function register() {
+	connectionState.value = ConnectionState.TESTING;
+
+	Api.auth
+		.register(username.value, password.value)
 		.then(() => {
 			connectionState.value = ConnectionState.AUTHENTICATED;
 			emit('close');

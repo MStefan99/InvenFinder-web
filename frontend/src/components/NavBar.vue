@@ -1,16 +1,19 @@
 <template lang="pug">
 div
 	nav.text-accent.font-semibold
-		span(v-if="appState.user")
-			RouterLink.clickable(:to="{name: 'inventory'}") Inventory
-			RouterLink.clickable(
-				v-if="appState.hasPermissions([PERMISSIONS.MANAGE_USERS])"
-				:to="{name: 'users'}") Users
-			RouterLink.clickable(:to="{name: 'settings'}") Settings
-		span
+		span.pages
+			span(v-if="appState.user")
+				RouterLink.clickable(:to="{name: 'inventory'}") Inventory
+				RouterLink.clickable(
+					v-if="appState.features.loans && appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])"
+					:to="{name: 'loans'}") My loans
+				RouterLink.clickable(
+					v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS, PERMISSIONS.MANAGE_USERS], true)"
+					:to="{name: 'users'}") Users
+				RouterLink.clickable(:to="{name: 'settings'}") Settings
+		span.account
 			span.clickable(v-if="!appState.user" @click="connectionDialogOpen = true") Sign in
-			div(v-else)
-				span.clickable(@click="logout()") Sign out
+			span.clickable(v-else @click="Api.auth.logout()") Sign out
 	Transition(name="popup")
 		ConnectionDialog(v-if="connectionDialogOpen" @close="connectionDialogOpen = false")
 </template>
@@ -24,12 +27,6 @@ import {PERMISSIONS} from '../../../common/permissions';
 import ConnectionDialog from './ConnectionDialog.vue';
 
 const connectionDialogOpen = ref<boolean>(false);
-
-function logout() {
-	Api.auth.logout();
-	appState.setApiKey(null);
-	appState.setUser(null);
-}
 </script>
 
 <style scoped>

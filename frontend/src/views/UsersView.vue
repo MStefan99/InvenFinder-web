@@ -7,7 +7,9 @@
 			:key="user.id"
 			:to="{name: 'user', params: {id: user.id}}")
 			p {{user.username}}
-		button.fab(@click="newUser = defaultUser") New user
+		button.fab(
+			v-if="appState.hasPermissions([PERMISSIONS.MANAGE_USERS])"
+			@click="newUser = defaultUser") New user
 	Transition(name="popup")
 		.popup-wrapper(v-if="newUser !== null" @click.self="newUser = null")
 			form.popup(@submit.prevent="addUser()")
@@ -58,7 +60,7 @@ function addUser() {
 }
 
 onMounted(() => {
-	if (!appState.hasPermissions([PERMISSIONS.MANAGE_USERS])) {
+	if (!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS, PERMISSIONS.MANAGE_USERS], true)) {
 		alert('Not allowed', PopupColor.Red, 'You do not have permissions to view this page');
 		return;
 	}

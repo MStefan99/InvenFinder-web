@@ -12,7 +12,16 @@ create table items (
 );
 
 create fulltext index items_search_index
-	on invenfinder.items (name, description);
+	on items (name, description);
+
+create table `groups` (
+	id          int unsigned auto_increment
+		primary key,
+	name        text         not null,
+	permissions int unsigned not null default 0,
+	constraint groups_name_pk
+		unique (name)
+);
 
 create table users (
 	id            int unsigned auto_increment
@@ -21,8 +30,12 @@ create table users (
 	password_salt varchar(100) not null,
 	password_hash varchar(100) not null,
 	permissions   int unsigned not null default 0,
+	group_id      int unsigned          default null,
 	constraint users_username_pk
-		unique (username)
+		unique (username),
+	constraint users_group_id_fk
+		foreign key (group_id) references `groups` (id)
+			on update cascade on delete set null
 );
 
 create table sessions (
@@ -53,5 +66,5 @@ create table loans (
 			on update cascade on delete cascade,
 	constraint loans_users_id_fk
 		foreign key (userID) references invenfinder.users (id)
-			on update cascade on delete cascade
+			on update cascade on delete restrict
 );

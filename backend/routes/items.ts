@@ -1,7 +1,8 @@
 import { Middleware, path, Router, send } from '../deps.ts';
 
 import auth from '../lib/auth.ts';
-import Item from '../lib/item.ts';
+import Item from '../orm/item.ts';
+import Loan from '../orm/loan.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
 import { hasBody } from './middleware.ts';
 import rateLimiter from '../lib/rateLimiter.ts';
@@ -40,9 +41,10 @@ router.get(
 	}),
 	async (ctx) => {
 		const query = ctx.request.url.searchParams.get('q');
+		const boolean = ctx.request.url.searchParams.get('boolean');
 
 		if (query?.length) {
-			ctx.response.body = await Item.search(query);
+			ctx.response.body = await Item.search(query, !!boolean);
 			return;
 		}
 
@@ -59,9 +61,9 @@ router.get(
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
 	}),
 	async (ctx) => {
-		const parsedID = +ctx.params.id;
+		const id = +ctx.params.id;
 
-		if (Number.isNaN(parsedID)) {
+		if (Number.isNaN(id)) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'ID_NAN',
@@ -70,7 +72,77 @@ router.get(
 			return;
 		}
 
-		ctx.response.body = await Item.getByID(parsedID);
+		ctx.response.body = await Item.getByID(id);
+	},
+);
+
+// Get item loans
+router.get(
+	'/:id/loans',
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
+	async (ctx) => {
+		const id = +ctx.params.id;
+
+		if (Number.isNaN(id)) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ID_NAN',
+				message: 'ID must be a number',
+			};
+			return;
+		}
+
+		const item = await Item.getByID(id);
+		if (item === null) {
+			ctx.response.status = 404;
+			ctx.response.body = {
+				error: 'ITEM_NOT_FOUND',
+				message: 'Item was not found',
+			};
+			return;
+		}
+
+		ctx.response.body = await Loan.getByItem(item);
+	},
+);
+
+// Get item loans by user
+router.get(
+	'/:id/loans/mine',
+	auth.hasPermissions([PERMISSIONS.LOAN_ITEMS]),
+	async (ctx) => {
+		const id = +ctx.params.id;
+
+		if (Number.isNaN(id)) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ID_NAN',
+				message: 'ID must be a number',
+			};
+			return;
+		}
+
+		const item = await Item.getByID(id);
+		if (item === null) {
+			ctx.response.status = 404;
+			ctx.response.body = {
+				error: 'ITEM_NOT_FOUND',
+				message: 'Item was not found',
+			};
+			return;
+		}
+
+		const user = await auth.methods.getUser(ctx);
+		if (user === null) {
+			ctx.response.status = 404;
+			ctx.response.body = {
+				error: 'USER_NOT_FOUND',
+				message: 'User was not found',
+			};
+			return;
+		}
+
+		ctx.response.body = await Loan.getByItemAndUser(item, user);
 	},
 );
 
@@ -78,7 +150,7 @@ router.get(
 router.post(
 	'/',
 	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -128,7 +200,7 @@ router.post(
 router.post(
 	'/:id/upload',
 	uploadsEnabled(),
-	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	async (ctx) => {
 		const id = +ctx.params.id;
 		if (!Number.isInteger(id)) {
@@ -145,7 +217,7 @@ router.post(
 
 		const item = await Item.getByID(id);
 		if (item === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',
@@ -164,15 +236,7 @@ router.post(
 			return;
 		}
 
-		try {
-			await Deno.remove(path.join(uploadDir, item.id.toString()), {
-				recursive: true,
-			});
-		} catch {
-			// Nothing to do here
-		}
-
-		const fileNames = [];
+		const fileNames = item.link?.split('\n') ?? [];
 		for (const file of files) {
 			const itemDir = path.join(uploadDir, ctx.params.id);
 			const filePath = path.join(itemDir, file.originalName);
@@ -213,11 +277,65 @@ router.get(
 	},
 );
 
+// Place a loan request
+router.post('/:id/loans', hasBody(), auth.authenticated(), async (ctx) => {
+	const body = await ctx.request.body({ type: 'json' }).value;
+
+	const id = +ctx.params.id;
+	if (!Number.isInteger(id)) {
+		ctx.response.status = 400;
+		ctx.response.body = {
+			error: 'INVALID_ID',
+			message: 'ID must be a number',
+		};
+		return;
+	}
+
+	if (!Number.isInteger(body.amount) && body.amount < 1) {
+		ctx.response.status = 400;
+		ctx.response.body = {
+			error: 'INVALID_AMOUNT',
+			message: 'Amount must be a positive number',
+		};
+		return;
+	}
+
+	const user = await auth.methods.getUser(ctx);
+	if (user === null) {
+		ctx.response.status = 404;
+		ctx.response.body = {
+			error: 'USER_NOT_FOUND',
+			message: 'User was not found',
+		};
+		return;
+	}
+
+	const item = await Item.getByID(id);
+	if (item === null) {
+		ctx.response.status = 404;
+		ctx.response.body = {
+			error: 'ITEM_NOT_FOUND',
+			message: 'Item was not found',
+		};
+		return;
+	}
+
+	const amount = +body.amount;
+	const loan = await Loan.create({
+		userID: user.id,
+		itemID: item.id,
+		amount: amount,
+	});
+
+	ctx.response.status = 201;
+	ctx.response.body = { ...loan, username: user.username };
+});
+
 // Change item amount
 router.put(
 	'/:id/amount',
 	hasBody(),
-	auth.permissions([PERMISSIONS.EDIT_ITEM_AMOUNT]),
+	auth.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -234,18 +352,18 @@ router.put(
 		}
 
 		const body = await ctx.request.body({ type: 'json' }).value;
-		if (body.amount === undefined || +body.amount < 0) {
+		if (!Number.isInteger(body.amount) && body.amount < 1) {
 			ctx.response.status = 400;
 			ctx.response.body = {
 				error: 'INVALID_AMOUNT',
-				message: 'Amount must be a positive number',
+				message: 'Amount must be a non-negative number',
 			};
 			return;
 		}
 
 		const item = await Item.getByID(id);
 		if (item === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',
@@ -264,7 +382,7 @@ router.put(
 router.patch(
 	'/:id',
 	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -283,7 +401,7 @@ router.patch(
 
 		const item = await Item.getByID(id);
 		if (item === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',
@@ -297,7 +415,7 @@ router.patch(
 				ctx.response.status = 400;
 				ctx.response.body = {
 					error: 'INVALID_AMOUNT',
-					message: 'Amount must be a positive number',
+					message: 'Amount must be a non-negative number',
 				};
 				return;
 			}
@@ -310,10 +428,18 @@ router.patch(
 			item.description = body.description?.trim() ?? null;
 		}
 		if (body.link !== undefined) {
+			const links = body.link?.split('\n') as string[] ?? [];
 			if (item.link?.match(/^file:/)) {
-				await Deno.remove(path.join(uploadDir, item.id.toString()), {
-					recursive: true,
-				});
+				const files = await Deno.readDir(
+					path.join(uploadDir, item.id.toString()),
+				);
+				for await (const file of files) {
+					if (!links.some((l) => l.match(file.name))) {
+						await Deno.remove(
+							path.join(uploadDir, item.id.toString(), file.name),
+						);
+					}
+				}
 			}
 			item.link = body.link?.trim() ?? null;
 		}
@@ -334,7 +460,7 @@ router.patch(
 router.delete(
 	'/:id',
 	hasBody(),
-	auth.permissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
@@ -352,7 +478,7 @@ router.delete(
 
 		const item = await Item.getByID(id);
 		if (item === null) {
-			ctx.response.status = 400;
+			ctx.response.status = 404;
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',
