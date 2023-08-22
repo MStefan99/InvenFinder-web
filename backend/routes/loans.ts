@@ -5,6 +5,7 @@ import Loan from '../orm/loan.ts';
 import Item from '../orm/item.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
 import { hasBody } from './middleware.ts';
+import log from '../lib/log.ts';
 
 const router = new Router({
 	prefix: '/loans',
@@ -81,10 +82,11 @@ router.patch(
 			return;
 		}
 
+		const fields: string[] = [];
+		const user = await auth.methods.getUser(ctx);
 		if (
 			!(await auth.test.hasPermissions(ctx, [PERMISSIONS.MANAGE_ITEMS]))
 		) {
-			const user = await auth.methods.getUser(ctx);
 			if (!user) {
 				return;
 			}
@@ -121,10 +123,16 @@ router.patch(
 					return;
 				}
 				loan.amount = body.amount;
+				if (body.amount !== loan.amount) {
+					fields.push('amount');
+				}
 			}
 		} else {
 			if (typeof body.amount === 'number' && loan.approved) {
 				item.amount += loan.amount - body.amount;
+			}
+			if (body.amount !== loan.amount) {
+				fields.push('amount');
 			}
 			loan.amount = body.amount;
 
@@ -132,6 +140,9 @@ router.patch(
 				typeof body.approved === 'boolean' &&
 				body.approved !== loan.approved
 			) {
+				if (body.approved !== loan.approved) {
+					fields.push(`approved (${body.approved})`);
+				}
 				item.amount = body.approved
 					? item.amount - loan.amount
 					: item.amount + loan.amount;
@@ -151,6 +162,11 @@ router.patch(
 		}
 
 		loan.save();
+		log.log(
+			`User ${user?.id} edited loan ${loan.id}: ${
+				fields.join(', ') || 'No fields changed'
+			}`,
+		);
 		ctx.response.body = { ...loan, itemAmount: item.amount };
 	},
 );
@@ -200,6 +216,12 @@ router.delete(
 
 		loan.delete();
 
+		log.log(
+			`User ${(await auth.methods.getUser(ctx))
+				?.id} deleted loan ${loan.id}, returned: ${
+				body.returned ?? false
+			}`,
+		);
 		ctx.response.body = loan;
 	},
 );

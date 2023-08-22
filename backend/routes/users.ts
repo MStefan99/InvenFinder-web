@@ -6,6 +6,7 @@ import User from '../orm/user.ts';
 import { hasBody } from './middleware.ts';
 import rateLimiter from '../lib/rateLimiter.ts';
 import Loan from '../orm/loan.ts';
+import log from '../lib/log.ts';
 
 const router = new Router({
 	prefix: '/users',
@@ -156,6 +157,10 @@ router.post(
 			parsePermissions(body.permissions),
 		);
 
+		log.log(
+			`User ${(await auth.methods.getUser(ctx))
+				?.id} registered user ${user.id}`,
+		);
 		ctx.response.status = 201;
 		ctx.response.body = user;
 	},
@@ -191,19 +196,32 @@ router.patch(
 			return;
 		}
 
-		if (body.username?.length) {
+		const fields: string[] = [];
+		if (body.username?.length && body.username !== user.username) {
 			user.username = body.username.trim();
+			fields.push('username');
 		}
 		if (body.password?.length) {
 			await user.setPassword(body.password);
+			fields.push('password');
 		}
 		const permissions = +body.permissions;
-		if (Number.isInteger(permissions)) {
+		if (
+			Number.isInteger(permissions) &&
+			body.permissions !== user.permissions
+		) {
 			user.permissions = permissions;
+			fields.push('permissions');
 		}
 
 		await user.save();
 
+		log.log(
+			`User ${(await auth.methods.getUser(ctx))
+				?.id} edited user ${user.id}: ${
+				fields.join(', ') || 'No fields changed'
+			}`,
+		);
 		ctx.response.body = user;
 	},
 );
@@ -237,6 +255,10 @@ router.delete(
 		}
 
 		user.delete();
+		log.log(
+			`User ${(await auth.methods.getUser(ctx))
+				?.id} deleted user ${user.id}`,
+		);
 		ctx.response.body = user;
 	},
 );

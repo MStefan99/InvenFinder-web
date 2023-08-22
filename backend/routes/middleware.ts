@@ -77,7 +77,7 @@ export function logger(): Middleware {
 		const start = new Date();
 		await next();
 		const req = ctx.request;
-		log.log(
+		log.debug(
 			`${req.method} ${
 				req.url.pathname + req.url.search
 			} from ${req.ip} at ${start.getHours()}:${

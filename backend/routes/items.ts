@@ -6,6 +6,7 @@ import Loan from '../orm/loan.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
 import { hasBody } from './middleware.ts';
 import rateLimiter from '../lib/rateLimiter.ts';
+import log from '../lib/log.ts';
 
 const router = new Router({
 	prefix: '/items',
@@ -191,6 +192,10 @@ router.post(
 			amount: +body.amount,
 		});
 
+		log.log(
+			`User ${(await auth.methods.getUser(ctx))
+				?.id} created item ${item?.id}`,
+		);
 		ctx.response.status = 201;
 		ctx.response.body = item;
 	},
@@ -257,6 +262,12 @@ router.post(
 		item.link = fileNames.join('\n');
 		item.save();
 
+		log.log(
+			`User ${(await auth.methods.getUser(ctx))
+				?.id} uploaded the following files for item ${item?.id}: ${
+				fileNames.join(', ')
+			}`,
+		);
 		ctx.response.status = 303;
 		ctx.response.headers.set(
 			'Location',
@@ -327,6 +338,7 @@ router.post('/:id/loans', hasBody(), auth.authenticated(), async (ctx) => {
 		amount: amount,
 	});
 
+	log.log(`User ${user.id} submitted a loan request for item ${item.id}`);
 	ctx.response.status = 201;
 	ctx.response.body = { ...loan, username: user.username };
 });
@@ -374,6 +386,10 @@ router.put(
 		item.amount = body.amount;
 		item.save();
 
+		log.log(
+			`User ${(await auth.methods.getUser(ctx))
+				?.id} changed amount of item ${item.id}`,
+		);
 		ctx.response.body = item;
 	},
 );
@@ -409,8 +425,9 @@ router.patch(
 			return;
 		}
 
+		const fields: string[] = [];
 		const amount = +body.amount;
-		if (body.amount !== undefined) {
+		if (body.amount !== undefined && body.amount !== item.amount) {
 			if (!Number.isInteger(amount) || amount < 0) {
 				ctx.response.status = 400;
 				ctx.response.body = {
@@ -419,15 +436,22 @@ router.patch(
 				};
 				return;
 			}
+			item.amount = amount;
+			fields.push('amount');
 		}
 
-		if (body.name?.length) {
+		if (body.name?.length && body.name !== item.name) {
 			item.name = body.name.trim();
+			fields.push('name');
 		}
-		if (body.description !== undefined) {
+		if (
+			body.description !== undefined &&
+			body.description !== item.description
+		) {
 			item.description = body.description?.trim() ?? null;
+			fields.push('description');
 		}
-		if (body.link !== undefined) {
+		if (body.link !== undefined && body.link !== item.link) {
 			const links = body.link?.split('\n') as string[] ?? [];
 			if (item.link?.match(/^file:/)) {
 				const files = await Deno.readDir(
@@ -442,16 +466,21 @@ router.patch(
 				}
 			}
 			item.link = body.link?.trim() ?? null;
+			fields.push('link');
 		}
-		if (body.location?.length) {
+		if (body.location?.length && body.location !== item.location) {
 			item.location = body.location.trim();
-		}
-		if (body.amount !== undefined) {
-			item.amount = amount;
+			fields.push('location');
 		}
 
 		item.save();
 
+		log.log(
+			`User ${(await auth.methods.getUser(ctx))
+				?.id} edited item ${item.id}: ${
+				fields.join(', ') || 'No fields changed'
+			}`,
+		);
 		ctx.response.body = item;
 	},
 );
@@ -488,6 +517,10 @@ router.delete(
 
 		item.delete();
 
+		log.log(
+			`User ${(await auth.methods.getUser(ctx))
+				?.id} deleted item ${item.id}`,
+		);
 		ctx.response.body = item;
 	},
 );

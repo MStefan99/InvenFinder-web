@@ -7,6 +7,7 @@ import { PERMISSIONS } from '../../common/permissions.ts';
 import { hasBody, hasCredentials } from './middleware.ts';
 import rateLimiter from '../lib/rateLimiter.ts';
 import Loan from '../orm/loan.ts';
+import log from '../lib/log.ts';
 
 const router = new Router();
 
@@ -47,6 +48,7 @@ router.post(
 			ctx.request.ip,
 			ctx.request.headers.get('user-agent') ?? 'Unknown',
 		);
+		log.log(`User ${user.id} registered`);
 
 		ctx.response.status = 201;
 		ctx.response.body = { key: session.publicID, user };
@@ -75,6 +77,7 @@ router.post(
 				error: 'WRONG_PASSWORD',
 				message: 'Wrong password',
 			};
+			log.log(`User ${user.id} failed to log in, invalid password`);
 			return;
 		}
 
@@ -84,6 +87,7 @@ router.post(
 			ctx.request.headers.get('user-agent') ?? 'Unknown',
 		);
 
+		log.log(`User ${user.id} logged in`);
 		ctx.response.status = 201;
 		ctx.response.body = { key: session.publicID, user };
 	},
@@ -157,19 +161,31 @@ router.patch(
 			return;
 		}
 
+		const fields: string[] = [];
 		if (body.password?.length) {
 			await user.setPassword(body.password);
+			fields.push('password');
 		}
 		if (await auth.test.hasPermissions(ctx, [PERMISSIONS.MANAGE_USERS])) {
-			if (body.username?.length) {
+			if (body.username?.length && body.username !== user.username) {
 				user.username = body.username.trim();
+				fields.push('username');
 			}
 			const permissions = +body.permissions;
-			if (Number.isInteger(permissions)) {
+			if (
+				Number.isInteger(permissions) &&
+				permissions !== user.permissions
+			) {
 				user.permissions = permissions;
+				fields.push('permissions');
 			}
 		}
 
+		log.log(
+			`User ${user.id} edited: ${
+				fields.join(', ') || 'No fields changed'
+			}`,
+		);
 		await user.save();
 		ctx.response.body = user;
 	},
@@ -219,9 +235,11 @@ router.delete(
 				message:
 					'You have to return all loaned items to delete your account',
 			};
+			log.log(`Failed to delete user ${user.id} due to open loans`);
 			return;
 		}
 
+		log.log(`Deleted user ${user.id}`);
 		user.delete();
 		ctx.response.body = user;
 	},
