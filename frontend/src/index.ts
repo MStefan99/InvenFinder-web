@@ -9,12 +9,12 @@ import appState from './scripts/store';
 const app = createApp(App);
 
 app.config.errorHandler = (err: unknown) => {
-	console.log('Vue error', err);
+	console.error('Vue error', err);
 	appState.crashCourse?.sendLog(String(err), 3);
 };
 
 app.config.warnHandler = (err: unknown) => {
-	console.log('Vue error', err);
+	console.warn('Vue error', err);
 	appState.crashCourse?.sendLog(String(err), 2);
 };
 

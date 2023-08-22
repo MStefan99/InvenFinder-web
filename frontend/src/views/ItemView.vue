@@ -41,7 +41,7 @@
 			@update:modelValue="editItem()"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 			template(v-slot="{text}")
-				button.block.mb-2(v-for="link in text.split(`\n`)" :key="link" @click="openLink(link)") {{link.replace('file:', 'File: ')}}
+				button.block.mb-2(v-for="link in text?.split(`\n`)" :key="link" @click="openLink(link)") {{link.replace('file:', 'File: ')}}
 		form.flex.mb-4(
 			v-if="appState.features.uploads && appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 			:action="appState.backendURL + '/items/' + item.id + '/upload'"
@@ -109,7 +109,7 @@ import {computed, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 
 import TextEditable from '../components/TextEditable.vue';
-import type {Item, Loan} from '../scripts/types';
+import type {Item, Loan, UserLoan} from '../scripts/types';
 import appState from '../scripts/store';
 import Api from '../scripts/api';
 import {PERMISSIONS} from '../../../common/permissions';
@@ -196,7 +196,17 @@ function editItem() {
 			);
 }
 
-function approveLoan(loan: Loan, approved: boolean) {
+async function approveLoan(loan: UserLoan, approved: boolean) {
+	if (
+		!(await confirm(
+			'Approve loan?',
+			PopupColor.Accent,
+			`Are you sure you want to approve the loan request for ${loan.amount} items by ${loan.username}? The items will be transferred from inventory to the user`
+		))
+	) {
+		return;
+	}
+
 	loan.approved = approved;
 	Api.loans
 		.edit(loan)
@@ -209,7 +219,7 @@ function approveLoan(loan: Loan, approved: boolean) {
 		});
 }
 
-function editLoan(loan: Loan) {
+function editLoan(loan: UserLoan) {
 	Api.loans
 		.edit(loan)
 		.then((l) => {
@@ -220,7 +230,21 @@ function editLoan(loan: Loan) {
 		});
 }
 
-function deleteLoan(loan: Loan, returned?: boolean) {
+async function deleteLoan(loan: UserLoan, returned?: boolean) {
+	if (
+		!(await confirm(
+			loan.approved && returned ? 'Mark as returned?' : 'Delete loan?',
+			PopupColor.Red,
+			!loan.approved
+				? `Are you sure you want to delete the loan request for ${loan.amount} items by ${loan.username}?`
+				: returned
+				? `Are you sure you want to mark the loan for ${loan.amount} items by ${loan.username} as returned? The loaned items will be transferred from the user to inventory`
+				: `Are you sure you want to delete the loan for ${loan.amount} items by ${loan.username}? The loaned items will be lost`
+		))
+	) {
+		return;
+	}
+
 	Api.loans
 		.delete(loan, returned)
 		.then(() => {
