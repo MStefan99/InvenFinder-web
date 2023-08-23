@@ -32,29 +32,28 @@ function checkConnection() {
 	});
 }
 
-function sendFeedback() {
+function sendFeedback(): void {
 	prompt(
 		'Send feedback',
 		PopupColor.Accent,
-		'Your feedback helps make InvenFinder better. Please type your message in the field below.'
+		'Your feedback helps make Invenfinder better. Please type your message in the field below.'
 	)
 		.then((message) =>
-			appState.crashCourse
-				.sendFeedback(message)
-				.then(() =>
-					alert(
-						'Feedback sent',
-						PopupColor.Green,
-						'Thank you! All feedback helps make InvenFinder better.'
-					)
-				)
-				.catch(() =>
+			appState.crashCourse?.sendFeedback(message).then((err) => {
+				if (err) {
 					alert(
 						'Feedback was not sent',
 						PopupColor.Red,
-						'Failed to send feedback. Please check your connection and try again.'
-					)
-				)
+						err?.message || 'Failed to send feedback. Please check your connection and try again.'
+					);
+				} else {
+					alert(
+						'Feedback sent',
+						PopupColor.Green,
+						'Thank you! All feedback helps make Invenfinder better.'
+					);
+				}
+			})
 		)
 		.catch(() => null);
 }

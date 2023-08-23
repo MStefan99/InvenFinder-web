@@ -17,7 +17,7 @@ type MessageResponse = {
 	message: string;
 };
 
-type ErrorResponse = {
+export type ErrorResponse = {
 	error: string;
 	message: string;
 };

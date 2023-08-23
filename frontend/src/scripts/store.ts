@@ -2,12 +2,12 @@ import {reactive} from 'vue';
 
 import type {User} from './types';
 import {PERMISSIONS, hasPermissions} from '../../../common/permissions';
-import Api from './api';
+import Api, {ErrorResponse} from './api';
 
 type CrashCourse = {
-	sendLog: (message: string, level: number, tag?: string) => Promise<true>;
-	sendFeedback: (message: string) => Promise<true>;
-	sendHit: () => Promise<true>;
+	sendLog: (message: string, level: number, tag?: string) => Promise<ErrorResponse | void>;
+	sendFeedback: (message: string) => Promise<ErrorResponse | void>;
+	sendHit: () => Promise<ErrorResponse | void>;
 };
 
 type Store = {
@@ -60,22 +60,30 @@ function loadSettings() {
 	Api.connection.settings().then(async (s) => {
 		appState.features = s.features;
 
-		if (s.crashCourse.url === null || s.crashCourse.key === null) {
+		if (!s.crashCourse.url || !s.crashCourse.key) {
 			console.warn(
 				'Warning, Crash Course not configured! Errors will not be sent for further analysis.',
 				s.crashCourse
 			);
 			return;
 		}
-		const crashCourse = (await import(
-			/* @vite-ignore */
-			`${s.crashCourse.url}/cc?k=${s.crashCourse.key}`
-		)) as CrashCourse;
-		if (crashCourse) {
-			appState.crashCourse = crashCourse;
-			crashCourse.sendHit();
-		} else {
-			console.warn('Crash Course could not be loaded from', s.crashCourse.url);
+
+		try {
+			const cc = (await import(
+				/* @vite-ignore */
+				`${s.crashCourse.url}/cc?k=${s.crashCourse.key}`
+			)) as CrashCourse;
+			if (cc) {
+				appState.crashCourse = cc;
+				cc.sendHit();
+			}
+		} catch (err) {
+			console.warn(
+				'Crash Course could not be loaded from',
+				s.crashCourse.url + '.',
+				'Errors will not be sent for further analysis.',
+				err
+			);
 		}
 	});
 }
