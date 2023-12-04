@@ -158,8 +158,10 @@ router.post(
 		);
 
 		log.log(
-			`User ${(await auth.methods.getUser(ctx))
-				?.id} registered user ${user.id}`,
+			`User ${
+				(await auth.methods.getUser(ctx))
+					?.id
+			} registered user ${user.id}`,
 		);
 		ctx.response.status = 201;
 		ctx.response.body = user;
@@ -217,8 +219,10 @@ router.patch(
 		await user.save();
 
 		log.log(
-			`User ${(await auth.methods.getUser(ctx))
-				?.id} edited user ${user.id}: ${
+			`User ${
+				(await auth.methods.getUser(ctx))
+					?.id
+			} edited user ${user.id}: ${
 				fields.join(', ') || 'No fields changed'
 			}`,
 		);
@@ -256,8 +260,10 @@ router.delete(
 
 		user.delete();
 		log.log(
-			`User ${(await auth.methods.getUser(ctx))
-				?.id} deleted user ${user.id}`,
+			`User ${
+				(await auth.methods.getUser(ctx))
+					?.id
+			} deleted user ${user.id}`,
 		);
 		ctx.response.body = user;
 	},

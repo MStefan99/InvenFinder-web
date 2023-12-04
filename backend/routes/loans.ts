@@ -217,10 +217,10 @@ router.delete(
 		loan.delete();
 
 		log.log(
-			`User ${(await auth.methods.getUser(ctx))
-				?.id} deleted loan ${loan.id}, returned: ${
-				body.returned ?? false
-			}`,
+			`User ${
+				(await auth.methods.getUser(ctx))
+					?.id
+			} deleted loan ${loan.id}, returned: ${body.returned ?? false}`,
 		);
 		ctx.response.body = loan;
 	},

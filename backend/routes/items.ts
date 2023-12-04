@@ -193,8 +193,10 @@ router.post(
 		});
 
 		log.log(
-			`User ${(await auth.methods.getUser(ctx))
-				?.id} created item ${item?.id}`,
+			`User ${
+				(await auth.methods.getUser(ctx))
+					?.id
+			} created item ${item?.id}`,
 		);
 		ctx.response.status = 201;
 		ctx.response.body = item;
@@ -263,8 +265,10 @@ router.post(
 		item.save();
 
 		log.log(
-			`User ${(await auth.methods.getUser(ctx))
-				?.id} uploaded the following files for item ${item?.id}: ${
+			`User ${
+				(await auth.methods.getUser(ctx))
+					?.id
+			} uploaded the following files for item ${item?.id}: ${
 				fileNames.join(', ')
 			}`,
 		);
@@ -387,8 +391,10 @@ router.put(
 		item.save();
 
 		log.log(
-			`User ${(await auth.methods.getUser(ctx))
-				?.id} changed amount of item ${item.id}`,
+			`User ${
+				(await auth.methods.getUser(ctx))
+					?.id
+			} changed amount of item ${item.id}`,
 		);
 		ctx.response.body = item;
 	},
@@ -476,8 +482,10 @@ router.patch(
 		item.save();
 
 		log.log(
-			`User ${(await auth.methods.getUser(ctx))
-				?.id} edited item ${item.id}: ${
+			`User ${
+				(await auth.methods.getUser(ctx))
+					?.id
+			} edited item ${item.id}: ${
 				fields.join(', ') || 'No fields changed'
 			}`,
 		);
@@ -518,8 +526,10 @@ router.delete(
 		item.delete();
 
 		log.log(
-			`User ${(await auth.methods.getUser(ctx))
-				?.id} deleted item ${item.id}`,
+			`User ${
+				(await auth.methods.getUser(ctx))
+					?.id
+			} deleted item ${item.id}`,
 		);
 		ctx.response.body = item;
 	},

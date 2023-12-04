@@ -38,22 +38,23 @@ function sendFeedback(): void {
 		PopupColor.Accent,
 		'Your feedback helps make Invenfinder better. Please type your message in the field below.'
 	)
-		.then((message) =>
-			appState.crashCourse?.sendFeedback(message).then((err) => {
-				if (err) {
-					alert(
-						'Feedback was not sent',
-						PopupColor.Red,
-						err?.message || 'Failed to send feedback. Please check your connection and try again.'
-					);
-				} else {
-					alert(
-						'Feedback sent',
-						PopupColor.Green,
-						'Thank you! All feedback helps make Invenfinder better.'
-					);
-				}
-			})
+		.then(
+			(message) =>
+				appState.crashCourse?.sendFeedback(message).then((err) => {
+					if (err) {
+						alert(
+							'Feedback was not sent',
+							PopupColor.Red,
+							err?.message || 'Failed to send feedback. Please check your connection and try again.'
+						);
+					} else {
+						alert(
+							'Feedback sent',
+							PopupColor.Green,
+							'Thank you! All feedback helps make Invenfinder better.'
+						);
+					}
+				})
 		)
 		.catch(() => null);
 }

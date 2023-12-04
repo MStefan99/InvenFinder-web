@@ -7,7 +7,6 @@
         <option name="TAB_SIZE" value="2" />
       </value>
     </option>
-    <option name="ENABLE_SECOND_REFORMAT" value="true" />
     <option name="SOFT_MARGINS" value="80,120" />
     <DB2CodeStyleSettings version="6">
       <option name="USE_GENERAL_STYLE" value="false" />
@@ -23,13 +22,6 @@
       <option name="TABLE_CONTENT" value="2" />
       <option name="TABLE_CLOSING" value="3" />
     </DerbyCodeStyleSettings>
-    <H2CodeStyleSettings version="6">
-      <option name="USE_GENERAL_STYLE" value="false" />
-      <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
-      <option name="TABLE_OPENING" value="1" />
-      <option name="TABLE_CONTENT" value="2" />
-      <option name="TABLE_CLOSING" value="3" />
-    </H2CodeStyleSettings>
     <H2CodeStyleSettings version="6">
       <option name="USE_GENERAL_STYLE" value="false" />
       <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
