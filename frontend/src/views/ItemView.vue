@@ -238,8 +238,8 @@ async function deleteLoan(loan: UserLoan, returned?: boolean) {
 			!loan.approved
 				? `Are you sure you want to delete the loan request for ${loan.amount} items by ${loan.username}?`
 				: returned
-				  ? `Are you sure you want to mark the loan for ${loan.amount} items by ${loan.username} as returned? The loaned items will be transferred from the user to inventory`
-				  : `Are you sure you want to delete the loan for ${loan.amount} items by ${loan.username}? The loaned items will be lost`
+					? `Are you sure you want to mark the loan for ${loan.amount} items by ${loan.username} as returned? The loaned items will be transferred from the user to inventory`
+					: `Are you sure you want to delete the loan for ${loan.amount} items by ${loan.username}? The loaned items will be lost`
 		))
 	) {
 		return;
