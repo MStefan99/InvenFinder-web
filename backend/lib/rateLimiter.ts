@@ -92,7 +92,7 @@ export function rateLimiter(options?: Partial<Options>): Middleware {
 			ctx.response.body = {
 				error: 'RATE_LIMITED',
 				message:
-					'You\'ve made too many requests in a short amount of time, please try again in ' +
+					"You've made too many requests in a short amount of time, please try again in " +
 					delay + ' second(s)',
 			};
 		}

@@ -7,19 +7,21 @@
 			|
 			b {{appState.user.username}}
 	form(@submit.prevent="updatePassword()")
-		input(:value="appState.user.username" hidden autocomplete="username")
+		input(v-model="updateUser.username" autocomplete="username" placeholder="new-username")
 		label(for="password-input") Password
 		input#password-input.block.my-2(
 			type="password"
 			v-model="updateUser.password"
-			autocomplete="new-password")
+			autocomplete="new-password"
+			placeholder="new-password")
 		label(for="password-repeat-input") Repeat password
 		input#password-repeat-input.block.my-2(
 			type="password"
 			v-model="passwordRepeat"
-			autocomplete="new-password")
+			autocomplete="new-password"
+			placeholder="new-password")
 		p.mb-2.text-red(v-if="(updateUser.password ?? '') !== passwordRepeat") Passwords do not match
-		button(type="submit" :disabled="!passwordsMatch") Save
+		button(type="submit" :disabled="!formValid") Save
 	.sessions.mb-4
 		h3.text-accent.text-xl.my-4 Active sessions
 		table.w-full
@@ -49,13 +51,12 @@ import type {Session, UpdateUser} from '../scripts/types';
 import {alert, PopupColor, confirm} from '../scripts/popups';
 
 const sessions = ref<Session[]>([]);
-const updateUser = ref<UpdateUser>({id: appState.user.id});
+const updateUser = ref<UpdateUser>({id: appState.user.id, password: ''});
 const passwordRepeat = ref<string>('');
-const passwordsMatch = computed<boolean>(
+const formValid = computed<boolean>(
 	() =>
-		updateUser.value.password?.length &&
-		passwordRepeat.value.length &&
-		updateUser.value.password === passwordRepeat.value
+		updateUser.value.password === passwordRepeat.value &&
+		!!(updateUser.value.username?.length || updateUser.value.password?.length)
 );
 
 window.document.title = 'Settings | Invenfinder';
@@ -79,12 +80,7 @@ function parseUA(ua: string): string | null {
 }
 
 function updatePassword() {
-	if (!updateUser.value.password?.length || !passwordRepeat.value.length) {
-		alert('Password cannot be empty', PopupColor.Red, 'Please type in a new password');
-		return;
-	}
-
-	if (!passwordsMatch.value) {
+	if (!formValid.value) {
 		alert(
 			'Passwords do not match',
 			PopupColor.Red,
@@ -97,11 +93,12 @@ function updatePassword() {
 		.edit(updateUser.value)
 		.then(() => {
 			alert(
-				'Password changed',
+				'Information changed',
 				PopupColor.Green,
-				'Your password was successfully changed. Consider signing out your active sessions'
+				'Your user info was successfully changed. Consider signing out your active sessions'
 			);
-			updateUser.value.password = passwordRepeat.value = '';
+			appState.user.username = updateUser.value.username;
+			updateUser.value.username = updateUser.value.password = passwordRepeat.value = '';
 		})
 		.catch((err) => alert('Could not change your password', PopupColor.Red, err.message));
 }
