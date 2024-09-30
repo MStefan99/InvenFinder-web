@@ -3,17 +3,14 @@ import appState from './store';
 
 // Prerequisites
 
-const issuer = new URL('');
 const algorithm = 'oidc';
-const client_id = '';
-const client_secret = '';
 const redirect_uri = window.location.origin;
 
 // End of prerequisites
 
 const code_challenge_method = 'S256';
 
-async function discover() {
+async function discover(issuer: URL, client_id: string, client_secret: string) {
 	const as = await oauth
 		.discoveryRequest(issuer, {algorithm})
 		.then((response) => oauth.processDiscoveryResponse(issuer, response));
@@ -27,8 +24,8 @@ async function discover() {
 	return {as, client};
 }
 
-export async function login() {
-	const {as, client} = await discover();
+export async function login(issuer: string, client_id: string, client_secret: string) {
+	const {as, client} = await discover(new URL(issuer), client_id, client_secret);
 
 	const code_verifier = oauth.generateRandomCodeVerifier();
 	const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
@@ -41,13 +38,20 @@ export async function login() {
 	authorizationUrl.searchParams.set('code_challenge', code_challenge);
 	authorizationUrl.searchParams.set('code_challenge_method', code_challenge_method);
 
+	sessionStorage.setItem('issuer', issuer);
+	sessionStorage.setItem('client_id', client_id);
+	sessionStorage.setItem('client_secret', client_secret);
 	sessionStorage.setItem('code_verifier', code_verifier);
 
-	window.open(authorizationUrl);
+	window.location.href = authorizationUrl.href;
 }
 
 export async function getTokens() {
-	const {as, client} = await discover();
+	const issuer = new URL(sessionStorage.getItem('issuer'));
+	const client_id = sessionStorage.getItem('client_id');
+	const client_secret = sessionStorage.getItem('client_secret');
+
+	const {as, client} = await discover(issuer, client_id, client_secret);
 
 	const currentUrl: URL = new URL(window.location.href);
 	const params = oauth.validateAuthResponse(as, client, currentUrl);
@@ -83,9 +87,14 @@ export async function getTokens() {
 		throw new Error(); // Handle OAuth 2.0 response body error
 	}
 
+	sessionStorage.removeItem('issuer');
+	sessionStorage.removeItem('client_id');
+	sessionStorage.removeItem('client_secret');
+	sessionStorage.removeItem('code_verifier');
+
 	appState.setApiKey(result.access_token);
 	appState.setSSOURL(issuer.origin);
 
-	const claims = oauth.getValidatedIdTokenClaims(result);
-	console.log('ID Token Claims', claims);
+	// const claims = oauth.getValidatedIdTokenClaims(result);
+	// console.log('ID Token Claims', claims);
 }

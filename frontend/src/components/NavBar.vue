@@ -26,7 +26,7 @@ import Api from '../scripts/api';
 import {PERMISSIONS} from '../../../common/permissions';
 import ConnectionDialog from './ConnectionDialog.vue';
 
-const connectionDialogOpen = ref<boolean>(false);
+const connectionDialogOpen = ref<boolean>(!appState.apiKey);
 </script>
 
 <style scoped>

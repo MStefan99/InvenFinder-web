@@ -1,0 +1,8 @@
+[
+	{
+		"name": "Example SSO provider",
+		"issuer": "https://sso.example.com/sso",
+		"client_id": "f81320eed32ede3265dd04b3430c52a0",
+		"client_secret": "9460628dba5baa4e33ca5c04a44e19b1"
+	}
+]

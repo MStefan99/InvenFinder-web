@@ -1,7 +1,7 @@
 import {reactive} from 'vue';
 
 import type {User} from './types';
-import {PERMISSIONS, hasPermissions} from '../../../common/permissions';
+import {hasPermissions, PERMISSIONS} from '../../../common/permissions';
 import Api, {ErrorResponse} from './api';
 
 type CrashCourse = {
@@ -41,13 +41,21 @@ export const appState = reactive<Store>({
 		localStorage.setItem('backendURL', url);
 		loadSettings();
 	},
-	setApiKey(key: string) {
+	setApiKey(key: string | null) {
 		this.apiKey = key;
-		localStorage.setItem('apiKey', key);
+		if (key !== null) {
+			localStorage.setItem('apiKey', key);
+		} else {
+			localStorage.removeItem('apiKey');
+		}
 	},
 	setSSOURL(ssoURL: string | null) {
 		this.ssoURL = ssoURL;
-		localStorage.setItem('ssoURL', ssoURL);
+		if (ssoURL !== null) {
+			localStorage.setItem('ssoURL', ssoURL);
+		} else {
+			localStorage.removeItem('ssoURL');
+		}
 	},
 	setUser(user: User | null): void {
 		this.user = user;

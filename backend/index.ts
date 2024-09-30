@@ -56,7 +56,16 @@ apiRouter.get('/', (ctx) => {
 	ctx.response.body = { message: 'Welcome!' };
 });
 
-apiRouter.get('/settings', (ctx) => {
+apiRouter.get('/settings', async (ctx) => {
+	let sso = null;
+	try {
+		const decoder = new TextDecoder();
+		const fileData = await Deno.readFile('sso.json');
+		sso = JSON.parse(decoder.decode(fileData));
+	} catch {
+		// Nothing to do
+	}
+
 	ctx.response.body = {
 		crashCourse: {
 			url: Deno.env.get('CRASH_COURSE_URL') ?? null,
@@ -64,6 +73,7 @@ apiRouter.get('/settings', (ctx) => {
 		},
 		features: {
 			accounts: !Deno.env.get('NO_ACCOUNTS'),
+			sso,
 			uploads: !Deno.env.get('NO_UPLOADS'),
 			loans: !Deno.env.get('NO_LOANS'),
 		},
