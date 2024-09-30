@@ -51,7 +51,7 @@ router.post(
 		log.log(`User ${user.id} registered`);
 
 		ctx.response.status = 201;
-		ctx.response.body = { key: session.publicID, user };
+		ctx.response.body = { key: session.token, user };
 	},
 );
 
@@ -89,7 +89,7 @@ router.post(
 
 		log.log(`User ${user.id} logged in`);
 		ctx.response.status = 201;
-		ctx.response.body = { key: session.publicID, user };
+		ctx.response.body = { key: session.token, user };
 	},
 );
 

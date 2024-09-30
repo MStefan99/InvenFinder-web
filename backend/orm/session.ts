@@ -12,7 +12,7 @@ function getRandomString(byteCount: number): string {
 
 type SessionProps = {
 	id: number;
-	publicID: string;
+	token: string;
 	userID: number;
 	ip: string;
 	ua: string;
@@ -21,7 +21,7 @@ type SessionProps = {
 
 class Session {
 	id: number;
-	publicID: string;
+	token: string;
 	userID: number;
 	ip: string;
 	ua: string;
@@ -29,7 +29,7 @@ class Session {
 
 	constructor(props: SessionProps) {
 		this.id = props.id;
-		this.publicID = props.publicID;
+		this.token = props.token;
 		this.userID = props.userID;
 		this.ip = props.ip;
 		this.ua = props.ua;
@@ -40,7 +40,7 @@ class Session {
 
 	toJSON() {
 		return {
-			id: this.publicID,
+			token: this.token,
 			ip: this.ip,
 			ua: this.ua,
 			time: this.time,
@@ -52,20 +52,20 @@ class Session {
 		await db
 			.execute(
 				`insert into invenfinder.sessions(id,
-				                               public_id,
+				                               token,
 				                               user_id,
 				                               ip,
                                  ua,
 				                               time)
 				 values (?, ?, ?, ?, ?, ?)
-				 on duplicate key update public_id = values(public_id),
+				 on duplicate key update token = values(token),
 				                         user_id = values(user_id),
 				                         ip = values(ip),
 				                         ua = values(ua),
 				                         time = values(time)`,
 				[
 					this.id,
-					this.publicID,
+					this.token,
 					this.ip,
 					this.ua,
 					this.time,
@@ -74,19 +74,19 @@ class Session {
 	}
 
 	static async create(user: User, ip: string, ua: string): Promise<Session> {
-		const publicID = getRandomString(32);
+		const token = getRandomString(32);
 		const time = new Date().toISOString().replace('T', ' ').slice(0, -1);
 
 		const db = await dbPromise;
 		const res = await db.execute(
-			`insert into invenfinder.sessions(public_id,
+			`insert into invenfinder.sessions(token,
 			                                  user_id,
 			                                  ip,
 			                                  ua,
 			                                  time)
 			 values (?, ?, ?, ?, ?)`,
 			[
-				publicID,
+				token,
 				user.id,
 				ip,
 				ua,
@@ -96,7 +96,7 @@ class Session {
 
 		return new Session({
 			id: res.lastInsertId ?? 0,
-			publicID,
+			token,
 			userID: user.id,
 			ip,
 			ua,
@@ -108,7 +108,7 @@ class Session {
 		const db = await dbPromise;
 		const rows = await db.query(
 			`select id,
-			        public_id as publicID,
+			        token,
 			        user_id   as userID,
 			        ip,
 			        ua,
@@ -130,13 +130,13 @@ class Session {
 		const db = await dbPromise;
 		const rows = await db.query(
 			`select id,
-			        public_id as publicID,
+			        token,
 			        user_id   as userID,
 			        ip,
 			        ua,
 			        time
 			 from invenfinder.sessions
-			 where public_id=?`,
+			 where token=?`,
 			[id],
 		);
 
@@ -154,7 +154,7 @@ class Session {
 		const db = await dbPromise;
 		const rows = await db.query(
 			`select id,
-			        public_id as publicID,
+			        token,
 			        user_id   as userID,
 			        ip,
 			        ua,

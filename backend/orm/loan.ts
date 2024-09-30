@@ -39,10 +39,10 @@ class Loan {
 			dbClientPromise
 				.then((client) =>
 					client.execute(
-						`insert into invenfinder.loans(id, userID, itemID, amount, approved)
+						`insert into invenfinder.loans(id, user_id, item_id, amount, approved)
 						 values (?, ?, ?, ?, ?)
-						 on duplicate key update userID = values(userID),
-						                         itemID = values(itemID),
+						 on duplicate key update user_id = values(user_id),
+						                         item_id = values(item_id),
 						                         amount = values(amount),
 						                         approved = values(approved)`,
 						[
@@ -66,7 +66,7 @@ class Loan {
 
 		const client = await dbClientPromise;
 		const res = await client.execute(
-			`insert into invenfinder.loans(userID, itemID, amount)
+			`insert into invenfinder.loans(user_id, item_id, amount)
 			 values (?, ?, ?)`,
 			[
 				options.userID,
@@ -87,9 +87,9 @@ class Loan {
 	static async getByID(id: number): Promise<Loan | null> {
 		const client = await dbClientPromise;
 		const rows = await client.query(
-			`select loans.id as id, userID, itemID, amount, approved, username
+			`select loans.id as id, user_id as userID, item_id as itemID, amount, approved, username
 			 from invenfinder.loans
-				      join invenfinder.users on loans.userID=users.id
+				      join invenfinder.users on loans.user_id=users.id
 			 where loans.id=?`,
 			[id],
 		);
@@ -107,10 +107,10 @@ class Loan {
 
 		const client = await dbClientPromise;
 		const rows = await client.query(
-			`select loans.id as id, userID, itemID, amount, approved, username
+			`select loans.id as id, user_id as userID, item_id as itemID, amount, approved, username
 			 from invenfinder.loans
-				      join invenfinder.users on loans.userID=users.id
-			 where itemID=?`,
+				      join invenfinder.users on loans.user_id=users.id
+			 where item_id=?`,
 			[item.id],
 		);
 
@@ -125,10 +125,10 @@ class Loan {
 
 		const client = await dbClientPromise;
 		const rows = await client.query(
-			`select loans.id as id, userID, itemID, loans.amount, approved, items.name as itemName
+			`select loans.id as id, user_id as userID, item_id as itemID, loans.amount, approved, items.name as itemName
 			 from invenfinder.loans
-				      join invenfinder.items on loans.itemID=items.id
-			 where userID=?`,
+				      join invenfinder.items on loans.item_id=items.id
+			 where user_id=?`,
 			[user.id],
 		);
 
@@ -146,10 +146,10 @@ class Loan {
 
 		const client = await dbClientPromise;
 		const rows = await client.query(
-			`select loans.id as id, userID, itemID, amount, approved
+			`select loans.id as id, user_id as userID, item_id as itemID, amount, approved
 			 from invenfinder.loans
-			 where itemID=?
-				 and userID=?`,
+			 where item_id=?
+				 and user_id=?`,
 			[item.id, user.id],
 		);
 
