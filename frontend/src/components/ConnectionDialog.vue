@@ -30,12 +30,21 @@
 					type="button"
 					:disabled="connectionState === ConnectionState.TESTING"
 					@click="register()") Sign up
+			label Single sign-on
+			.mb-3.row.w-full
+				button(
+					v-if="appState.features.accounts"
+					type="button"
+					:disabled="connectionState === ConnectionState.TESTING"
+					@click="ssoLogin()") Sign in with SSO
 			p.text-red(v-if="authError") {{authError}}
 		span.text-muted {{getAuthenticationState()}}
 </template>
 
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
+
+import {login as ssoLogin} from '../scripts/sso';
 
 import appState from '../scripts/store';
 import Api from '../scripts/api';

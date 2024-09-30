@@ -13,10 +13,12 @@ type CrashCourse = {
 type Store = {
 	backendURL: string | null;
 	apiKey: string | null;
+	ssoURL: string | null;
 	user: User | null;
 	crashCourse: CrashCourse | null;
 	setUrl: (url: string | null) => void;
 	setApiKey: (key: string | null) => void;
+	setSSOURL: (sso: string | null) => void;
 	setUser: (user: User | null) => void;
 	hasPermissions: (permissions: PERMISSIONS[], any?: boolean) => boolean;
 	features: {
@@ -29,6 +31,7 @@ type Store = {
 export const appState = reactive<Store>({
 	backendURL: localStorage.getItem('backendURL') ?? import.meta.env.VITE_BACKEND_URL ?? null,
 	apiKey: localStorage.getItem('apiKey') ?? null,
+	ssoURL: localStorage.getItem('ssoURL') ?? null,
 	user: null,
 	crashCourse: null,
 	features: {accounts: false, uploads: false, loans: false},
@@ -41,6 +44,10 @@ export const appState = reactive<Store>({
 	setApiKey(key: string) {
 		this.apiKey = key;
 		localStorage.setItem('apiKey', key);
+	},
+	setSSOURL(ssoURL: string | null) {
+		this.ssoURL = ssoURL;
+		localStorage.setItem('ssoURL', ssoURL);
 	},
 	setUser(user: User | null): void {
 		this.user = user;

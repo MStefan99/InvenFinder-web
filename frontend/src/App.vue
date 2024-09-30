@@ -16,13 +16,31 @@ footer
 </template>
 
 <script setup lang="ts">
-import {onMounted} from 'vue';
+import {onBeforeMount, onMounted} from 'vue';
 
 import NavBar from './components/NavBar.vue';
 import PopupContainer from './components/PopupContainer.vue';
 import Api from './scripts/api';
 import appState from './scripts/store';
 import {PopupColor, alert, prompt} from './scripts/popups';
+import {getTokens} from './scripts/sso';
+import {useRoute, useRouter} from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
+
+onBeforeMount(() => {
+	router.isReady().then(async () => {
+		if ('code' in route.query) {
+			await getTokens();
+
+			const query = Object.assign({}, route.query);
+			delete query.code;
+			await router.replace({query});
+			router.go(0);
+		}
+	});
+});
 
 onMounted(checkConnection);
 
