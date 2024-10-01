@@ -8,6 +8,7 @@ import loanRouter from './routes/loans.ts';
 import { init } from './lib/init.ts';
 import log from './lib/log.ts';
 import rateLimiter from './lib/rateLimiter.ts';
+import { ssoProviders } from './lib/sso.ts';
 
 const defaultPort = 3007;
 const parsedPort = Deno.env.has('PORT')
@@ -56,16 +57,7 @@ apiRouter.get('/', (ctx) => {
 	ctx.response.body = { message: 'Welcome!' };
 });
 
-apiRouter.get('/settings', async (ctx) => {
-	let sso = null;
-	try {
-		const decoder = new TextDecoder();
-		const fileData = await Deno.readFile('sso.json');
-		sso = JSON.parse(decoder.decode(fileData));
-	} catch {
-		// Nothing to do
-	}
-
+apiRouter.get('/settings', (ctx) => {
 	ctx.response.body = {
 		crashCourse: {
 			url: Deno.env.get('CRASH_COURSE_URL') ?? null,
@@ -73,10 +65,10 @@ apiRouter.get('/settings', async (ctx) => {
 		},
 		features: {
 			accounts: !Deno.env.get('NO_ACCOUNTS'),
-			sso,
 			uploads: !Deno.env.get('NO_UPLOADS'),
 			loans: !Deno.env.get('NO_LOANS'),
 		},
+		ssoProviders: Array.from(ssoProviders.values()),
 	};
 });
 

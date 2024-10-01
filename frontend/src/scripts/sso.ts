@@ -1,5 +1,6 @@
 import * as oauth from 'oauth4webapi';
 import appState from './store';
+import {OpenIDTokenEndpointResponse} from 'oauth4webapi';
 
 // Prerequisites
 
@@ -24,8 +25,17 @@ async function discover(issuer: URL, client_id: string, client_secret: string) {
 	return {as, client};
 }
 
-export async function login(issuer: string, client_id: string, client_secret: string) {
-	const {as, client} = await discover(new URL(issuer), client_id, client_secret);
+export async function login(ssoName: string): Promise<boolean> {
+	const ssoConfig = appState.ssoProviders.get(ssoName);
+	if (!ssoConfig) {
+		return false;
+	}
+
+	const {as, client} = await discover(
+		new URL(ssoConfig.issuer),
+		ssoConfig.client_id,
+		ssoConfig.client_secret
+	);
 
 	const code_verifier = oauth.generateRandomCodeVerifier();
 	const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
@@ -38,20 +48,25 @@ export async function login(issuer: string, client_id: string, client_secret: st
 	authorizationUrl.searchParams.set('code_challenge', code_challenge);
 	authorizationUrl.searchParams.set('code_challenge_method', code_challenge_method);
 
-	sessionStorage.setItem('issuer', issuer);
-	sessionStorage.setItem('client_id', client_id);
-	sessionStorage.setItem('client_secret', client_secret);
-	sessionStorage.setItem('code_verifier', code_verifier);
+	sessionStorage.setItem('ssoName', ssoConfig.name);
+	sessionStorage.setItem('codeVerifier', code_verifier);
 
 	window.location.href = authorizationUrl.href;
+	return true; // For TS
 }
 
-export async function getTokens() {
-	const issuer = new URL(sessionStorage.getItem('issuer'));
-	const client_id = sessionStorage.getItem('client_id');
-	const client_secret = sessionStorage.getItem('client_secret');
+export async function getTokens(): Promise<OpenIDTokenEndpointResponse | null> {
+	const ssoName = sessionStorage.getItem('ssoName');
+	const ssoConfig = appState.ssoProviders.get(ssoName);
+	if (!ssoConfig) {
+		return null;
+	}
 
-	const {as, client} = await discover(issuer, client_id, client_secret);
+	const {as, client} = await discover(
+		new URL(ssoConfig.issuer),
+		ssoConfig.client_id,
+		ssoConfig.client_secret
+	);
 
 	const currentUrl: URL = new URL(window.location.href);
 	const params = oauth.validateAuthResponse(as, client, currentUrl);
@@ -60,9 +75,9 @@ export async function getTokens() {
 		throw new Error(); // Handle OAuth 2.0 redirect error
 	}
 
-	const code_verifier = sessionStorage.getItem('code_verifier');
+	const code_verifier = sessionStorage.getItem('codeVerifier');
 	if (!code_verifier) {
-		return;
+		return null;
 	}
 
 	const response = await oauth.authorizationCodeGrantRequest(
@@ -87,14 +102,10 @@ export async function getTokens() {
 		throw new Error(); // Handle OAuth 2.0 response body error
 	}
 
-	sessionStorage.removeItem('issuer');
-	sessionStorage.removeItem('client_id');
-	sessionStorage.removeItem('client_secret');
-	sessionStorage.removeItem('code_verifier');
+	sessionStorage.removeItem('ssoName');
 
 	appState.setApiKey(result.access_token);
-	appState.setSSOURL(issuer.origin);
+	appState.setSsoName(ssoConfig.name);
 
-	// const claims = oauth.getValidatedIdTokenClaims(result);
-	// console.log('ID Token Claims', claims);
+	return result;
 }

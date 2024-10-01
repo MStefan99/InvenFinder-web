@@ -30,15 +30,15 @@
 					type="button"
 					:disabled="connectionState === ConnectionState.TESTING"
 					@click="register()") Sign up
-			template(v-if="appState.features.sso?.length")
+			template(v-if="appState.ssoProviders?.size")
 				label Single sign-on
 				.mb-3.row.w-full
 					button(
-						v-for="sso in appState.features.sso"
+						v-for="sso in appState.ssoProviders.values()"
 						:key="sso.client_id"
 						type="button"
 						:disabled="connectionState === ConnectionState.TESTING"
-						@click="ssoLogin(sso.issuer, sso.client_id, sso.client_secret)") Sign in with {{sso.name}}
+						@click="ssoLogin(sso.name)") Sign in with {{sso.name}}
 			p.text-red(v-if="authError") {{authError}}
 		span.text-muted {{getAuthenticationState()}}
 </template>

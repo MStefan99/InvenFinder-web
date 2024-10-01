@@ -41,7 +41,7 @@ router.delete(
 	}),
 	async (ctx) => {
 		const currentSession = await auth.methods.getSession(ctx);
-		const otherSession = await Session.getByPublicID(ctx.params.id);
+		const otherSession = await Session.getByToken(ctx.params.id);
 
 		if (currentSession === null || otherSession === null) {
 			ctx.response.status = 404;

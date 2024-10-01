@@ -1,3 +1,10 @@
+export type SsoProvider = {
+	name: string;
+	issuer: string;
+	client_id: string;
+	client_secret: string;
+};
+
 type BaseUser = {
 	username: string;
 	permissions: number;
@@ -19,10 +26,11 @@ export type UpdateUser = {
 };
 
 export type Session = {
-	id: string;
+	token: string;
 	ip: string;
 	ua: string;
 	time: number;
+	ssoProvider?: string;
 };
 
 export type NewItem = {

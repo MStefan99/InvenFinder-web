@@ -19,7 +19,7 @@ div
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 
 import {appState} from '../scripts/store';
 import Api from '../scripts/api';
@@ -27,6 +27,20 @@ import {PERMISSIONS} from '../../../common/permissions';
 import ConnectionDialog from './ConnectionDialog.vue';
 
 const connectionDialogOpen = ref<boolean>(!appState.apiKey);
+
+onMounted(checkConnection);
+
+function checkConnection() {
+	Api.auth
+		.me()
+		.then((user) => {
+			connectionDialogOpen.value = false;
+			appState.setUser(user);
+		})
+		.catch(() => {
+			connectionDialogOpen.value = true;
+		});
+}
 </script>
 
 <style scoped>

@@ -27,11 +27,11 @@
 		table.w-full
 			thead
 				tr
-					th Location
+					th Address
 					th Device
-					th Created at
+					th First used
 			tbody
-				tr(v-for="session in sessions" :key="session.id")
+				tr(v-for="session in sessions" :key="session.token")
 					td {{session.ip}}
 					td {{parseUA(session.ua)}}
 					td {{new Date(session.time).toLocaleString()}}
@@ -104,9 +104,9 @@ function updatePassword() {
 }
 
 function logout(session: Session) {
-	Api.sessions.logout(session.id);
+	Api.sessions.logout(session.token);
 	sessions.value.splice(sessions.value.indexOf(session), 1);
-	if (session.id === appState.apiKey) {
+	if (session.token === appState.apiKey) {
 		appState.setApiKey(null);
 		appState.setUser(null);
 	}

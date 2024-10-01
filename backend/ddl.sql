@@ -39,13 +39,16 @@ create table users (
 );
 
 create table sessions (
-	id      int unsigned auto_increment
+	id            int unsigned auto_increment
 		primary key,
-	token   varchar(80)  not null,
-	user_id int unsigned not null,
-	ip      varchar(20)  not null,
-	ua      varchar(200) not null,
-	time    datetime     not null,
+	token         varchar(80)  not null,
+	user_id       int unsigned not null,
+	ip            varchar(20)  not null,
+	ua            varchar(200) not null,
+	time          datetime     not null,
+	sso_provider  varchar(80),
+	last_verified datetime,
+	revoked       boolean default false,
 	constraint sessions_token_pk
 		unique (token),
 	constraint sessions_users_id_fk
@@ -53,30 +56,13 @@ create table sessions (
 			on update cascade on delete cascade
 );
 
-create table sso_sessions (
-	id           int unsigned auto_increment primary key,
-	token        varchar(80)           not null,
-	user_id      int unsigned          not null,
-	ip           varchar(60)           not null,
-	ua           varchar(200)          not null,
-	time         datetime              not null,
-	validated_at datetime              not null,
-	revoked      boolean default false not null,
-	constraint sso_sessions_token_pk
-		unique (token),
-	constraint sso_sessions_users_id_fk
-		foreign key (user_id) references users (id)
-			on update cascade on delete cascade
-);
-
 create table loans (
-	id       int unsigned auto_increment,
+	id       int unsigned auto_increment
+		primary key,
 	user_id  int unsigned not null,
 	item_id  int unsigned not null,
 	amount   int          not null,
 	approved bool         not null default false,
-	constraint loans_pk
-		primary key (id),
 	constraint loans_items_id_fk
 		foreign key (item_id) references invenfinder.items (id)
 			on update cascade on delete cascade,

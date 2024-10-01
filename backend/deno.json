@@ -3,7 +3,6 @@
 		"lib": [
 			"deno.window"
 		],
-		"alwaysStrict": true,
 		"noImplicitAny": true,
 		"noImplicitOverride": true,
 		"noImplicitThis": true,
@@ -44,8 +43,8 @@
 		"proseWrap": "preserve"
 	},
 	"tasks": {
-		"dev": "deno run --allow-net --allow-env --allow-read --allow-write --watch index.ts",
-		"start": "deno run --allow-net --allow-env --allow-read --allow-write index.ts",
+		"dev": "deno run --allow-net --allow-env --allow-read=sso.json --watch index.ts",
+		"start": "deno run --allow-net --allow-env --allow-read=sso.json index.ts",
 		"build": "echo 'Nothing to build'",
 		"lint": "deno check index.ts && deno lint && deno fmt --check",
 		"fmt": "deno fmt"
