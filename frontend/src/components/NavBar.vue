@@ -19,16 +19,35 @@ div
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {ref} from 'vue';
 
-import {appState} from '../scripts/store';
+import {appState, settingsLoaded} from '../scripts/store';
 import Api from '../scripts/api';
 import {PERMISSIONS} from '../../../common/permissions';
 import ConnectionDialog from './ConnectionDialog.vue';
 
 const connectionDialogOpen = ref<boolean>(!appState.apiKey);
 
-onMounted(checkConnection);
+import {useRoute, useRouter} from 'vue-router';
+import {getTokens} from '../scripts/sso';
+
+const route = useRoute();
+const router = useRouter();
+
+router
+	.isReady()
+	.then(() => settingsLoaded)
+	.then(async () => {
+		if ('code' in route.query) {
+			await getTokens();
+
+			const query = Object.assign({}, route.query);
+			delete query.code;
+			await router.replace({query});
+		}
+
+		checkConnection();
+	});
 
 function checkConnection() {
 	Api.auth

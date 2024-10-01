@@ -109,4 +109,4 @@ export function loadSettings() {
 	});
 }
 
-export const storeReady = loadSettings();
+export const settingsLoaded = loadSettings();
