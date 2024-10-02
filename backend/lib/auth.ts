@@ -32,7 +32,7 @@ async function getSession(ctx: Context): Promise<Session | null> {
 			session.lastVerified = now;
 			session.save();
 		} else {
-			session.delete();
+			session.delete(true);
 			session = null;
 		}
 	}

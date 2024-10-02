@@ -238,9 +238,9 @@ class Session {
 		);
 	}
 
-	async delete(): Promise<void> {
+	async delete(force: boolean = false): Promise<void> {
 		const db = await dbPromise;
-		if (this.ssoProvider) {
+		if (this.ssoProvider && !force) {
 			await db.execute(
 				`update invenfinder.sessions
 				 set revoked = true

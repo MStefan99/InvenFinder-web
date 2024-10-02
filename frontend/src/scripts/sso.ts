@@ -44,7 +44,7 @@ export async function login(ssoName: string): Promise<boolean> {
 	authorizationUrl.searchParams.set('client_id', client.client_id);
 	authorizationUrl.searchParams.set('redirect_uri', redirect_uri);
 	authorizationUrl.searchParams.set('response_type', 'code');
-	authorizationUrl.searchParams.set('scope', 'openid email groups');
+	authorizationUrl.searchParams.set('scope', 'openid email');
 	authorizationUrl.searchParams.set('code_challenge', code_challenge);
 	authorizationUrl.searchParams.set('code_challenge_method', code_challenge_method);
 
