@@ -36,7 +36,7 @@ router.post(
 	hasCredentials(),
 	rateLimiter(),
 	async (ctx) => {
-		const body = await ctx.request.body({ type: 'json' }).value;
+		const body = await ctx.request.body.json();
 
 		const user = await User.create(
 			body.username.trim(),
@@ -61,7 +61,7 @@ router.post(
 	hasCredentials(),
 	rateLimiter({ tag: 'login', rate: 2, initial: 10, max: 10 }),
 	async (ctx) => {
-		const body = await ctx.request.body({ type: 'json' }).value;
+		const body = await ctx.request.body.json();
 		const user = await User.getByUsername(body.username.trim());
 
 		if (user === null) {
@@ -149,7 +149,7 @@ router.patch(
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
 	}),
 	async (ctx) => {
-		const body = await ctx.request.body({ type: 'json' }).value;
+		const body = await ctx.request.body.json();
 
 		const user = await auth.methods.getUser(ctx);
 		if (user === null) {

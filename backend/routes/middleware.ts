@@ -3,7 +3,7 @@ import log from '../lib/log.ts';
 
 async function getBodyLength(ctx: Context) {
 	try {
-		return (await ctx.request.body({ type: 'text' }).value).length;
+		return (await ctx.request.body.text()).length;
 	} catch {
 		return 0;
 	}
@@ -27,7 +27,6 @@ function parseAccept(ctx: Context): { type: string; quality: number }[] {
 export function hasBody(): Middleware {
 	return async (ctx, next) => {
 		if (await getBodyLength(ctx)) {
-			await ctx.request.body().value;
 			await next();
 		} else {
 			ctx.response.status = 400;
@@ -43,7 +42,7 @@ export function hasBody(): Middleware {
 export function hasCredentials(): Middleware {
 	return async (ctx, next) => {
 		if (await getBodyLength(ctx)) {
-			const body = await ctx.request.body({ type: 'json' }).value;
+			const body = await ctx.request.body.json();
 
 			if (!body.username?.length) {
 				ctx.response.status = 400;

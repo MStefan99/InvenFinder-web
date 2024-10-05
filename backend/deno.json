@@ -43,8 +43,8 @@
 		"proseWrap": "preserve"
 	},
 	"tasks": {
-		"dev": "deno run --allow-net --allow-env --allow-read=sso.json --watch index.ts",
-		"start": "deno run --allow-net --allow-env --allow-read=sso.json index.ts",
+		"dev": "deno run --allow-net --allow-env --allow-read='sso.json,./upload' --allow-write='./upload' --watch index.ts",
+		"start": "deno run --allow-net --allow-env --allow-read='sso.json,./upload' --allow-write='./upload' index.ts",
 		"build": "echo 'Nothing to build'",
 		"lint": "deno check index.ts && deno lint && deno fmt --check",
 		"fmt": "deno fmt"

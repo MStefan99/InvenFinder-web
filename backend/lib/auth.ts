@@ -12,7 +12,8 @@ async function getSession(ctx: Context): Promise<Session | null> {
 		return ctx.state.session;
 	}
 
-	const token = ctx.request.headers.get('api-key');
+	const token = ctx.request.headers.get('api-key') ??
+		await ctx.cookies.get('SID');
 	const ssoName = ctx.request.headers.get('sso-name');
 
 	if (token === null || token === undefined) {

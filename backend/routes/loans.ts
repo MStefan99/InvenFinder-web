@@ -41,7 +41,7 @@ router.patch(
 		true,
 	),
 	async (ctx) => {
-		const body = await ctx.request.body({ type: 'json' }).value;
+		const body = await ctx.request.body.json();
 
 		const id = +ctx.params.id;
 		if (!Number.isInteger(id)) {
@@ -177,7 +177,7 @@ router.delete(
 	hasBody(),
 	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	async (ctx) => {
-		const body = await ctx.request.body({ type: 'json' }).value;
+		const body = await ctx.request.body.json();
 
 		const id = +ctx.params.id;
 		if (!Number.isInteger(id)) {
