@@ -1,14 +1,13 @@
-import { encode as hexEncode } from '../deps.ts';
+import { encodeHex } from '../deps.ts';
 
 import dbPromise from '../lib/db.ts';
 import User from './user.ts';
 import { ssoProviders } from '../lib/sso.ts';
 
 function getRandomString(byteCount: number): string {
-	const dec = new TextDecoder();
 	const data = crypto.getRandomValues(new Uint8Array(byteCount));
 
-	return dec.decode(hexEncode(data));
+	return encodeHex(data);
 }
 
 function dateToString(date: Date): string {

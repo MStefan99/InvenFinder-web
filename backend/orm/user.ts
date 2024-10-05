@@ -1,4 +1,4 @@
-import { decode as hexDecode, encode as hexEncode } from '../deps.ts';
+import { decodeHex, encodeHex } from '../deps.ts';
 
 import dbPromise from '../lib/db.ts';
 import {
@@ -10,15 +10,11 @@ import {
 const PBKDF2ITERATIONS = 100000;
 
 function buf2hex(buf: Uint8Array): string {
-	const dec = new TextDecoder();
-
-	return dec.decode(hexEncode(buf));
+	return encodeHex(buf);
 }
 
 function hex2buf(str: string): Uint8Array {
-	const enc = new TextEncoder();
-
-	return hexDecode(enc.encode(str));
+	return decodeHex(str);
 }
 
 async function pbkdf2(password: string, salt: string): Promise<string> {
@@ -43,8 +39,7 @@ async function pbkdf2(password: string, salt: string): Promise<string> {
 		256,
 	);
 
-	const encodedKey = hexEncode(new Uint8Array(generatedKey));
-	return dec.decode(encodedKey);
+	return encodeHex(new Uint8Array(generatedKey));
 }
 
 type Props = {

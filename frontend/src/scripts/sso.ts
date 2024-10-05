@@ -2,13 +2,8 @@ import * as oauth from 'oauth4webapi';
 import appState from './store';
 import {OpenIDTokenEndpointResponse} from 'oauth4webapi';
 
-// Prerequisites
-
 const algorithm = 'oidc';
 const redirect_uri = window.location.origin;
-
-// End of prerequisites
-
 const code_challenge_method = 'S256';
 
 async function discover(issuer: URL, client_id: string, client_secret: string) {
