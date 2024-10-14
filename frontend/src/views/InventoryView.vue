@@ -2,8 +2,8 @@
 #inventory
 	h2.text-accent.text-2xl.mb-4 Inventory
 	.row.my-2
-		input.grow(placeholder="Search here..." v-model="query" @input="search(query)")
-		button(@click="query = ''; search(query)") Clear
+		input.grow(placeholder="Search here..." v-model="searchString" @input="search(searchString)")
+		button(@click="searchString = ''; search(searchString)") Clear
 	#items-table
 		p.filler(v-if="!items.length") Oh no, your inventory is empty! Once you have some items, they will appear here
 		p.filler(v-else-if="!filteredItems.length") No items matched your search. Please try something else
@@ -46,13 +46,14 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 
 import Api from '../scripts/api';
 import appState from '../scripts/store';
 import {PERMISSIONS} from '../../../common/permissions';
 import type {Item, NewItem} from '../scripts/types';
 import {alert, PopupColor} from '../scripts/popups';
+import {useQuery} from '../scripts/composables';
 import {useRouter} from 'vue-router';
 
 const defaultItem: NewItem = {
@@ -66,9 +67,16 @@ const defaultItem: NewItem = {
 const items = ref<Item[]>([]);
 const filteredItems = ref<Item[]>([]);
 const newItem = ref<Item | null>(null);
-const query = ref<string>('');
+const searchString = ref<string>('');
 const router = useRouter();
 let debounceHandle: number | undefined = undefined;
+
+const {query} = useQuery(
+	computed(() => ({
+		search: searchString.value
+	}))
+);
+searchString.value = Array.isArray(query.value.search) ? query.value.search[0] : query.value.search;
 
 window.document.title = 'Inventory | Invenfinder';
 
@@ -77,7 +85,12 @@ onMounted(loadItems);
 function loadItems() {
 	Api.items
 		.getAll()
-		.then((i) => (filteredItems.value = items.value = i))
+		.then((i) => {
+			filteredItems.value = items.value = i;
+			if (searchString.value) {
+				search(searchString.value);
+			}
+		})
 		.catch((err) => alert('Could not load inventory', PopupColor.Red, err.message));
 }
 
