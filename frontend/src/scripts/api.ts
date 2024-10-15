@@ -61,7 +61,7 @@ enum RequestMethod {
 type RequestParams = {
 	auth?: boolean;
 	method?: RequestMethod;
-	body?: unknown;
+	body?: FormData | unknown;
 	query?: Record<string, string>;
 	credentials?: true;
 };
@@ -97,16 +97,23 @@ function request<T>(path: string, params?: RequestParams): Promise<T> {
 					appState.ssoName?.length && {
 						'SSO-Name': appState.ssoName as string
 					}),
-				...(params?.method !== RequestMethod.GET && {
-					'Content-Type': 'application/json'
-				})
+				...(params?.method !== RequestMethod.GET &&
+					!(params?.body instanceof FormData) && {
+						'Content-Type': 'application/json'
+					})
 			},
 			...(params?.credentials && {credentials: 'include'}),
-			...(!!params?.body && {body: JSON.stringify(params.body)})
+			...(!!params?.body && {
+				body: params.body instanceof FormData ? params.body : JSON.stringify(params.body)
+			})
 		})
 			.then((res) => {
 				if (res.ok) {
-					return res.json();
+					if (res.headers.get('Content-Type')?.match('application/json')) {
+						return res.json();
+					} else {
+						return res.text();
+					}
 				} else {
 					return res.json().then((err) => reject(err));
 				}
@@ -206,6 +213,12 @@ export const ItemAPI = {
 		request<Item[]>('/items', {auth: true, query: {q: query, boolean: 'true'}}),
 	getByID: (id: Item['id']) => request<Item>('/items/' + id, {auth: true}),
 	getByLocation: () => Promise.reject<Item>(notImplemented),
+	uploadFiles: (id: Item['id'], body: FormData) =>
+		request<string>('/items/' + id + '/files', {
+			auth: true,
+			method: RequestMethod.POST,
+			body
+		}),
 	editAmount: (id: Item['id'], amount: Item['amount']) =>
 		request<Item>('/items/' + id + '/amount', {
 			auth: true,

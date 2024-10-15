@@ -205,7 +205,7 @@ router.post(
 
 // Upload file for an item
 router.post(
-	'/:id/upload',
+	'/:id/files',
 	uploadsEnabled(),
 	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	async (ctx) => {
@@ -248,6 +248,7 @@ router.post(
 		for (const file of files) {
 			const itemDir = path.join(uploadDir, ctx.params.id);
 			const filePath = path.join(itemDir, file.name);
+			console.dir(file);
 			await Deno.mkdir(itemDir, { recursive: true });
 			await Deno.writeFile(filePath, file.stream());
 			fileNames.push('file:' + path.basename(file.name));
@@ -261,20 +262,18 @@ router.post(
 				(await auth.methods.getUser(ctx))
 					?.id
 			} uploaded the following files for item ${item?.id}: ${
-				fileNames.join(', ')
+				files.map((f) => f.name).join(', ')
 			}`,
 		);
-		ctx.response.status = 303;
-		ctx.response.headers.set(
-			'Location',
-			ctx.request.headers.get('Origin') + '/items/' + id,
-		);
+
+		ctx.response.status = 203;
+		ctx.response.body = item.link;
 	},
 );
 
 // Get file for an item
 router.get(
-	'/:id/upload/:file',
+	'/:id/files/:file',
 	uploadsEnabled(),
 	auth.authenticated(),
 	async (ctx) => {

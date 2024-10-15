@@ -1,13 +1,14 @@
 import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
+import {clearPopups} from './popups';
+import appState from './store';
 import InventoryView from '../views/InventoryView.vue';
 import SettingsView from '../views/SettingsView.vue';
 import UsersView from '../views/UsersView.vue';
 import UserView from '../views/UserView.vue';
 import ItemView from '../views/ItemView.vue';
 import LabelView from '../views/LabelView.vue';
-import {clearPopups} from './popups';
-import appState from './store';
 import LoansView from '../views/LoansView.vue';
+import FileView from '../views/FileView.vue';
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -26,6 +27,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/items/:id',
 		name: 'item',
 		component: ItemView
+	},
+	{
+		path: '/items/:id/files/:file',
+		name: 'file',
+		component: FileView
 	},
 	{
 		path: '/loans',

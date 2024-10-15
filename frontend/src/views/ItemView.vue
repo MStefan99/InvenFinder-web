@@ -41,19 +41,22 @@
 			@update:modelValue="editItem()"
 			:readonly="!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
 			template(v-slot="{text}")
-				button.block.mb-2(v-for="link in text?.split(`\n`)" :key="link" @click="openLink(link)") {{link.replace('file:', 'File: ')}}
+				RouterLink.btn.block.mb-2(
+					v-for="link in text?.split(`\n`)"
+					:key="link"
+					:to="{name: 'file', params: {id: item.id, file: link.replace('file:', '')}}") {{link.replace('file:', 'File: ')}}
 		form.flex.mb-4(
 			v-if="appState.features.uploads && appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
 			:action="appState.backendURL + '/items/' + item.id + '/upload'"
 			method="post"
 			enctype="multipart/form-data"
-			@submit.prevent="(e) => submitForm(e)")
+			@submit.prevent="(e) => uploadFiles(e)")
 			.row
 				label.btn {{fileLabel}}
 					input(
 						type="file"
 						multiple
-						name="document"
+						name="files"
 						@change="(e) => (fileLabel = e.target.files ? e.target.files.length + ' files selected' : 'Select files to upload')")
 				button Upload files
 		.row
@@ -155,18 +158,14 @@ onMounted(() => {
 	}
 });
 
-async function submitForm(e: SubmitEvent) {
-	e.preventDefault();
-	await Api.auth.getCookie();
-	(e.target as HTMLFormElement).submit();
-}
-
-async function openLink(link: string) {
-	if (link.startsWith('file:')) {
-		link = link.replace(/^file:/, `${appState.backendURL}/items/${item.value.id}/upload/`);
-		await Api.auth.getCookie();
+async function uploadFiles(e: SubmitEvent) {
+	const body = new FormData();
+	for (const file of ((e.target as HTMLFormElement).files as HTMLInputElement).files) {
+		body.append('file', file);
 	}
-	window.location.href = link;
+
+	item.value.link = await Api.items.uploadFiles(item.value.id, body);
+	console.log(item.value.link);
 }
 
 async function loanItem() {
