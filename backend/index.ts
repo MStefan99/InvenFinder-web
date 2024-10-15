@@ -8,6 +8,7 @@ import loanRouter from './routes/loans.ts';
 import { init } from './lib/init.ts';
 import log from './lib/log.ts';
 import rateLimiter from './lib/rateLimiter.ts';
+import { ssoProviders } from './lib/sso.ts';
 
 const defaultPort = 3007;
 const parsedPort = Deno.env.has('PORT')
@@ -67,6 +68,7 @@ apiRouter.get('/settings', (ctx) => {
 			uploads: !Deno.env.get('NO_UPLOADS'),
 			loans: !Deno.env.get('NO_LOANS'),
 		},
+		ssoProviders: Array.from(ssoProviders.values()),
 	};
 });
 

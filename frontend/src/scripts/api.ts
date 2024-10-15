@@ -9,7 +9,8 @@ import type {
 	Loan,
 	ItemLoan,
 	UserLoan,
-	EditLoan
+	EditLoan,
+	SsoProvider
 } from './types';
 
 type MessageResponse = {
@@ -37,6 +38,7 @@ type SettingsResponse = {
 		uploads: boolean;
 		loans: boolean;
 	};
+	ssoProviders: SsoProvider[];
 };
 
 const apiPrefix = import.meta.env.VUE_API_PREFIX || '';
@@ -91,6 +93,10 @@ function request<T>(path: string, params?: RequestParams): Promise<T> {
 				...(!!params?.auth && {
 					'API-Key': appState.apiKey as string // Safe because of an if condition above
 				}),
+				...(!!params?.auth &&
+					appState.ssoName?.length && {
+						'SSO-Name': appState.ssoName as string
+					}),
 				...(params?.method !== RequestMethod.GET && {
 					'Content-Type': 'application/json'
 				})
@@ -144,6 +150,7 @@ export const AuthAPI = {
 				.then((data) => {
 					appState.setApiKey(data.key);
 					appState.setUser(data.user);
+					appState.setSsoName(null);
 					resolve(data.user);
 				})
 				.catch((err) => reject(err));
@@ -154,6 +161,7 @@ export const AuthAPI = {
 				.then((data) => {
 					appState.setApiKey(data.key);
 					appState.setUser(data.user);
+					appState.setSsoName(null);
 					resolve(data.user);
 				})
 				.catch((err) => reject(err));
@@ -171,6 +179,7 @@ export const AuthAPI = {
 				.then(() => {
 					appState.setApiKey(null);
 					appState.setUser(null);
+					appState.setSsoName(null);
 					resolve(true);
 				})
 				.catch((err) => reject(err));
@@ -180,8 +189,8 @@ export const AuthAPI = {
 
 export const SessionAPI = {
 	getAll: () => request<Session[]>('/sessions', {auth: true}),
-	logout: (id: Session['id']) =>
-		request<Session>('/sessions/' + id, {
+	logout: (token: Session['token']) =>
+		request<Session>('/sessions/' + token, {
 			auth: true,
 			method: RequestMethod.DELETE
 		}),

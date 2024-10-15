@@ -3,20 +3,66 @@ import { Context, Middleware } from '../deps.ts';
 import Session from '../orm/session.ts';
 import User from '../orm/user.ts';
 import { PERMISSIONS } from '../../common/permissions.ts';
+import { getUserInfo } from './sso.ts';
+
+const sessionRevalidationInterval = 1000 * 60 * 10;
 
 async function getSession(ctx: Context): Promise<Session | null> {
 	if (ctx.state.session) {
 		return ctx.state.session;
 	}
 
-	const id = ctx.request.headers.get('api-key') ??
-		(await ctx.cookies.get('SID'));
+	const token = ctx.request.headers.get('api-key') ??
+		await ctx.cookies.get('SID');
+	const ssoName = ctx.request.headers.get('sso-name');
 
-	if (id === null || id === undefined) {
+	if (token === null || token === undefined) {
 		return null;
 	}
 
-	return (ctx.state.session = await Session.getByPublicID(id));
+	let session = await Session.getByToken(token);
+	const now = new Date();
+	if (
+		session && ssoName &&
+		now.getTime() - (session?.lastVerified?.getTime() ?? 0) >
+			sessionRevalidationInterval
+	) {
+		const info = await getUserInfo(ssoName, token);
+
+		if (info) {
+			session.lastVerified = now;
+			session.save();
+		} else {
+			session.delete(true);
+			session = null;
+		}
+	}
+
+	if (!session && ssoName) {
+		const info = await getUserInfo(ssoName, token);
+		if (!info) {
+			return null;
+		}
+
+		const user = await User.getByUsername(info.username);
+		if (!user) {
+			return null;
+		}
+
+		session = await Session.create(
+			user,
+			ctx.request.ip,
+			ctx.request.headers.get('user-agent') ?? 'Unknown',
+			token,
+			ssoName,
+		);
+	}
+
+	if (session?.revoked) {
+		return null;
+	}
+
+	return (ctx.state.session = session);
 }
 
 async function getUser(ctx: Context): Promise<User | null> {

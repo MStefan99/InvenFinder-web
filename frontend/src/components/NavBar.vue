@@ -21,12 +21,45 @@ div
 <script setup lang="ts">
 import {ref} from 'vue';
 
-import {appState} from '../scripts/store';
+import {appState, settingsLoaded} from '../scripts/store';
 import Api from '../scripts/api';
 import {PERMISSIONS} from '../../../common/permissions';
 import ConnectionDialog from './ConnectionDialog.vue';
 
-const connectionDialogOpen = ref<boolean>(false);
+const connectionDialogOpen = ref<boolean>(!appState.apiKey);
+
+import {useRoute, useRouter} from 'vue-router';
+import {getTokens} from '../scripts/sso';
+
+const route = useRoute();
+const router = useRouter();
+
+router
+	.isReady()
+	.then(() => settingsLoaded)
+	.then(async () => {
+		if ('code' in route.query) {
+			await getTokens();
+
+			const query = Object.assign({}, route.query);
+			delete query.code;
+			await router.replace({query});
+		}
+
+		checkConnection();
+	});
+
+function checkConnection() {
+	Api.auth
+		.me()
+		.then((user) => {
+			connectionDialogOpen.value = false;
+			appState.setUser(user);
+		})
+		.catch(() => {
+			connectionDialogOpen.value = true;
+		});
+}
 </script>
 
 <style scoped>

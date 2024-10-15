@@ -16,21 +16,10 @@ footer
 </template>
 
 <script setup lang="ts">
-import {onMounted} from 'vue';
-
 import NavBar from './components/NavBar.vue';
 import PopupContainer from './components/PopupContainer.vue';
-import Api from './scripts/api';
 import appState from './scripts/store';
 import {PopupColor, alert, prompt} from './scripts/popups';
-
-onMounted(checkConnection);
-
-function checkConnection() {
-	Api.auth.me().then((user) => {
-		appState.setUser(user);
-	});
-}
 
 function sendFeedback(): void {
 	prompt(

@@ -133,7 +133,7 @@ router.post(
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
 	}),
 	async (ctx) => {
-		const body = await ctx.request.body({ type: 'json' }).value;
+		const body = await ctx.request.body.json();
 		if (!body.username?.length) {
 			ctx.response.status = 404;
 			ctx.response.body = {
@@ -178,7 +178,7 @@ router.patch(
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
 	}),
 	async (ctx) => {
-		const body = await ctx.request.body({ type: 'json' }).value;
+		const body = await ctx.request.body.json();
 		if (!ctx.params.id?.length) {
 			ctx.response.status = 400;
 			ctx.response.body = {

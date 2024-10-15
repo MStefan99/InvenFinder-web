@@ -30,12 +30,23 @@
 					type="button"
 					:disabled="connectionState === ConnectionState.TESTING"
 					@click="register()") Sign up
+			template(v-if="appState.ssoProviders?.size")
+				label Single sign-on
+				.mb-3.row.w-full
+					button(
+						v-for="sso in appState.ssoProviders.values()"
+						:key="sso.client_id"
+						type="button"
+						:disabled="connectionState === ConnectionState.TESTING"
+						@click="ssoLogin(sso.name)") Sign in with {{sso.name}}
 			p.text-red(v-if="authError") {{authError}}
 		span.text-muted {{getAuthenticationState()}}
 </template>
 
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
+
+import {login as ssoLogin} from '../scripts/sso';
 
 import appState from '../scripts/store';
 import Api from '../scripts/api';

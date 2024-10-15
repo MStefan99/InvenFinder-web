@@ -258,3 +258,4 @@ Temporary Items
 .idea/dataSources*
 
 **/.env*.local
+backend/sso.json

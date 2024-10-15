@@ -1,7 +1,7 @@
 import {reactive} from 'vue';
 
-import type {User} from './types';
-import {PERMISSIONS, hasPermissions} from '../../../common/permissions';
+import type {SsoProvider, User} from './types';
+import {hasPermissions, PERMISSIONS} from '../../../common/permissions';
 import Api, {ErrorResponse} from './api';
 
 type CrashCourse = {
@@ -13,10 +13,12 @@ type CrashCourse = {
 type Store = {
 	backendURL: string | null;
 	apiKey: string | null;
+	ssoName: string | null;
 	user: User | null;
 	crashCourse: CrashCourse | null;
 	setUrl: (url: string | null) => void;
 	setApiKey: (key: string | null) => void;
+	setSsoName: (sso: string | null) => void;
 	setUser: (user: User | null) => void;
 	hasPermissions: (permissions: PERMISSIONS[], any?: boolean) => boolean;
 	features: {
@@ -24,23 +26,38 @@ type Store = {
 		uploads: boolean;
 		loans: boolean;
 	};
+	ssoProviders: Map<SsoProvider['name'], SsoProvider>;
 };
 
 export const appState = reactive<Store>({
 	backendURL: localStorage.getItem('backendURL') ?? import.meta.env.VITE_BACKEND_URL ?? null,
 	apiKey: localStorage.getItem('apiKey') ?? null,
+	ssoName: localStorage.getItem('ssoName') ?? null,
 	user: null,
 	crashCourse: null,
 	features: {accounts: false, uploads: false, loans: false},
+	ssoProviders: new Map<SsoProvider['name'], SsoProvider>(),
 	setUrl(url: string) {
 		url = url.replace(/\/$/, '');
 		this.backendURL = url;
 		localStorage.setItem('backendURL', url);
 		loadSettings();
 	},
-	setApiKey(key: string) {
+	setApiKey(key: string | null) {
 		this.apiKey = key;
-		localStorage.setItem('apiKey', key);
+		if (key !== null) {
+			localStorage.setItem('apiKey', key);
+		} else {
+			localStorage.removeItem('apiKey');
+		}
+	},
+	setSsoName(ssoName: string | null) {
+		this.ssoName = ssoName;
+		if (ssoName !== null) {
+			localStorage.setItem('ssoName', ssoName);
+		} else {
+			localStorage.removeItem('ssoName');
+		}
 	},
 	setUser(user: User | null): void {
 		this.user = user;
@@ -56,9 +73,13 @@ export const appState = reactive<Store>({
 
 export default appState;
 
-function loadSettings() {
-	Api.connection.settings().then(async (s) => {
+export function loadSettings() {
+	return Api.connection.settings().then(async (s) => {
 		appState.features = s.features;
+		appState.ssoProviders = s.ssoProviders.reduce((acc, val) => {
+			acc.set(val.name, val);
+			return acc;
+		}, new Map<SsoProvider['name'], SsoProvider>());
 
 		if (!s.crashCourse.url || !s.crashCourse.key) {
 			console.warn(
@@ -88,4 +109,4 @@ function loadSettings() {
 	});
 }
 
-loadSettings();
+export const settingsLoaded = loadSettings();

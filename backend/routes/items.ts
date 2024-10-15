@@ -157,7 +157,7 @@ router.post(
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),
 	}),
 	async (ctx) => {
-		const body = await ctx.request.body({ type: 'json' }).value;
+		const body = await ctx.request.body.json();
 
 		if (!body.name.length) {
 			ctx.response.status = 400;
@@ -218,9 +218,10 @@ router.post(
 			};
 			return;
 		}
-		const body = await ctx.request.body({ type: 'form-data' }).value.read({
-			maxFileSize: 25 * 1024 * 1024,
-		});
+		const body = await ctx.request.body.formData();
+		const files = Array.from(body.values()).filter((f) =>
+			f instanceof File
+		);
 
 		const item = await Item.getByID(id);
 		if (item === null) {
@@ -232,7 +233,6 @@ router.post(
 			return;
 		}
 
-		const files = body.files?.filter((f) => f.originalName);
 		if (!files?.length) {
 			ctx.response.status = 400;
 			ctx.response.body = {
@@ -244,22 +244,14 @@ router.post(
 		}
 
 		const fileNames = item.link?.split('\n') ?? [];
+
 		for (const file of files) {
 			const itemDir = path.join(uploadDir, ctx.params.id);
-			const filePath = path.join(itemDir, file.originalName);
-			if (!file.filename) {
-				continue; // If failed to write to disk
-			}
+			const filePath = path.join(itemDir, file.name);
 			await Deno.mkdir(itemDir, { recursive: true });
-			await Deno.rename(file.filename, filePath);
-			fileNames.push('file:' + path.basename(file.originalName));
+			await Deno.writeFile(filePath, file.stream());
+			fileNames.push('file:' + path.basename(file.name));
 		}
-
-		const savedFile = files.find((f) => f.filename);
-		savedFile?.filename &&
-			await Deno.remove(path.dirname(savedFile.filename), {
-				recursive: true,
-			});
 
 		item.link = fileNames.join('\n');
 		item.save();
@@ -294,7 +286,7 @@ router.get(
 
 // Place a loan request
 router.post('/:id/loans', hasBody(), auth.authenticated(), async (ctx) => {
-	const body = await ctx.request.body({ type: 'json' }).value;
+	const body = await ctx.request.body.json();
 
 	const id = +ctx.params.id;
 	if (!Number.isInteger(id)) {
@@ -367,7 +359,7 @@ router.put(
 			return;
 		}
 
-		const body = await ctx.request.body({ type: 'json' }).value;
+		const body = await ctx.request.body.json();
 		if (!Number.isInteger(body.amount) && body.amount < 1) {
 			ctx.response.status = 400;
 			ctx.response.body = {
@@ -419,7 +411,7 @@ router.patch(
 			};
 			return;
 		}
-		const body = await ctx.request.body({ type: 'json' }).value;
+		const body = await ctx.request.body.json();
 
 		const item = await Item.getByID(id);
 		if (item === null) {

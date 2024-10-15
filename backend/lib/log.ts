@@ -27,7 +27,7 @@ function submitLog(message: string, level: number) {
 		},
 		body: JSON.stringify({
 			level,
-			message: message.replace(/\033.*?m/g, ''),
+			message,
 		}),
 	}).catch((err) => console.warn('Failed to send log:', err));
 }
