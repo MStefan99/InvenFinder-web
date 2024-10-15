@@ -9,6 +9,12 @@ export function useQuery<T extends LocationQuery>(q?: Ref<T> | ComputedRef<T>) {
 	);
 
 	watch(q, () => {
+		for (const key in q.value) {
+			if (typeof q.value[key] === 'string' && !q.value[key].length) {
+				delete q.value[key];
+			}
+		}
+
 		query.value = q.value;
 		router.replace({name: route.name, query: query.value});
 	});

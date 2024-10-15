@@ -88,7 +88,7 @@ function loadItems() {
 		.then((i) => {
 			filteredItems.value = items.value = i;
 			if (searchString.value) {
-				search(searchString.value);
+				search(searchString.value, true);
 			}
 		})
 		.catch((err) => alert('Could not load inventory', PopupColor.Red, err.message));
@@ -110,12 +110,13 @@ function addItem() {
 		);
 }
 
-function search(query: string) {
+function search(query: string, immediate = false) {
 	const foundItems: Item[] = [];
 	const q = query.trim().toLowerCase();
 
 	if (!q) {
 		filteredItems.value = items.value;
+		clearTimeout(debounceHandle);
 	} else {
 		for (const item of items.value) {
 			if (
@@ -129,14 +130,18 @@ function search(query: string) {
 		filteredItems.value = foundItems;
 
 		clearTimeout(debounceHandle);
-		debounceHandle = setTimeout(() => {
-			Api.items.search(q).then((i) => {
-				if (i.length > filteredItems.value.length) {
-					filteredItems.value = i;
-					alert('Search results enhanced', PopupColor.Green, 'Better results coming your way!');
-				}
-			});
-		}, 2000);
+		debounceHandle = setTimeout(
+			() => {
+				Api.items.search(q).then((i) => {
+					if (i.length > filteredItems.value.length) {
+						filteredItems.value = i;
+						!immediate &&
+							alert('Search results enhanced', PopupColor.Green, 'Better results coming your way!');
+					}
+				});
+			},
+			immediate ? 0 : 1000
+		);
 	}
 }
 
