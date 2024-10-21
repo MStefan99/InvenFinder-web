@@ -7,6 +7,7 @@ import './assets/style.css';
 import appState from './scripts/store';
 
 const app = createApp(App);
+app.config.globalProperties.envBackendURL = import.meta.env.VITE_BACKEND_URL;
 
 app.config.errorHandler = (err: unknown) => {
 	console.error('Vue error', err);

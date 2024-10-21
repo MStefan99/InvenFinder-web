@@ -30,7 +30,7 @@ type Store = {
 };
 
 export const appState = reactive<Store>({
-	backendURL: localStorage.getItem('backendURL') ?? import.meta.env.VITE_BACKEND_URL ?? null,
+	backendURL: import.meta.env.VITE_BACKEND_URL ?? localStorage.getItem('backendURL') ?? null,
 	apiKey: localStorage.getItem('apiKey') ?? null,
 	ssoName: localStorage.getItem('ssoName') ?? null,
 	user: null,
@@ -38,6 +38,10 @@ export const appState = reactive<Store>({
 	features: {accounts: false, uploads: false, loans: false},
 	ssoProviders: new Map<SsoProvider['name'], SsoProvider>(),
 	setUrl(url: string) {
+		if (import.meta.env.VITE_BACKEND_URL) {
+			return;
+		}
+
 		url = url.replace(/\/$/, '');
 		this.backendURL = url;
 		localStorage.setItem('backendURL', url);

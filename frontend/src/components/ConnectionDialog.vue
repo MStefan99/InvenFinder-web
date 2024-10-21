@@ -3,11 +3,12 @@
 	.popup
 		p.text-2xl.mb-4.font-semibold Sign in
 		form(@submit.prevent="connect()")
-			.mb-3
-				label(for="url-input") URL
-				input#url-input.w-full(v-model="url" type="text" placeholder="https://example.com")
-			.mb-3
-				button.w-full(type="submit" :disabled="connectionState === ConnectionState.TESTING") Connect
+			.backend(v-if="!envBackendURL")
+				.mb-3
+					label(for="url-input") URL
+					input#url-input.w-full(v-model="url" type="text" placeholder="https://example.com")
+				.mb-3
+					button.w-full(type="submit" :disabled="connectionState === ConnectionState.TESTING") Connect
 		form(v-if="connectionState === ConnectionState.CONNECTED" @submit.prevent="login()")
 			.mb-3
 				label(for="username-input") Username
