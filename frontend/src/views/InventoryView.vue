@@ -1,27 +1,10 @@
 <template lang="pug">
 #inventory
 	h2.text-accent.text-2xl.mb-4 Inventory
-	.row.my-2
-		input.grow(placeholder="Search here..." v-model="searchString" @input="search(searchString)")
-		button(@click="searchString = ''; search(searchString)") Clear
-	#items-table
-		p.filler(v-if="!items.length") Oh no, your inventory is empty! Once you have some items, they will appear here
-		p.filler(v-else-if="!filteredItems.length") No items matched your search. Please try something else
-		RouterLink.list-item(
-			v-else
-			v-for="item in filteredItems"
-			:key="item.id"
-			:to="{name: 'item', params: {id: item.id}}")
-			.flex.justify-between
-				div
-					.mr-4 {{truncate(item.name, 40)}}
-					.mr-4.text-muted {{truncate(item.description, 180) || 'No description'}}
-				div
-					.text-right.font-semibold {{truncate(item.location, 20)}}
-					.text-right.text-muted {{item.amount}}
-		button.fab(
-			v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
-			@click="newItem = defaultItem") New item
+	ItemPicker(:items="items")
+	button.fab(
+		v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])"
+		@click="newItem = defaultItem") New item
 	Transition(name="popup")
 		.popup-wrapper(v-if="newItem !== null" @click.self="newItem = null")
 			form.popup(@submit.prevent="addItem()")
@@ -46,15 +29,15 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue';
+import {onMounted, ref} from 'vue';
 
 import Api from '../scripts/api';
 import appState from '../scripts/store';
 import {PERMISSIONS} from '../../../common/permissions';
 import type {Item, NewItem} from '../scripts/types';
 import {alert, PopupColor} from '../scripts/popups';
-import {useQuery} from '../scripts/composables';
 import {useRouter} from 'vue-router';
+import ItemPicker from '../components/ItemPicker.vue';
 
 const defaultItem: NewItem = {
 	name: '',
@@ -65,18 +48,8 @@ const defaultItem: NewItem = {
 };
 
 const items = ref<Item[]>([]);
-const filteredItems = ref<Item[]>([]);
 const newItem = ref<Item | null>(null);
-const searchString = ref<string>('');
 const router = useRouter();
-let debounceHandle: number | undefined = undefined;
-
-const {query} = useQuery(
-	computed(() => ({
-		search: searchString.value
-	}))
-);
-searchString.value = Array.isArray(query.value.search) ? query.value.search[0] : query.value.search;
 
 window.document.title = 'Inventory | Invenfinder';
 
@@ -85,12 +58,7 @@ onMounted(loadItems);
 function loadItems() {
 	Api.items
 		.getAll()
-		.then((i) => {
-			filteredItems.value = items.value = i;
-			if (searchString.value) {
-				search(searchString.value, true);
-			}
-		})
+		.then((i) => (items.value = i))
 		.catch((err) => alert('Could not load inventory', PopupColor.Red, err.message));
 }
 
@@ -108,53 +76,6 @@ function addItem() {
 		.catch((err) =>
 			alert('Could not add ' + newItem.value.name || 'the item', PopupColor.Red, err.message)
 		);
-}
-
-function search(query: string, immediate = false) {
-	const foundItems: Item[] = [];
-	const q = query.trim().toLowerCase();
-
-	if (!q) {
-		filteredItems.value = items.value;
-		clearTimeout(debounceHandle);
-	} else {
-		for (const item of items.value) {
-			if (
-				item.name.toLowerCase().includes(q) ||
-				item.description?.toLowerCase()?.includes(q) ||
-				item.location.toLowerCase() === q
-			) {
-				foundItems.push(item);
-			}
-		}
-		filteredItems.value = foundItems;
-
-		clearTimeout(debounceHandle);
-		debounceHandle = setTimeout(
-			() => {
-				Api.items.search(q).then((i) => {
-					if (i.length > filteredItems.value.length) {
-						filteredItems.value = i;
-						!immediate &&
-							alert('Search results enhanced', PopupColor.Green, 'Better results coming your way!');
-					}
-				});
-			},
-			immediate ? 0 : 1000
-		);
-	}
-}
-
-function truncate(text: string | null, length: number): string {
-	if (text === null) {
-		return '';
-	}
-
-	if (text.length > length) {
-		return text.substring(0, length - 1) + '…';
-	} else {
-		return text;
-	}
 }
 </script>
 

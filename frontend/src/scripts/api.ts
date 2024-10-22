@@ -213,11 +213,17 @@ export const ItemAPI = {
 		request<Item[]>('/items', {auth: true, query: {q: query, boolean: 'true'}}),
 	getByID: (id: Item['id']) => request<Item>('/items/' + id, {auth: true}),
 	getByLocation: () => Promise.reject<Item>(notImplemented),
-	uploadFiles: (id: Item['id'], body: FormData) =>
+	check: (file: FormData) =>
+		request<object>('/check', {
+			auth: true,
+			method: RequestMethod.POST,
+			body: file
+		}),
+	uploadFiles: (id: Item['id'], files: FormData) =>
 		request<string>('/items/' + id + '/files', {
 			auth: true,
 			method: RequestMethod.POST,
-			body
+			body: files
 		}),
 	editAmount: (id: Item['id'], amount: Item['amount']) =>
 		request<Item>('/items/' + id + '/amount', {

@@ -143,7 +143,7 @@ onMounted(() => {
 			item.value = i;
 			window.document.title = i.name + ' | Invenfinder';
 			if (!route.params.name) {
-				router.replace({name: 'item', params: {id, name: i.name.replace(/\s+/g, '-')}});
+				router.replace({name: 'item', params: {id, name: i.name.replace(/\s+/g, '_')}});
 			}
 		})
 		.catch((err) => alert('Could not load the item', PopupColor.Red, err.message));
