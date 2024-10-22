@@ -56,6 +56,9 @@ onMounted(() => {
 		.then((u) => {
 			user.value = u;
 			window.document.title = `User ${u.username} | Invenfinder`;
+			if (!route.params.username) {
+				router.replace({name: 'user', params: {id, username: u.username}});
+			}
 		})
 		.catch((err) => alert('Could not load user details', PopupColor.Red, err.message));
 

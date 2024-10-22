@@ -142,6 +142,9 @@ onMounted(() => {
 		.then((i) => {
 			item.value = i;
 			window.document.title = i.name + ' | Invenfinder';
+			if (!route.params.name) {
+				router.replace({name: 'item', params: {id, name: i.name.replace(/\s+/g, '-')}});
+			}
 		})
 		.catch((err) => alert('Could not load the item', PopupColor.Red, err.message));
 
@@ -165,7 +168,6 @@ async function uploadFiles(e: SubmitEvent) {
 	}
 
 	item.value.link = await Api.items.uploadFiles(item.value.id, body);
-	console.log(item.value.link);
 }
 
 async function loanItem() {

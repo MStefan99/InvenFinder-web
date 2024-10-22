@@ -3,9 +3,7 @@
 	.flex.flex-col.h-full
 		h2.text-accent.text-2xl.mb-4 Document
 		b Name: {{route.params.file}}
-		iframe(
-			v-if="cookie"
-			:src="appState.backendURL + '/items/' + route.params.id + '/files/' + route.params.file")
+		iframe(v-if="cookie" :src="appState.backendURL + '/items/' + idStr + '/files/' + fileName")
 </template>
 
 <script setup lang="ts">
@@ -19,13 +17,19 @@ import {alert, PopupColor} from '../scripts/popups';
 const cookie = ref<boolean>(false);
 const route = useRoute();
 const item = ref<Item | null>(null);
+const idStr = route.params.id instanceof Array ? route.params.id[0] : route.params.id;
+const id = +idStr;
+const fileName = route.params.file instanceof Array ? route.params.file[0] : route.params.file;
 
 onMounted(() => {
-	const idParam = route.params.id instanceof Array ? route.params.id[0] : route.params.id;
-	const id = +idParam;
+	if (fileName?.startsWith('http')) {
+		window.history.back();
+		window.location.href = fileName;
+		return;
+	}
 
 	if (Number.isNaN(id)) {
-		console.error('Item ID is not a number:', idParam);
+		console.error('Item ID is not a number:', idStr);
 		return;
 	}
 

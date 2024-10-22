@@ -24,7 +24,7 @@ const routes: Array<RouteRecordRaw> = [
 		component: InventoryView
 	},
 	{
-		path: '/items/:id',
+		path: '/items/:id/:name?',
 		name: 'item',
 		component: ItemView
 	},
@@ -44,7 +44,7 @@ const routes: Array<RouteRecordRaw> = [
 		component: UsersView
 	},
 	{
-		path: '/users/:id',
+		path: '/users/:id/:username?',
 		name: 'user',
 		component: UserView
 	},
