@@ -6,7 +6,7 @@
 	.item-table
 		p.filler(v-if="!items.length") Your inventory is empty! Once you have some items, they will appear here
 		p.filler(v-else-if="!filteredItems.length") No items matched your search. Please try something else
-		Component.list-item(
+		Component.list-item.cursor-pointer(
 			v-else
 			v-for="item in filteredItems"
 			@click="emit('select', item)"
