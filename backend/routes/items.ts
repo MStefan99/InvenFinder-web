@@ -248,7 +248,6 @@ router.post(
 		for (const file of files) {
 			const itemDir = path.join(uploadDir, ctx.params.id);
 			const filePath = path.join(itemDir, file.name);
-			console.dir(file);
 			await Deno.mkdir(itemDir, { recursive: true });
 			await Deno.writeFile(filePath, file.stream());
 			fileNames.push('file:' + path.basename(file.name));

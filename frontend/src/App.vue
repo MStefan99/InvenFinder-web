@@ -44,7 +44,7 @@ function sendFeedback(): void {
 				}
 			})
 		)
-		.catch(() => null);
+		.catch((): null => null);
 }
 </script>
 

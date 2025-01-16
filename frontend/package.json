@@ -10,22 +10,26 @@
 		"fmt": "eslint \"./{*,**/*}.{ts,vue}\" --fix && prettier -w ."
 	},
 	"dependencies": {
-		"oauth4webapi": "^2.17.0",
+		"oauth4webapi": "^3.1.4",
 		"pug": "^3.0.3",
-		"vue": "^3.4.27",
-		"vue-router": "^4.3.2"
+		"vue": "^3.5.13",
+		"vue-router": "^4.5.0"
 	},
 	"devDependencies": {
-		"@prettier/plugin-pug": "^3.0.0",
-		"@vitejs/plugin-vue": "^5.0.5",
-		"@vue/eslint-config-typescript": "^13.0.0",
-		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-vue": "^9.26.0",
+		"@eslint/eslintrc": "^3.2.0",
+		"@eslint/js": "^9.18.0",
+		"@prettier/plugin-pug": "^3.2.0",
+		"@vitejs/plugin-vue": "^5.2.1",
+		"@vue/eslint-config-typescript": "^14.3.0",
+		"eslint-config-prettier": "^10.0.1",
+		"eslint-plugin-prettier": "^5.2.2",
+		"eslint-plugin-vue": "^9.32.0",
 		"eslint-plugin-vue-pug": "^0.6.2",
-		"postcss": "^8.4.38",
-		"prettier": "^3.3.0",
-		"tailwindcss": "^3.4.3",
-		"vite": "^5.2.12",
-		"vue-tsc": "^2.0.19"
+		"globals": "^15.14.0",
+		"postcss": "^8.5.1",
+		"prettier": "^3.4.2",
+		"tailwindcss": "^3.4.17",
+		"vite": "^6.0.7",
+		"vue-tsc": "^2.2.0"
 	}
 }

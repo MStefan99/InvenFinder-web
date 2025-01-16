@@ -1,5 +1,6 @@
 import { Context, Middleware } from '../deps.ts';
 import log from '../lib/log.ts';
+import { toCSV } from '../../common/csv.ts';
 
 async function getBodyLength(ctx: Context) {
 	try {
@@ -129,29 +130,8 @@ export function csv(): Middleware {
 		if (types[0]?.type !== 'text/csv') {
 			return;
 		} else {
-			const data = ctx.response.body;
-			ctx.response.body = '';
-
-			if (Array.isArray(data) && data.length) {
-				const keys = Object.keys(data[0]);
-				ctx.response.body += keys.join(',') + '\n';
-
-				for (const el of data) {
-					ctx.response.body += keys.map((key) =>
-						`"${el[key].toString().replaceAll('"', '""')}"`
-					).join(',') + '\n';
-				}
-			} else if (typeof data === 'object' && data !== null) {
-				const keys = Object.keys(data);
-				ctx.response.body += keys.join(',') + '\n';
-				ctx.response.body += keys.map((key) =>
-					`"${
-						String(data[key as keyof typeof data]).replaceAll(
-							'"',
-							'""',
-						)
-					}"`
-				).join(',') + '\n';
+			if (ctx.response.body && typeof ctx.response.body === 'object') {
+				ctx.response.body = toCSV(ctx.response.body);
 			}
 		}
 	};

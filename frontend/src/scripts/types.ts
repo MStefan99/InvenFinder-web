@@ -45,6 +45,12 @@ export type Item = {
 	id: number;
 } & NewItem;
 
+export type FoundItem = {
+	name: Item['name'];
+	amount: Item['amount'];
+	foundItem: Item;
+};
+
 export type LoanRequest = {
 	userID: number;
 	itemID: number;

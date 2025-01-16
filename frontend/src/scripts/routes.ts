@@ -8,6 +8,7 @@ import UserView from '../views/UserView.vue';
 import ItemView from '../views/ItemView.vue';
 import LabelView from '../views/LabelView.vue';
 import LoansView from '../views/LoansView.vue';
+import CheckView from '../views/CheckView.vue';
 import FileView from '../views/FileView.vue';
 
 const routes: Array<RouteRecordRaw> = [
@@ -32,6 +33,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/items/:id/files/:file',
 		name: 'file',
 		component: FileView
+	},
+	{
+		path: '/check',
+		name: 'check',
+		component: CheckView
 	},
 	{
 		path: '/loans',

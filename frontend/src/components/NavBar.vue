@@ -26,11 +26,11 @@ import {appState, settingsLoaded} from '../scripts/store';
 import Api from '../scripts/api';
 import {PERMISSIONS} from '../../../common/permissions';
 import ConnectionDialog from './ConnectionDialog.vue';
-
-const connectionDialogOpen = ref<boolean>(!appState.apiKey);
-
 import {useRoute, useRouter} from 'vue-router';
 import {getTokens} from '../scripts/sso';
+import {alert, PopupColor} from '../scripts/popups';
+
+const connectionDialogOpen = ref<boolean>(!appState.apiKey);
 
 const route = useRoute();
 const router = useRouter();
@@ -40,11 +40,15 @@ router
 	.then(() => settingsLoaded)
 	.then(async () => {
 		if ('code' in route.query) {
-			await getTokens();
-
-			const query = Object.assign({}, route.query);
-			delete query.code;
-			await router.replace({query});
+			try {
+				await getTokens();
+			} catch {
+				alert('Could not sign in with SSO', PopupColor.Red, 'Please try again');
+			} finally {
+				const query = Object.assign({}, route.query);
+				delete query.code;
+				await router.replace({query});
+			}
 		}
 
 		checkConnection();

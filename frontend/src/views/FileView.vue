@@ -23,7 +23,8 @@ const fileName = route.params.file instanceof Array ? route.params.file[0] : rou
 
 onMounted(() => {
 	if (fileName?.startsWith('http')) {
-		window.history.back();
+		// New tab + current tab
+		window.history.length > 2 && window.history.back();
 		window.location.href = fileName;
 		return;
 	}
