@@ -15,6 +15,7 @@ import Item from './orm/item.ts';
 type ImportedItem = {
 	name: string;
 	amount: number;
+	id?: number;
 	foundItem?: Item;
 };
 
@@ -110,9 +111,11 @@ apiRouter.post(
 		ctx.response.body = new ReadableStream<string>({
 			async start(controller) {
 				for (const importedItem of importedItems) {
-					const item = (await Item.search(
-						importedItem.name.replace(/(\d+\w*)R|Ω/, '$1Ohm'),
-					))[0];
+					const item = importedItem.id
+						? (await Item.getByID(importedItem.id))
+						: (await Item.search(
+							importedItem.name.replace(/(\d+\w*)R|Ω/, '$1Ohm'),
+						))[0];
 					item && (importedItem.foundItem = item);
 					controller.enqueue(JSON.stringify(importedItem) + '\n');
 				}
@@ -136,17 +139,25 @@ function parseItems(
 			index: -1,
 			vocabulary: ['amount', 'count', 'quantity', 'qty'],
 		},
+		id: {
+			index: -1,
+			vocabulary: ['id'],
+		},
 	};
 
 	for (const line of str.split(lineSeparator).filter((l) => l.length)) {
-		const words = Array.from(line.matchAll(/".*?"/g), (m) => m[0]).map(
-			(w) => w.replace(/['"]+/g, ''),
-		);
+		const words = (line.match('"')
+			? Array.from(line.matchAll(/".*?"/g), (m) =>
+				m[0])
+			: line.split(',')).map(
+				(w) => w.replace(/['"]+/g, ''),
+			);
 
 		if (columns.name.index >= 0 && columns.amount.index >= 0) {
 			items.push({
 				name: words[columns.name.index],
 				amount: +words[columns.amount.index],
+				...(columns.id.index >= 0 && { id: +words[columns.id.index] }),
 			});
 			continue;
 		}

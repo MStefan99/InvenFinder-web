@@ -7,19 +7,20 @@
 		enctype="multipart/form-data"
 		@submit.prevent="(e) => uploadFile(e)")
 		.row
-			label.btn {{fileLabel}}
+			label.btn {{fileName ? `Selected: ${fileName}` : 'Select a file to upload'}}
 				input(
 					type="file"
 					name="file"
-					@change="(e) => (fileLabel = e.target.files?.length ? `Selected: ${e.target.files[0].name}` : 'Select a file to upload')")
-			button Upload file
+					@change="(e) => (fileName = e.target.files?.length ? `${e.target.files[0].name}` : 'Select a file to upload')")
+			button Check
+			button(v-if="foundItems.length" @click="download(fileName)" type="button") Save
 	table(v-if="foundItems.length")
 		thead
 			tr
 				th Item
 				th Found item
+				th Required
 				th Available
-				th Needed
 				th Remaining
 		tbody
 			RemainingItems(
@@ -47,8 +48,9 @@ import type {FoundItem, Item} from '../scripts/types';
 import Api from '../scripts/api';
 import {alert, PopupColor} from '../scripts/popups';
 import RemainingItems from '../components/RemainingItems.vue';
+import {toCSV} from '../../../common/csv';
 
-const fileLabel = ref<string>('Select a file to upload');
+const fileName = ref<string | null>(null);
 const items = ref<Item[]>([]);
 const foundItems = ref<FoundItem[]>([]);
 const selectedIndex = ref<number>(-1);
@@ -90,6 +92,25 @@ async function uploadFile(e: SubmitEvent) {
 			fullEntries.forEach((e) => foundItems.value.push(JSON.parse(e)));
 		}
 	}
+}
+
+function download(filename: string) {
+	const element = document.createElement('a');
+	element.setAttribute(
+		'href',
+		'data:text/json;charset=utf-8,' +
+			encodeURIComponent(
+				toCSV(foundItems.value.map((i) => ({name: i.name, amount: i.amount, id: i.foundItem?.id})))
+			)
+	);
+	element.setAttribute('download', filename);
+
+	element.style.display = 'none';
+	document.body.appendChild(element);
+
+	element.click();
+
+	document.body.removeChild(element);
 }
 </script>
 
