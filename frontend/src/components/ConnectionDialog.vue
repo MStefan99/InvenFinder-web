@@ -51,6 +51,7 @@ import {login as ssoLogin} from '../scripts/sso';
 
 import appState from '../scripts/store';
 import Api from '../scripts/api';
+import {alert, PopupColor} from '../scripts/popups';
 
 const emit = defineEmits<{(e: 'close'): void}>();
 
@@ -129,6 +130,7 @@ function login() {
 		})
 		.catch((err) => {
 			connectionState.value = ConnectionState.CONNECTED;
+			alert('Could not sign in', PopupColor.Red, err.message);
 			authError.value = err.message;
 		});
 }
@@ -144,6 +146,7 @@ function register() {
 		})
 		.catch((err) => {
 			connectionState.value = ConnectionState.CONNECTED;
+			alert('Could not sign up', PopupColor.Red, err.message);
 			authError.value = err.message;
 		});
 }

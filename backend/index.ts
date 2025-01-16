@@ -45,12 +45,18 @@ app.use(async (ctx, next) => {
 		await next();
 	} catch (err) {
 		ctx.response.status = 500;
-		log.error(err.stack);
+		log.error(
+			`Error: ${(err as Error).message}; Stack: ${
+				(err as Error)?.stack ?? 'not available'
+			}`,
+		);
 
 		if (Deno.env.get('ENV') === 'dev') {
 			ctx.response.body = {
 				error: 'APP_ERROR',
-				message: `Error: ${err.message}; Stack: ${err.stack}`,
+				message: `Error: ${(err as Error).message}; Stack: ${
+					(err as Error)?.stack ?? 'not available'
+				}`,
 			};
 		} else {
 			ctx.response.body = {

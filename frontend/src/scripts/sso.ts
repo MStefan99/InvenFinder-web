@@ -1,6 +1,5 @@
 import * as oauth from 'oauth4webapi';
 import appState from './store';
-import {OpenIDTokenEndpointResponse} from 'oauth4webapi';
 
 const algorithm = 'oidc';
 const redirect_uri = window.location.origin;
@@ -11,13 +10,10 @@ async function discover(issuer: URL, client_id: string, client_secret: string) {
 		.discoveryRequest(issuer, {algorithm})
 		.then((response) => oauth.processDiscoveryResponse(issuer, response));
 
-	const client: oauth.Client = {
-		client_id,
-		client_secret,
-		token_endpoint_auth_method: 'client_secret_basic'
-	};
+	const client: oauth.Client = {client_id};
+	const clientAuth = oauth.ClientSecretPost(client_secret);
 
-	return {as, client};
+	return {as, client, clientAuth};
 }
 
 export async function login(ssoName: string): Promise<boolean> {
@@ -50,14 +46,14 @@ export async function login(ssoName: string): Promise<boolean> {
 	return true; // For TS
 }
 
-export async function getTokens(): Promise<OpenIDTokenEndpointResponse | null> {
+export async function getTokens(): Promise<oauth.TokenEndpointResponse | null> {
 	const ssoName = sessionStorage.getItem('ssoName');
 	const ssoConfig = appState.ssoProviders.get(ssoName);
 	if (!ssoConfig) {
 		return null;
 	}
 
-	const {as, client} = await discover(
+	const {as, client, clientAuth} = await discover(
 		new URL(ssoConfig.issuer),
 		ssoConfig.client_id,
 		ssoConfig.client_secret
@@ -65,10 +61,6 @@ export async function getTokens(): Promise<OpenIDTokenEndpointResponse | null> {
 
 	const currentUrl: URL = new URL(window.location.href);
 	const params = oauth.validateAuthResponse(as, client, currentUrl);
-	if (oauth.isOAuth2Error(params)) {
-		console.error('Error Response', params);
-		throw new Error(); // Handle OAuth 2.0 redirect error
-	}
 
 	const code_verifier = sessionStorage.getItem('codeVerifier');
 	if (!code_verifier) {
@@ -78,24 +70,13 @@ export async function getTokens(): Promise<OpenIDTokenEndpointResponse | null> {
 	const response = await oauth.authorizationCodeGrantRequest(
 		as,
 		client,
+		clientAuth,
 		params,
 		redirect_uri,
 		code_verifier
 	);
 
-	let challenges: oauth.WWWAuthenticateChallenge[] | undefined;
-	if ((challenges = oauth.parseWwwAuthenticateChallenges(response))) {
-		for (const challenge of challenges) {
-			console.error('WWW-Authenticate Challenge', challenge);
-		}
-		throw new Error(); // Handle WWW-Authenticate Challenges as needed
-	}
-
-	const result = await oauth.processAuthorizationCodeOpenIDResponse(as, client, response);
-	if (oauth.isOAuth2Error(result)) {
-		console.error('Error Response', result);
-		throw new Error(); // Handle OAuth 2.0 response body error
-	}
+	const result = await oauth.processAuthorizationCodeResponse(as, client, response);
 
 	sessionStorage.removeItem('ssoName');
 
