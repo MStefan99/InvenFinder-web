@@ -14,21 +14,24 @@
 					@change="(e) => (fileName = e.target.files?.length ? `${e.target.files[0].name}` : 'Select a file to upload')")
 			button Check
 			button(v-if="foundItems.length" @click="download(fileName)" type="button") Save
-	table(v-if="foundItems.length")
-		thead
-			tr
-				th Item
-				th Found item
-				th Required
-				th Available
-				th Remaining
-		tbody
-			RemainingItems(
-				v-for="(item, i) in foundItems"
-				:key="item.name"
-				:item="item"
-				@select="selectedIndex = i")
-	p.text-muted.my-2(v-else) Upload a list of items to get started
+	.max-w-full.overflow-x-auto
+		table(v-if="foundItems.length")
+			thead
+				tr
+					th Item
+					th Found item
+					th Required
+					th Available
+					th Remaining
+					th Delete
+			tbody
+				RemainingItems(
+					v-for="(item, i) in foundItems"
+					:key="item.name"
+					:item="item"
+					@select="selectedIndex = i"
+					@delete="foundItems.splice(i, 1)")
+		p.text-muted.my-2(v-else) Upload a list of items to get started
 	Transition(name="popup")
 		.popup-wrapper(v-if="selectedIndex > -1" @click.self="selectedIndex = -1")
 			.popup
@@ -120,7 +123,15 @@ table {
 }
 
 th {
-	@apply text-left;
+	@apply text-left py-2;
+}
+
+th:not(:first-child) {
+	@apply pl-2;
+}
+
+th:not(:last-child) {
+	@apply pr-2;
 }
 
 tr {
