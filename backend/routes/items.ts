@@ -486,7 +486,6 @@ router.patch(
 // Delete item
 router.delete(
 	'/:id',
-	hasBody(),
 	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
 	rateLimiter({
 		tag: 'user',
