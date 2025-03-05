@@ -4,6 +4,7 @@
 		h2.text-accent.text-2xl.mb-4 Document
 		b Name: {{route.params.file}}
 		iframe(v-if="cookie" :src="appState.backendURL + '/items/' + idStr + '/files/' + fileName")
+		p(v-else) Opening the file, please wait a moment...
 </template>
 
 <script setup lang="ts">
