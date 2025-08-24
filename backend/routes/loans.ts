@@ -37,7 +37,11 @@ router.patch(
 	'/:id',
 	hasBody(),
 	auth.hasPermissions(
-		[PERMISSIONS.LOAN_ITEMS, PERMISSIONS.MANAGE_ITEMS],
+		[
+			PERMISSIONS.LOAN_ITEMS,
+			PERMISSIONS.EDIT_ITEM_AMOUNT,
+			PERMISSIONS.MANAGE_ITEMS,
+		],
 		true,
 	),
 	async (ctx) => {
@@ -85,7 +89,10 @@ router.patch(
 		const fields: string[] = [];
 		const user = await auth.methods.getUser(ctx);
 		if (
-			!(await auth.test.hasPermissions(ctx, [PERMISSIONS.MANAGE_ITEMS]))
+			!(await auth.test.hasPermissions(ctx, [
+				PERMISSIONS.EDIT_ITEM_AMOUNT,
+				PERMISSIONS.MANAGE_ITEMS,
+			], true))
 		) {
 			if (!user) {
 				return;
@@ -122,6 +129,7 @@ router.patch(
 					};
 					return;
 				}
+
 				loan.amount = body.amount;
 				if (body.amount !== loan.amount) {
 					fields.push('amount');
@@ -175,7 +183,11 @@ router.patch(
 router.delete(
 	'/:id',
 	hasBody(),
-	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([
+		PERMISSIONS.LOAN_ITEMS,
+		PERMISSIONS.EDIT_ITEM_AMOUNT,
+		PERMISSIONS.MANAGE_ITEMS,
+	], true),
 	async (ctx) => {
 		const body = await ctx.request.body.json();
 
@@ -205,6 +217,22 @@ router.delete(
 			ctx.response.body = {
 				error: 'ITEM_NOT_FOUND',
 				message: 'Item was not found',
+			};
+			return;
+		}
+
+		if (
+			loan.approved &&
+			!(await auth.test.hasPermissions(ctx, [
+				PERMISSIONS.EDIT_ITEM_AMOUNT,
+				PERMISSIONS.MANAGE_ITEMS,
+			], true))
+		) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'ALREADY_APPROVED',
+				message:
+					'You cannot delete the loan since the loan has already been approved',
 			};
 			return;
 		}

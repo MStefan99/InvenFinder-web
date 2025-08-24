@@ -80,7 +80,10 @@ router.get(
 // Get item loans
 router.get(
 	'/:id/loans',
-	auth.hasPermissions([PERMISSIONS.MANAGE_ITEMS]),
+	auth.hasPermissions([
+		PERMISSIONS.EDIT_ITEM_AMOUNT,
+		PERMISSIONS.MANAGE_ITEMS,
+	], true),
 	async (ctx) => {
 		const id = +ctx.params.id;
 
@@ -107,7 +110,7 @@ router.get(
 	},
 );
 
-// Get item loans by user
+// Get own loans for item
 router.get(
 	'/:id/loans/mine',
 	auth.hasPermissions([PERMISSIONS.LOAN_ITEMS]),
@@ -270,7 +273,7 @@ router.post(
 	},
 );
 
-// Get file for an item
+// Get a file for an item
 router.get(
 	'/:id/files/:file',
 	uploadsEnabled(),
@@ -283,65 +286,73 @@ router.get(
 );
 
 // Place a loan request
-router.post('/:id/loans', hasBody(), auth.authenticated(), async (ctx) => {
-	const body = await ctx.request.body.json();
+router.post(
+	'/:id/loans',
+	hasBody(),
+	auth.hasPermissions([PERMISSIONS.LOAN_ITEMS]),
+	async (ctx) => {
+		const body = await ctx.request.body.json();
 
-	const id = +ctx.params.id;
-	if (!Number.isInteger(id)) {
-		ctx.response.status = 400;
-		ctx.response.body = {
-			error: 'INVALID_ID',
-			message: 'ID must be a number',
-		};
-		return;
-	}
+		const id = +ctx.params.id;
+		if (!Number.isInteger(id)) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'INVALID_ID',
+				message: 'ID must be a number',
+			};
+			return;
+		}
 
-	if (!Number.isInteger(body.amount) && body.amount < 1) {
-		ctx.response.status = 400;
-		ctx.response.body = {
-			error: 'INVALID_AMOUNT',
-			message: 'Amount must be a positive number',
-		};
-		return;
-	}
+		if (!Number.isInteger(body.amount) && body.amount < 1) {
+			ctx.response.status = 400;
+			ctx.response.body = {
+				error: 'INVALID_AMOUNT',
+				message: 'Amount must be a positive number',
+			};
+			return;
+		}
 
-	const user = await auth.methods.getUser(ctx);
-	if (user === null) {
-		ctx.response.status = 404;
-		ctx.response.body = {
-			error: 'USER_NOT_FOUND',
-			message: 'User was not found',
-		};
-		return;
-	}
+		const user = await auth.methods.getUser(ctx);
+		if (user === null) {
+			ctx.response.status = 404;
+			ctx.response.body = {
+				error: 'USER_NOT_FOUND',
+				message: 'User was not found',
+			};
+			return;
+		}
 
-	const item = await Item.getByID(id);
-	if (item === null) {
-		ctx.response.status = 404;
-		ctx.response.body = {
-			error: 'ITEM_NOT_FOUND',
-			message: 'Item was not found',
-		};
-		return;
-	}
+		const item = await Item.getByID(id);
+		if (item === null) {
+			ctx.response.status = 404;
+			ctx.response.body = {
+				error: 'ITEM_NOT_FOUND',
+				message: 'Item was not found',
+			};
+			return;
+		}
 
-	const amount = +body.amount;
-	const loan = await Loan.create({
-		userID: user.id,
-		itemID: item.id,
-		amount: amount,
-	});
+		const amount = +body.amount;
+		const loan = await Loan.create({
+			userID: user.id,
+			itemID: item.id,
+			amount: amount,
+		});
 
-	log.log(`User ${user.id} submitted a loan request for item ${item.id}`);
-	ctx.response.status = 201;
-	ctx.response.body = { ...loan, username: user.username };
-});
+		log.log(`User ${user.id} submitted a loan request for item ${item.id}`);
+		ctx.response.status = 201;
+		ctx.response.body = { ...loan, username: user.username };
+	},
+);
 
 // Change item amount
 router.put(
 	'/:id/amount',
 	hasBody(),
-	auth.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT]),
+	auth.hasPermissions([
+		PERMISSIONS.EDIT_ITEM_AMOUNT,
+		PERMISSIONS.MANAGE_ITEMS,
+	], true),
 	rateLimiter({
 		tag: 'user',
 		id: async (ctx) => (await auth.methods.getSession(ctx))?.id?.toString(),

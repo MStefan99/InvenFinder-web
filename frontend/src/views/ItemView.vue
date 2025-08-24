@@ -67,7 +67,8 @@
 			button(v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT])" @click="editAmount(true)") Put in storage
 			button.red(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])" @click="deleteItem()") Delete item
 		div(v-if="appState.features.loans && loans.length")
-			div(v-if="appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])")
+			div(
+				v-if="appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT, PERMISSIONS.MANAGE_ITEMS], true)")
 				h3.text-accent.text-xl.my-4 Loans for this item
 				div(v-if="pendingLoans.length")
 					h4.text-accent.text-lg.my-4 Pending
@@ -95,7 +96,7 @@
 							button.red(@click="deleteLoan(loan, false)") Delete
 			div(v-else-if="appState.hasPermissions([PERMISSIONS.LOAN_ITEMS]) && myLoans.length")
 				h4.text-accent.text-lg.my-4 My loans for this item
-				.flex.flex-wrap.gap-1(v-for="loan in myLoans" :key="loan.id")
+				.flex.flex-wrap.items-center.gap-1(v-for="loan in myLoans" :key="loan.id")
 					span Your loan for
 					TextEditable.inline(
 						type="number"
@@ -105,6 +106,7 @@
 						@update:modelValue="editLoan(loan)")
 					span(v-if="loan.approved") items was approved
 					span(v-else) items is pending approval
+					button.red(v-if="!loan.approved" @click="deleteLoan({...loan, username: 'you'}, false)") Delete
 </template>
 
 <script setup lang="ts">
@@ -148,7 +150,7 @@ onMounted(() => {
 		})
 		.catch((err) => alert('Could not load the item', PopupColor.Red, err.message));
 
-	if (appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS])) {
+	if (appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT, PERMISSIONS.MANAGE_ITEMS], true)) {
 		Api.loans
 			.getByItem(id)
 			.then((l) => (loans.value = l))
