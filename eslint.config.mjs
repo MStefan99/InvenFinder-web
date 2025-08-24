@@ -109,6 +109,5 @@ export default [{
     ],
 }, ...compat.extends(
     "eslint:recommended",
-    "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended",
 )];
