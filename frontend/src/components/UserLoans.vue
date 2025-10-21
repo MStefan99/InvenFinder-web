@@ -19,13 +19,11 @@
 </template>
 
 <script setup lang="ts">
-import type {ItemLoan} from '../scripts/types';
-import {computed} from 'vue';
+import type { ItemLoan } from '../scripts/types';
+import { computed } from 'vue';
 import appState from '../scripts/store';
 
-const props = defineProps<{loans: ItemLoan[]; title?: string}>();
+const props = defineProps<{ loans: ItemLoan[]; title?: string }>();
 const pendingLoans = computed(() => props.loans.filter((l) => !l.approved));
 const approvedLoans = computed(() => props.loans.filter((l) => l.approved));
 </script>
-
-<style scoped></style>

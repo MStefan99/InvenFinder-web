@@ -45,21 +45,21 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import { onMounted, ref } from 'vue';
 
-import {login as ssoLogin} from '../scripts/sso';
+import { login as ssoLogin } from '../scripts/sso';
 
 import appState from '../scripts/store';
 import Api from '../scripts/api';
-import {alert, PopupColor} from '../scripts/popups';
+import { alert, PopupColor } from '../scripts/popups';
 
-const emit = defineEmits<{(e: 'close'): void}>();
+const emit = defineEmits<{ (e: 'close'): void }>();
 
 enum ConnectionState {
-	TESTING,
-	NOT_CONNECTED,
-	CONNECTED,
-	AUTHENTICATED
+  TESTING,
+  NOT_CONNECTED,
+  CONNECTED,
+  AUTHENTICATED,
 }
 
 const url = ref<string | null>(appState.backendURL);
@@ -71,89 +71,91 @@ const authError = ref<string>('');
 onMounted(checkConnection);
 
 function checkConnection() {
-	connectionState.value = ConnectionState.TESTING;
+  connectionState.value = ConnectionState.TESTING;
 
-	Api.auth
-		.me()
-		.then(() => {
-			connectionState.value = ConnectionState.AUTHENTICATED;
-		})
-		.catch(() =>
-			Api.connection
-				.test()
-				.then(
-					(connected) =>
-						(connectionState.value = connected
-							? ConnectionState.CONNECTED
-							: ConnectionState.NOT_CONNECTED)
-				)
-				.catch(() => (connectionState.value = ConnectionState.NOT_CONNECTED))
-		);
+  Api.auth
+    .me()
+    .then(() => {
+      connectionState.value = ConnectionState.AUTHENTICATED;
+    })
+    .catch(() =>
+      Api.connection
+        .test()
+        .then(
+          (connected) =>
+            (connectionState.value = connected
+              ? ConnectionState.CONNECTED
+              : ConnectionState.NOT_CONNECTED),
+        )
+        .catch(() => (connectionState.value = ConnectionState.NOT_CONNECTED)),
+    );
 }
 
 function getAuthenticationState() {
-	if (connectionState.value === ConnectionState.TESTING) {
-		return 'Testing connection...';
-	} else if (connectionState.value === ConnectionState.NOT_CONNECTED) {
-		return 'Connection failed';
-	} else if (connectionState.value === ConnectionState.CONNECTED) {
-		return 'Connected but not signed in';
-	} else if (connectionState.value === ConnectionState.AUTHENTICATED) {
-		return 'Signed in! Click outside this window to close';
-	}
+  if (connectionState.value === ConnectionState.TESTING) {
+    return 'Testing connection...';
+  } else if (connectionState.value === ConnectionState.NOT_CONNECTED) {
+    return 'Connection failed';
+  } else if (connectionState.value === ConnectionState.CONNECTED) {
+    return 'Connected but not signed in';
+  } else if (connectionState.value === ConnectionState.AUTHENTICATED) {
+    return 'Signed in! Click outside this window to close';
+  }
 }
 
 function connect() {
-	connectionState.value = ConnectionState.TESTING;
+  connectionState.value = ConnectionState.TESTING;
 
-	Api.connection
-		.testURL(url.value)
-		.then((connected) => {
-			if (connected) {
-				connectionState.value = ConnectionState.CONNECTED;
-				appState.setUrl(url.value);
-			} else {
-				connectionState.value = ConnectionState.NOT_CONNECTED;
-			}
-		})
-		.catch(() => (connectionState.value = ConnectionState.NOT_CONNECTED));
+  Api.connection
+    .testURL(url.value)
+    .then((connected) => {
+      if (connected) {
+        connectionState.value = ConnectionState.CONNECTED;
+        appState.setUrl(url.value);
+      } else {
+        connectionState.value = ConnectionState.NOT_CONNECTED;
+      }
+    })
+    .catch(() => (connectionState.value = ConnectionState.NOT_CONNECTED));
 }
 
 function login() {
-	connectionState.value = ConnectionState.TESTING;
+  connectionState.value = ConnectionState.TESTING;
 
-	Api.auth
-		.login(username.value, password.value)
-		.then(() => {
-			connectionState.value = ConnectionState.AUTHENTICATED;
-			emit('close');
-		})
-		.catch((err) => {
-			connectionState.value = ConnectionState.CONNECTED;
-			alert('Could not sign in', PopupColor.Red, err.message);
-			authError.value = err.message;
-		});
+  Api.auth
+    .login(username.value, password.value)
+    .then(() => {
+      connectionState.value = ConnectionState.AUTHENTICATED;
+      emit('close');
+    })
+    .catch((err) => {
+      connectionState.value = ConnectionState.CONNECTED;
+      alert('Could not sign in', PopupColor.Red, err.message);
+      authError.value = err.message;
+    });
 }
 
 function register() {
-	connectionState.value = ConnectionState.TESTING;
+  connectionState.value = ConnectionState.TESTING;
 
-	Api.auth
-		.register(username.value, password.value)
-		.then(() => {
-			connectionState.value = ConnectionState.AUTHENTICATED;
-			emit('close');
-		})
-		.catch((err) => {
-			connectionState.value = ConnectionState.CONNECTED;
-			alert('Could not sign up', PopupColor.Red, err.message);
-			authError.value = err.message;
-		});
+  Api.auth
+    .register(username.value, password.value)
+    .then(() => {
+      connectionState.value = ConnectionState.AUTHENTICATED;
+      emit('close');
+    })
+    .catch((err) => {
+      connectionState.value = ConnectionState.CONNECTED;
+      alert('Could not sign up', PopupColor.Red, err.message);
+      authError.value = err.message;
+    });
 }
 </script>
 
 <style scoped>
+@import '../assets/style.css';
+
 label {
-	@apply block mb-2;
+  @apply block mb-2;
 }
 </style>

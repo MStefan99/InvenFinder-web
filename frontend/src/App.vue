@@ -19,32 +19,32 @@ footer
 import NavBar from './components/NavBar.vue';
 import PopupContainer from './components/PopupContainer.vue';
 import appState from './scripts/store';
-import {PopupColor, alert, prompt} from './scripts/popups';
+import { PopupColor, alert, prompt } from './scripts/popups';
 
 function sendFeedback(): void {
-	prompt(
-		'Send feedback',
-		PopupColor.Accent,
-		'Your feedback helps make Invenfinder better. Please type your message in the field below.'
-	)
-		.then((message) =>
-			appState.crashCourse?.sendFeedback(message).then((err) => {
-				if (err) {
-					alert(
-						'Feedback was not sent',
-						PopupColor.Red,
-						err?.message || 'Failed to send feedback. Please check your connection and try again.'
-					);
-				} else {
-					alert(
-						'Feedback sent',
-						PopupColor.Green,
-						'Thank you! All feedback helps make Invenfinder better.'
-					);
-				}
-			})
-		)
-		.catch((): null => null);
+  prompt(
+    'Send feedback',
+    PopupColor.Accent,
+    'Your feedback helps make Invenfinder better. Please type your message in the field below.',
+  )
+    .then((message) =>
+      appState.crashCourse?.sendFeedback(message).then((err) => {
+        if (err) {
+          alert(
+            'Feedback was not sent',
+            PopupColor.Red,
+            err?.message || 'Failed to send feedback. Please check your connection and try again.',
+          );
+        } else {
+          alert(
+            'Feedback sent',
+            PopupColor.Green,
+            'Thank you! All feedback helps make Invenfinder better.',
+          );
+        }
+      }),
+    )
+    .catch((): null => null);
 }
 </script>
 

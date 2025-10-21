@@ -32,44 +32,42 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import { onMounted, ref } from 'vue';
 
-import type {NewUser, User} from '../scripts/types';
+import type { NewUser, User } from '../scripts/types';
 import PermissionSelector from '../components/PermissionSelector.vue';
 import Api from '../scripts/api';
 import appState from '../scripts/store';
-import {PERMISSIONS} from '../../../common/permissions';
-import {alert, PopupColor} from '../scripts/popups';
-import {useRouter} from 'vue-router';
+import { PERMISSIONS } from '../../../common/permissions';
+import { alert, PopupColor } from '../scripts/popups';
+import { useRouter } from 'vue-router';
 
 const users = ref<User[]>();
 const newUser = ref<NewUser | null>(null);
-const defaultUser: NewUser = {username: '', password: '', permissions: 0};
+const defaultUser: NewUser = { username: '', password: '', permissions: 0 };
 const router = useRouter();
 
 window.document.title = 'Users | Invenfinder';
 
 function addUser() {
-	Api.users
-		.add(newUser.value)
-		.then((u) => {
-			users.value.push(u);
-			router.push({name: 'user', params: {id: u.id}});
-		})
-		.catch((err) => alert('Could not add the user', PopupColor.Red, err.message));
+  Api.users
+    .add(newUser.value)
+    .then((u) => {
+      users.value.push(u);
+      router.push({ name: 'user', params: { id: u.id } });
+    })
+    .catch((err) => alert('Could not add the user', PopupColor.Red, err.message));
 }
 
 onMounted(() => {
-	if (!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS, PERMISSIONS.MANAGE_USERS], true)) {
-		alert('Not allowed', PopupColor.Red, 'You do not have permissions to view this page');
-		return;
-	}
+  if (!appState.hasPermissions([PERMISSIONS.MANAGE_ITEMS, PERMISSIONS.MANAGE_USERS], true)) {
+    alert('Not allowed', PopupColor.Red, 'You do not have permissions to view this page');
+    return;
+  }
 
-	Api.users
-		.getAll()
-		.then((u) => (users.value = u))
-		.catch((err) => alert('Could not load users', PopupColor.Red, err.message));
+  Api.users
+    .getAll()
+    .then((u) => (users.value = u))
+    .catch((err) => alert('Could not load users', PopupColor.Red, err.message));
 });
 </script>
-
-<style scoped></style>

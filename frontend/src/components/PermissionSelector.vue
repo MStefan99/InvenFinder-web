@@ -11,31 +11,33 @@ div
 
 <script setup lang="ts">
 import {
-	encodePermissions,
-	parsePermissions,
-	PERMISSIONS,
-	permissionDescriptions
+  encodePermissions,
+  parsePermissions,
+  PERMISSIONS,
+  permissionDescriptions,
 } from '../../../common/permissions';
-import {computed, ref, watch} from 'vue';
+import { computed, ref, watch } from 'vue';
 
-const props = defineProps<{modelValue: number}>();
-const emit = defineEmits<{(e: 'update:modelValue', permissions: number): void}>();
+const props = defineProps<{ modelValue: number }>();
+const emit = defineEmits<{ (e: 'update:modelValue', permissions: number): void }>();
 
 const permissions = ref<PERMISSIONS[]>(parsePermissions(props.modelValue));
 const permissionKeys = computed<string[]>(() => Object.keys(PERMISSIONS).filter((k) => !isNaN(+k)));
 
 watch(
-	() => props.modelValue,
-	() => (permissions.value = parsePermissions(props.modelValue))
+  () => props.modelValue,
+  () => (permissions.value = parsePermissions(props.modelValue)),
 );
 
 watch(permissions, () => {
-	emit('update:modelValue', encodePermissions(permissions.value));
+  emit('update:modelValue', encodePermissions(permissions.value));
 });
 </script>
 
 <style scoped>
+@import '../assets/style.css';
+
 input {
-	@apply mr-2;
+  @apply mr-2;
 }
 </style>

@@ -23,94 +23,96 @@
 </template>
 
 <script setup lang="ts">
-import {activeAlerts, activeConfirm, activePrompt} from '../scripts/popups';
-import {ref} from 'vue';
+import { activeAlerts, activeConfirm, activePrompt } from '../scripts/popups';
+import { ref } from 'vue';
 
 const promptValue = ref<string>('');
 
 function resolveConfirm(value: boolean) {
-	activeConfirm.value?.resolve(value);
+  activeConfirm.value?.resolve(value);
 }
 
 function resolvePrompt() {
-	activePrompt.value?.resolve(promptValue.value);
-	promptValue.value = '';
+  activePrompt.value?.resolve(promptValue.value);
+  promptValue.value = '';
 }
 
 function rejectPrompt() {
-	activePrompt.value.reject(new Error('Prompt canceled'));
-	promptValue.value = '';
+  activePrompt.value.reject(new Error('Prompt canceled'));
+  promptValue.value = '';
 }
 </script>
 
 <style scoped>
+@import '../assets/style.css';
+
 .popups {
-	position: fixed;
-	left: 0;
-	right: 0;
-	top: 10vh;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 10vh;
 }
 
 .alerts {
-	position: absolute;
-	right: 10vw;
-	margin: 2em;
+  position: absolute;
+  right: 10vw;
+  margin: 2em;
 }
 
 .confirm,
 .prompt {
-	position: relative;
-	width: min(768px, 90vw);
-	margin: 0 auto;
-	@apply shadow-xl;
+  position: relative;
+  width: min(768px, 90vw);
+  margin: 0 auto;
+  @apply shadow-xl;
 }
 
 .alert,
 .confirm,
 .prompt {
-	border: 6px solid var(--color-accent);
-	color: var(--color-accent);
-	background-color: var(--color-overlay);
-	backdrop-filter: blur(1em);
-	-webkit-backdrop-filter: blur(1em);
-	border-radius: 1ch;
-	padding: 1em;
-	margin-bottom: 2em;
+  border: 6px solid var(--color-accent);
+  color: var(--color-accent);
+  background-color: var(--color-overlay);
+  backdrop-filter: blur(1em);
+  -webkit-backdrop-filter: blur(1em);
+  border-radius: 1ch;
+  padding: 1em;
+  margin-bottom: 2em;
 }
 
 .title {
-	font-weight: bold;
-	@apply text-xl mb-6;
+  font-weight: bold;
+  @apply text-xl mb-6;
 }
 
 .green {
-	border-color: var(--color-green);
-	color: var(--color-green);
+  border-color: var(--color-green);
+  color: var(--color-green);
 }
 
 .yellow {
-	border-color: var(--color-yellow);
-	color: var(--color-yellow);
+  border-color: var(--color-yellow);
+  color: var(--color-yellow);
 }
 
 .red {
-	border-color: var(--color-red);
-	color: var(--color-red);
+  border-color: var(--color-red);
+  color: var(--color-red);
 }
 
 form input {
-	display: inline-block;
+  display: inline-block;
 }
 
 .move,
 .popup-enter-active,
 .popup-leave-active {
-	transition: all 0.5s ease;
+  transition: all 0.5s ease;
 }
 
 .popup-enter-from,
 .popup-leave-to {
-	transform: translateY(-50%);
-	opacity: 0;
+  transform: translateY(-50%);
+  opacity: 0;
 }
 </style>

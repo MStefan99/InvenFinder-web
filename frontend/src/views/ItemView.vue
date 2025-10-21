@@ -110,15 +110,15 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue';
-import {useRoute, useRouter} from 'vue-router';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 import TextEditable from '../components/TextEditable.vue';
-import type {Item, Loan, UserLoan} from '../scripts/types';
+import type { Item, Loan, UserLoan } from '../scripts/types';
 import appState from '../scripts/store';
 import Api from '../scripts/api';
-import {PERMISSIONS} from '../../../common/permissions';
-import {alert, confirm, PopupColor, prompt} from '../scripts/popups';
+import { PERMISSIONS } from '../../../common/permissions';
+import { alert, confirm, PopupColor, prompt } from '../scripts/popups';
 
 const item = ref<Item | null>(null);
 const route = useRoute();
@@ -131,199 +131,201 @@ const approvedLoans = computed(() => loans.value.filter((l) => l.approved));
 const myLoans = computed(() => loans.value.filter((l) => l.userID === appState.user.id));
 
 onMounted(() => {
-	const idParam = route.params.id instanceof Array ? route.params.id[0] : route.params.id;
-	const id = +idParam;
+  const idParam = route.params.id instanceof Array ? route.params.id[0] : route.params.id;
+  const id = +idParam;
 
-	if (Number.isNaN(id)) {
-		console.error('Item ID is not a number:', idParam);
-		return;
-	}
+  if (Number.isNaN(id)) {
+    console.error('Item ID is not a number:', idParam);
+    return;
+  }
 
-	Api.items
-		.getByID(id)
-		.then((i) => {
-			item.value = i;
-			window.document.title = i.name + ' | Invenfinder';
-			if (!route.params.name) {
-				router.replace({name: 'item', params: {id, name: i.name.replace(/\s+/g, '_')}});
-			}
-		})
-		.catch((err) => alert('Could not load the item', PopupColor.Red, err.message));
+  Api.items
+    .getByID(id)
+    .then((i) => {
+      item.value = i;
+      window.document.title = i.name + ' | Invenfinder';
+      if (!route.params.name) {
+        router.replace({ name: 'item', params: { id, name: i.name.replace(/\s+/g, '_') } });
+      }
+    })
+    .catch((err) => alert('Could not load the item', PopupColor.Red, err.message));
 
-	if (appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT, PERMISSIONS.MANAGE_ITEMS], true)) {
-		Api.loans
-			.getByItem(id)
-			.then((l) => (loans.value = l))
-			.catch((err) => alert('Could not load the loans', PopupColor.Red, err.message));
-	} else if (appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])) {
-		Api.loans
-			.getMineByItem(id)
-			.then((l) => (loans.value = l))
-			.catch((err) => alert('Could not load the loans', PopupColor.Red, err.message));
-	}
+  if (appState.hasPermissions([PERMISSIONS.EDIT_ITEM_AMOUNT, PERMISSIONS.MANAGE_ITEMS], true)) {
+    Api.loans
+      .getByItem(id)
+      .then((l) => (loans.value = l))
+      .catch((err) => alert('Could not load the loans', PopupColor.Red, err.message));
+  } else if (appState.hasPermissions([PERMISSIONS.LOAN_ITEMS])) {
+    Api.loans
+      .getMineByItem(id)
+      .then((l) => (loans.value = l))
+      .catch((err) => alert('Could not load the loans', PopupColor.Red, err.message));
+  }
 });
 
 async function uploadFiles(e: SubmitEvent) {
-	const body = new FormData();
-	for (const file of ((e.target as HTMLFormElement).files as HTMLInputElement).files) {
-		body.append('file', file);
-	}
+  const body = new FormData();
+  for (const file of ((e.target as HTMLFormElement).files as HTMLInputElement).files) {
+    body.append('file', file);
+  }
 
-	item.value.link = await Api.items.uploadFiles(item.value.id, body);
+  item.value.link = await Api.items.uploadFiles(item.value.id, body);
 }
 
 async function loanItem() {
-	const amount = +(await prompt('Choose amount', PopupColor.Accent, 'How many items do you need?'));
+  const amount = +(await prompt('Choose amount', PopupColor.Accent, 'How many items do you need?'));
 
-	if (amount < 1) {
-		alert('Incorrect amount', PopupColor.Red, 'The amount cannot be negative or zero');
-		return;
-	}
+  if (amount < 1) {
+    alert('Incorrect amount', PopupColor.Red, 'The amount cannot be negative or zero');
+    return;
+  }
 
-	Api.loans
-		.add(item.value.id, amount)
-		.then((l) => {
-			loans.value.push(l);
-			alert('Loan request placed', PopupColor.Green, 'Loan request successfully placed');
-		})
-		.catch((err) => alert('Could not place loan request', PopupColor.Red, err.message));
+  Api.loans
+    .add(item.value.id, amount)
+    .then((l) => {
+      loans.value.push(l);
+      alert('Loan request placed', PopupColor.Green, 'Loan request successfully placed');
+    })
+    .catch((err) => alert('Could not place loan request', PopupColor.Red, err.message));
 }
 
 function editItem() {
-	item.value &&
-		Api.items
-			.edit(item.value)
-			.then((i) => (item.value = i))
-			.catch((err) =>
-				alert('Could not save ' + item.value.name || 'the item', PopupColor.Red, err.message)
-			);
+  item.value &&
+    Api.items
+      .edit(item.value)
+      .then((i) => (item.value = i))
+      .catch((err) =>
+        alert('Could not save ' + item.value.name || 'the item', PopupColor.Red, err.message),
+      );
 }
 
 async function approveLoan(loan: UserLoan, approved: boolean) {
-	if (
-		!(await confirm(
-			'Approve loan?',
-			PopupColor.Accent,
-			`Are you sure you want to approve the loan request for ${loan.amount} items by ${loan.username}? The items will be transferred from inventory to the user`
-		))
-	) {
-		return;
-	}
+  if (
+    !(await confirm(
+      'Approve loan?',
+      PopupColor.Accent,
+      `Are you sure you want to approve the loan request for ${loan.amount} items by ${loan.username}? The items will be transferred from inventory to the user`,
+    ))
+  ) {
+    return;
+  }
 
-	loan.approved = approved;
-	Api.loans
-		.edit(loan)
-		.then((l) => {
-			item.value.amount = l.itemAmount;
-		})
-		.catch((err) => {
-			alert('Could not approve this loan request', PopupColor.Red, err.message);
-			loan.approved = !approved;
-		});
+  loan.approved = approved;
+  Api.loans
+    .edit(loan)
+    .then((l) => {
+      item.value.amount = l.itemAmount;
+    })
+    .catch((err) => {
+      alert('Could not approve this loan request', PopupColor.Red, err.message);
+      loan.approved = !approved;
+    });
 }
 
 function editLoan(loan: UserLoan) {
-	Api.loans
-		.edit(loan)
-		.then((l) => {
-			item.value.amount = l.itemAmount;
-		})
-		.catch((err) => {
-			alert('Could not edit this loan', PopupColor.Red, err.message);
-		});
+  Api.loans
+    .edit(loan)
+    .then((l) => {
+      item.value.amount = l.itemAmount;
+    })
+    .catch((err) => {
+      alert('Could not edit this loan', PopupColor.Red, err.message);
+    });
 }
 
 async function deleteLoan(loan: UserLoan, returned?: boolean) {
-	if (
-		!(await confirm(
-			loan.approved && returned ? 'Mark as returned?' : 'Delete loan?',
-			PopupColor.Red,
-			!loan.approved
-				? `Are you sure you want to delete the loan request for ${loan.amount} items by ${loan.username}?`
-				: returned
-					? `Are you sure you want to mark the loan for ${loan.amount} items by ${loan.username} as returned? The loaned items will be transferred from the user to inventory`
-					: `Are you sure you want to delete the loan for ${loan.amount} items by ${loan.username}? The loaned items will be lost`
-		))
-	) {
-		return;
-	}
+  if (
+    !(await confirm(
+      loan.approved && returned ? 'Mark as returned?' : 'Delete loan?',
+      PopupColor.Red,
+      !loan.approved
+        ? `Are you sure you want to delete the loan request for ${loan.amount} items by ${loan.username}?`
+        : returned
+          ? `Are you sure you want to mark the loan for ${loan.amount} items by ${loan.username} as returned? The loaned items will be transferred from the user to inventory`
+          : `Are you sure you want to delete the loan for ${loan.amount} items by ${loan.username}? The loaned items will be lost`,
+    ))
+  ) {
+    return;
+  }
 
-	Api.loans
-		.delete(loan, returned)
-		.then(() => {
-			loans.value.splice(loans.value.indexOf(loan), 1);
+  Api.loans
+    .delete(loan, returned)
+    .then(() => {
+      loans.value.splice(loans.value.indexOf(loan), 1);
 
-			if (returned) {
-				item.value.amount += loan.amount;
-			}
-		})
-		.catch((err) => alert('Could not delete this loan', PopupColor.Red, err.message));
+      if (returned) {
+        item.value.amount += loan.amount;
+      }
+    })
+    .catch((err) => alert('Could not delete this loan', PopupColor.Red, err.message));
 }
 
 async function editAmount(add = false) {
-	const diff = +((await prompt('Choose amount', PopupColor.Accent)) ?? 0);
+  const diff = +((await prompt('Choose amount', PopupColor.Accent)) ?? 0);
 
-	if (Number.isNaN(diff)) {
-		return;
-	}
+  if (Number.isNaN(diff)) {
+    return;
+  }
 
-	if (!item.value) {
-		return;
-	}
+  if (!item.value) {
+    return;
+  }
 
-	const oldAmount = item.value.amount;
-	item.value.amount = add ? item.value.amount + diff : item.value.amount - diff;
+  const oldAmount = item.value.amount;
+  item.value.amount = add ? item.value.amount + diff : item.value.amount - diff;
 
-	if (item.value.amount < 0) {
-		alert(
-			'Invalid amount',
-			PopupColor.Red,
-			'You have entered an invalid amount ' +
-				'as the number of items would turn negative. Please try again.'
-		);
-		item.value.amount = oldAmount;
-		return;
-	}
+  if (item.value.amount < 0) {
+    alert(
+      'Invalid amount',
+      PopupColor.Red,
+      'You have entered an invalid amount ' +
+        'as the number of items would turn negative. Please try again.',
+    );
+    item.value.amount = oldAmount;
+    return;
+  }
 
-	Api.items
-		.editAmount(item.value.id, item.value.amount)
-		.then((i) => (item.value.amount = i.amount))
-		.catch((err) => {
-			item.value.amount = oldAmount;
-			alert('Could not change the amount', PopupColor.Red, err.message);
-		});
+  Api.items
+    .editAmount(item.value.id, item.value.amount)
+    .then((i) => (item.value.amount = i.amount))
+    .catch((err) => {
+      item.value.amount = oldAmount;
+      alert('Could not change the amount', PopupColor.Red, err.message);
+    });
 }
 
 async function deleteItem() {
-	if (
-		await confirm(
-			'Delete this item?',
-			PopupColor.Red,
-			'Are you sure you want to delete ' + item.value.name + '?'
-		)
-	) {
-		Api.items
-			.delete(item.value)
-			.then(() => router.push({name: 'home'}))
-			.catch((err) =>
-				alert('Could not delete ' + item.value.name || 'the item', PopupColor.Red, err.message)
-			);
-	}
+  if (
+    await confirm(
+      'Delete this item?',
+      PopupColor.Red,
+      'Are you sure you want to delete ' + item.value.name + '?',
+    )
+  ) {
+    Api.items
+      .delete(item.value)
+      .then(() => router.push({ name: 'home' }))
+      .catch((err) =>
+        alert('Could not delete ' + item.value.name || 'the item', PopupColor.Red, err.message),
+      );
+  }
 }
 </script>
 
 <style scoped>
+@import '../assets/style.css';
+
 input {
-	@apply block;
+  @apply block;
 }
 
 td {
-	padding: 0.5em 0.25ch;
+  padding: 0.5em 0.25ch;
 }
 
 h3 {
-	display: block;
-	margin-bottom: 0.6em;
-	font-weight: bold;
+  display: block;
+  margin-bottom: 0.6em;
+  font-weight: bold;
 }
 </style>

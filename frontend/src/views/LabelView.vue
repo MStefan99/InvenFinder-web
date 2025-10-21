@@ -10,11 +10,11 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import { onMounted, ref } from 'vue';
 
 import Api from '../scripts/api';
-import type {Item} from '../scripts/types';
-import {alert, PopupColor} from '../scripts/popups';
+import type { Item } from '../scripts/types';
+import { alert, PopupColor } from '../scripts/popups';
 
 const items = ref<Item[]>();
 const fontSize = ref<number>(1);
@@ -22,15 +22,17 @@ const fontSize = ref<number>(1);
 window.document.title = 'Labels | Invenfinder';
 
 onMounted(() =>
-	Api.items
-		.getAll()
-		.then((i) => (items.value = i))
-		.catch((err) => alert('Could not load inventory', PopupColor.Red, err.message))
+  Api.items
+    .getAll()
+    .then((i) => (items.value = i))
+    .catch((err) => alert('Could not load inventory', PopupColor.Red, err.message)),
 );
 </script>
 
 <style scoped>
+@import '../assets/style.css';
+
 .label {
-	border: 1px dashed var(--color-muted);
+  border: 1px dashed var(--color-muted);
 }
 </style>

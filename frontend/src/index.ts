@@ -1,6 +1,6 @@
 'use strict';
 
-import {createApp} from 'vue';
+import { createApp } from 'vue';
 import App from './App.vue';
 import router from './scripts/routes';
 import './assets/style.css';
@@ -10,15 +10,15 @@ const app = createApp(App);
 app.config.globalProperties.envBackendURL = import.meta.env.VITE_BACKEND_URL;
 
 app.config.errorHandler = (err: unknown) => {
-	console.error('Vue error', err);
-	appState.crashCourse?.sendLog(String(err), 3);
+  console.error('Vue error', err);
+  appState.crashCourse?.sendLog(String(err), 3);
 };
 
 app.config.warnHandler = (err: unknown) => {
-	console.warn('Vue error', err);
-	appState.crashCourse?.sendLog(String(err), 2);
+  console.warn('Vue error', err);
+  appState.crashCourse?.sendLog(String(err), 2);
 };
 
 (() => {
-	app.use(router).mount('#app');
+  app.use(router).mount('#app');
 }).call({});

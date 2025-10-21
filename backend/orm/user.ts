@@ -13,8 +13,8 @@ function buf2hex(buf: Uint8Array): string {
 	return encodeHex(buf);
 }
 
-function hex2buf(str: string): Uint8Array {
-	return decodeHex(str);
+function hex2buf(str: string): ArrayBuffer {
+	return decodeHex(str).buffer;
 }
 
 async function pbkdf2(password: string, salt: string): Promise<string> {

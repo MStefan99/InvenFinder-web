@@ -21,37 +21,39 @@
 </template>
 
 <script setup lang="ts">
-import {ref, watch} from 'vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps<{
-	modelValue: string | number | null;
-	label?: string;
-	placeholder?: string;
-	textClass?: string;
-	readonly?: boolean;
-	clickable?: boolean;
-	multiline?: boolean;
-	type?: string;
+  modelValue: string | number | null;
+  label?: string;
+  placeholder?: string;
+  textClass?: string;
+  readonly?: boolean;
+  clickable?: boolean;
+  multiline?: boolean;
+  type?: string;
 }>();
 
 defineEmits<{
-	(e: 'update:modelValue', value: string | number): void;
-	(e: 'click'): void;
+  (e: 'update:modelValue', value: string | number): void;
+  (e: 'click'): void;
 }>();
 
 const value = ref<string | number>(props.modelValue);
 const expanded = ref<boolean>(false);
 
 watch(
-	() => props.modelValue,
-	() => {
-		value.value = props.modelValue;
-	}
+  () => props.modelValue,
+  () => {
+    value.value = props.modelValue;
+  },
 );
 </script>
 
 <style scoped>
+@import '../assets/style.css';
+
 .icon {
-	display: inline-block;
+  display: inline-block;
 }
 </style>

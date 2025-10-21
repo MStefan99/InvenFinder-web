@@ -1,75 +1,75 @@
 export type SsoProvider = {
-	name: string;
-	issuer: string;
-	client_id: string;
-	client_secret: string;
+  name: string;
+  issuer: string;
+  client_id: string;
+  client_secret: string;
 };
 
 type BaseUser = {
-	username: string;
-	permissions: number;
+  username: string;
+  permissions: number;
 };
 
 export type User = {
-	id: number;
+  id: number;
 } & BaseUser;
 
 export type NewUser = BaseUser & {
-	password: string;
+  password: string;
 };
 
 export type UpdateUser = {
-	id: User['id'];
-	username?: BaseUser['username'];
-	password?: NewUser['password'];
-	permissions?: BaseUser['permissions'];
+  id: User['id'];
+  username?: BaseUser['username'];
+  password?: NewUser['password'];
+  permissions?: BaseUser['permissions'];
 };
 
 export type Session = {
-	token: string;
-	ip: string;
-	ua: string;
-	time: number;
-	ssoProvider?: string;
+  token: string;
+  ip: string;
+  ua: string;
+  time: number;
+  ssoProvider?: string;
 };
 
 export type NewItem = {
-	name: string;
-	description: string | null;
-	link: string | null;
-	location: string;
-	amount: number;
+  name: string;
+  description: string | null;
+  link: string | null;
+  location: string;
+  amount: number;
 };
 
 export type Item = {
-	id: number;
+  id: number;
 } & NewItem;
 
 export type FoundItem = {
-	name: Item['name'];
-	amount: Item['amount'];
-	foundItem: Item;
+  name: Item['name'];
+  amount: Item['amount'];
+  foundItem: Item;
 };
 
 export type LoanRequest = {
-	userID: number;
-	itemID: number;
-	amount: number;
+  userID: number;
+  itemID: number;
+  amount: number;
 };
 
 export type Loan = {
-	id: number;
-	approved: boolean;
+  id: number;
+  approved: boolean;
 } & LoanRequest;
 
 export type UserLoan = {
-	username: string;
+  username: string;
 } & Loan;
 
 export type ItemLoan = {
-	itemName: string;
+  itemName: string;
 } & Loan;
 
 export type EditLoan = {
-	itemAmount: number;
+  itemAmount: number;
 } & Loan;

@@ -20,15 +20,15 @@ div
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import { ref } from 'vue';
 
-import {appState, settingsLoaded} from '../scripts/store';
+import { appState, settingsLoaded } from '../scripts/store';
 import Api from '../scripts/api';
-import {PERMISSIONS} from '../../../common/permissions';
+import { PERMISSIONS } from '../../../common/permissions';
 import ConnectionDialog from './ConnectionDialog.vue';
-import {useRoute, useRouter} from 'vue-router';
-import {getTokens} from '../scripts/sso';
-import {alert, PopupColor} from '../scripts/popups';
+import { useRoute, useRouter } from 'vue-router';
+import { getTokens } from '../scripts/sso';
+import { alert, PopupColor } from '../scripts/popups';
 
 const connectionDialogOpen = ref<boolean>(!appState.apiKey);
 
@@ -36,47 +36,49 @@ const route = useRoute();
 const router = useRouter();
 
 router
-	.isReady()
-	.then(() => settingsLoaded)
-	.then(async () => {
-		if ('code' in route.query) {
-			try {
-				await getTokens();
-			} catch {
-				alert('Could not sign in with SSO', PopupColor.Red, 'Please try again');
-			} finally {
-				const query = Object.assign({}, route.query);
-				delete query.code;
-				await router.replace({query});
-			}
-		}
+  .isReady()
+  .then(() => settingsLoaded)
+  .then(async () => {
+    if ('code' in route.query) {
+      try {
+        await getTokens();
+      } catch {
+        alert('Could not sign in with SSO', PopupColor.Red, 'Please try again');
+      } finally {
+        const query = Object.assign({}, route.query);
+        delete query.code;
+        await router.replace({ query });
+      }
+    }
 
-		checkConnection();
-	});
+    checkConnection();
+  });
 
 function checkConnection() {
-	Api.auth
-		.me()
-		.then((user) => {
-			connectionDialogOpen.value = false;
-			appState.setUser(user);
-		})
-		.catch(() => {
-			connectionDialogOpen.value = true;
-		});
+  Api.auth
+    .me()
+    .then((user) => {
+      connectionDialogOpen.value = false;
+      appState.setUser(user);
+    })
+    .catch(() => {
+      connectionDialogOpen.value = true;
+    });
 }
 </script>
 
 <style scoped>
+@import '../assets/style.css';
+
 label {
-	display: block;
+  display: block;
 }
 
 input {
-	@apply border-2 border-accent rounded-xl w-full p-2 my-3 shadow;
+  @apply border-2 border-accent rounded-xl w-full p-2 my-3 shadow;
 }
 
 input[type='submit'] {
-	@apply bg-accent font-bold text-background text-xl shadow-md;
+  @apply bg-accent font-bold text-background text-xl shadow-md;
 }
 </style>

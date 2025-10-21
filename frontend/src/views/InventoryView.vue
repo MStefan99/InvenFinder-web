@@ -29,22 +29,22 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import { onMounted, ref } from 'vue';
 
 import Api from '../scripts/api';
 import appState from '../scripts/store';
-import {PERMISSIONS} from '../../../common/permissions';
-import type {Item, NewItem} from '../scripts/types';
-import {alert, PopupColor} from '../scripts/popups';
-import {useRouter} from 'vue-router';
+import { PERMISSIONS } from '../../../common/permissions';
+import type { Item, NewItem } from '../scripts/types';
+import { alert, PopupColor } from '../scripts/popups';
+import { useRouter } from 'vue-router';
 import ItemPicker from '../components/ItemPicker.vue';
 
 const defaultItem: NewItem = {
-	name: '',
-	description: null,
-	link: null,
-	location: '',
-	amount: 10
+  name: '',
+  description: null,
+  link: null,
+  location: '',
+  amount: 10,
 };
 
 const items = ref<Item[]>([]);
@@ -56,27 +56,25 @@ window.document.title = 'Inventory | Invenfinder';
 onMounted(loadItems);
 
 function loadItems() {
-	Api.items
-		.getAll()
-		.then((i) => (items.value = i))
-		.catch((err) => alert('Could not load inventory', PopupColor.Red, err.message));
+  Api.items
+    .getAll()
+    .then((i) => (items.value = i))
+    .catch((err) => alert('Could not load inventory', PopupColor.Red, err.message));
 }
 
 function addItem() {
-	if (newItem.value === null) {
-		return;
-	}
+  if (newItem.value === null) {
+    return;
+  }
 
-	Api.items
-		.add(newItem.value)
-		.then((i) => {
-			items.value.push(i);
-			router.push({name: 'item', params: {id: i.id}});
-		})
-		.catch((err) =>
-			alert('Could not add ' + newItem.value.name || 'the item', PopupColor.Red, err.message)
-		);
+  Api.items
+    .add(newItem.value)
+    .then((i) => {
+      items.value.push(i);
+      router.push({ name: 'item', params: { id: i.id } });
+    })
+    .catch((err) =>
+      alert('Could not add ' + newItem.value.name || 'the item', PopupColor.Red, err.message),
+    );
 }
 </script>
-
-<style scoped></style>

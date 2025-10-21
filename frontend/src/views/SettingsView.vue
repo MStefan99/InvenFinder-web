@@ -43,125 +43,127 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 import appState from '../scripts/store';
 import Api from '../scripts/api';
-import type {Session, UpdateUser} from '../scripts/types';
-import {alert, PopupColor, confirm} from '../scripts/popups';
+import type { Session, UpdateUser } from '../scripts/types';
+import { alert, PopupColor, confirm } from '../scripts/popups';
 
 const sessions = ref<Session[]>([]);
-const updateUser = ref<UpdateUser>({id: appState.user.id, password: ''});
+const updateUser = ref<UpdateUser>({ id: appState.user.id, password: '' });
 const passwordRepeat = ref<string>('');
 const formValid = computed<boolean>(
-	() =>
-		updateUser.value.password === passwordRepeat.value &&
-		!!(updateUser.value.username?.length || updateUser.value.password?.length)
+  () =>
+    updateUser.value.password === passwordRepeat.value &&
+    !!(updateUser.value.username?.length || updateUser.value.password?.length),
 );
 
 window.document.title = 'Settings | Invenfinder';
 
 function parseUA(ua: string): string | null {
-	const res = ua.match(/.*? \((.*?); (.*?)([;)]).*/);
-	let os: string | null;
+  const res = ua.match(/.*? \((.*?); (.*?)([;)]).*/);
+  let os: string | null;
 
-	if (!res) {
-		os = ua ?? null;
-	} else if (res[1] === 'Linux') {
-		os = res[2] ?? null;
-	} else if (res[2] === 'Win64') {
-		os = res[1]?.replace('NT ', '')?.replace('.0', '') ?? null;
-	} else if (res[1] === 'Macintosh') {
-		os = ['macOS', res[2]?.replace(/.*Mac OS X (.*?)$/, '$1')?.replace(/_/g, '.') ?? ''].join(' ');
-	} else if (res[1] === 'iPhone') {
-		os = [
-			'iPhone (iOS',
-			res[2]?.replace(/.*OS (.*?) like.*/, '$1)')?.replace(/_/g, '.') ?? ')'
-		].join(' ');
-	} else if (res[1] === 'iPad') {
-		os = [
-			'iPad (iPadOS',
-			res[2]?.replace(/.*OS (.*?) like.*/, '$1)')?.replace(/_/g, '.') ?? ')'
-		].join(' ');
-	} else {
-		os = res[1] ?? null;
-	}
+  if (!res) {
+    os = ua ?? null;
+  } else if (res[1] === 'Linux') {
+    os = res[2] ?? null;
+  } else if (res[2] === 'Win64') {
+    os = res[1]?.replace('NT ', '')?.replace('.0', '') ?? null;
+  } else if (res[1] === 'Macintosh') {
+    os = ['macOS', res[2]?.replace(/.*Mac OS X (.*?)$/, '$1')?.replace(/_/g, '.') ?? ''].join(' ');
+  } else if (res[1] === 'iPhone') {
+    os = [
+      'iPhone (iOS',
+      res[2]?.replace(/.*OS (.*?) like.*/, '$1)')?.replace(/_/g, '.') ?? ')',
+    ].join(' ');
+  } else if (res[1] === 'iPad') {
+    os = [
+      'iPad (iPadOS',
+      res[2]?.replace(/.*OS (.*?) like.*/, '$1)')?.replace(/_/g, '.') ?? ')',
+    ].join(' ');
+  } else {
+    os = res[1] ?? null;
+  }
 
-	return os;
+  return os;
 }
 
 function updatePassword() {
-	if (!formValid.value) {
-		alert(
-			'Passwords do not match',
-			PopupColor.Red,
-			'Please check that both passwords are the same'
-		);
-		return;
-	}
+  if (!formValid.value) {
+    alert(
+      'Passwords do not match',
+      PopupColor.Red,
+      'Please check that both passwords are the same',
+    );
+    return;
+  }
 
-	Api.auth
-		.edit(updateUser.value)
-		.then(() => {
-			alert(
-				'Information changed',
-				PopupColor.Green,
-				'Your user info was successfully changed. Consider signing out your active sessions'
-			);
-			appState.user.username = updateUser.value.username;
-			updateUser.value.username = updateUser.value.password = passwordRepeat.value = '';
-		})
-		.catch((err) => alert('Could not change your password', PopupColor.Red, err.message));
+  Api.auth
+    .edit(updateUser.value)
+    .then(() => {
+      alert(
+        'Information changed',
+        PopupColor.Green,
+        'Your user info was successfully changed. Consider signing out your active sessions',
+      );
+      appState.user.username = updateUser.value.username;
+      updateUser.value.username = updateUser.value.password = passwordRepeat.value = '';
+    })
+    .catch((err) => alert('Could not change your password', PopupColor.Red, err.message));
 }
 
 function logout(session: Session) {
-	Api.sessions.logout(session.token);
-	sessions.value.splice(sessions.value.indexOf(session), 1);
-	if (session.token === appState.apiKey) {
-		appState.setApiKey(null);
-		appState.setUser(null);
-	}
+  Api.sessions.logout(session.token);
+  sessions.value.splice(sessions.value.indexOf(session), 1);
+  if (session.token === appState.apiKey) {
+    appState.setApiKey(null);
+    appState.setUser(null);
+  }
 }
 
 function logoutAll() {
-	Api.sessions.logoutAll();
-	appState.setApiKey(null);
-	appState.setUser(null);
+  Api.sessions.logoutAll();
+  appState.setApiKey(null);
+  appState.setUser(null);
 }
 
 onMounted(() =>
-	Api.sessions
-		.getAll()
-		.then((s) => (sessions.value = s))
-		.catch((err) => alert('Could not load sessions', PopupColor.Red, err.message))
+  Api.sessions
+    .getAll()
+    .then((s) => (sessions.value = s))
+    .catch((err) => alert('Could not load sessions', PopupColor.Red, err.message)),
 );
 
 async function deleteAccount() {
-	if (
-		!(await confirm(
-			'Are you sure you want to delete your account?',
-			PopupColor.Red,
-			'All information associated with your user account will be deleted immediately'
-		))
-	) {
-		return;
-	}
+  if (
+    !(await confirm(
+      'Are you sure you want to delete your account?',
+      PopupColor.Red,
+      'All information associated with your user account will be deleted immediately',
+    ))
+  ) {
+    return;
+  }
 
-	Api.auth
-		.delete()
-		.then(() =>
-			alert(
-				'Account deleted',
-				PopupColor.Green,
-				'Your account and all your information was deleted successfully'
-			)
-		)
-		.catch((err) => alert('Could not delete account', PopupColor.Red, err.message));
+  Api.auth
+    .delete()
+    .then(() =>
+      alert(
+        'Account deleted',
+        PopupColor.Green,
+        'Your account and all your information was deleted successfully',
+      ),
+    )
+    .catch((err) => alert('Could not delete account', PopupColor.Red, err.message));
 }
 </script>
 
 <style scoped>
+@import '../assets/style.css';
+
 th {
-	text-align: left;
+  text-align: left;
 }
 </style>

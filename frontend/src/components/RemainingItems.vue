@@ -15,42 +15,44 @@ tr
 </template>
 
 <script setup lang="ts">
-import {computed} from 'vue';
-import type {FoundItem} from '../scripts/types';
+import { computed } from 'vue';
+import type { FoundItem } from '../scripts/types';
 
-const props = defineProps<{item: FoundItem}>();
-const emit = defineEmits<{(e: 'select'): void; (e: 'delete'): void}>();
+const props = defineProps<{ item: FoundItem }>();
+const emit = defineEmits<{ (e: 'select'): void; (e: 'delete'): void }>();
 
 const remaining = computed(() => {
-	const amount = props.item.foundItem ? props.item.foundItem?.amount - props.item.amount : null;
-	const factor = props.item.foundItem ? props.item.foundItem?.amount / props.item.amount : 0;
+  const amount = props.item.foundItem ? props.item.foundItem?.amount - props.item.amount : null;
+  const factor = props.item.foundItem ? props.item.foundItem?.amount / props.item.amount : 0;
 
-	return {amount, factor};
+  return { amount, factor };
 });
 </script>
 
 <style scoped>
+@import '../assets/style.css';
+
 td {
-	@apply py-2;
+  @apply py-2;
 }
 
 td:not(:first-child) {
-	@apply pl-2;
+  @apply pl-2;
 }
 
 td:not(:last-child) {
-	@apply pr-2;
+  @apply pr-2;
 }
 
 .enough {
-	@apply text-green;
+  @apply text-green;
 }
 
 .low {
-	@apply text-yellow;
+  @apply text-yellow;
 }
 
 .insufficient {
-	@apply text-red;
+  @apply text-red;
 }
 </style>

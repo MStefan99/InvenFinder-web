@@ -45,13 +45,13 @@
 
 <script setup lang="ts">
 import appState from '../scripts/store';
-import {onMounted, ref} from 'vue';
+import { onMounted, ref } from 'vue';
 import ItemPicker from '../components/ItemPicker.vue';
-import type {FoundItem, Item} from '../scripts/types';
+import type { FoundItem, Item } from '../scripts/types';
 import Api from '../scripts/api';
-import {alert, PopupColor} from '../scripts/popups';
+import { alert, PopupColor } from '../scripts/popups';
 import RemainingItems from '../components/RemainingItems.vue';
-import {toCSV} from '../../../common/csv';
+import { toCSV } from '../../../common/csv';
 
 const fileName = ref<string | null>(null);
 const items = ref<Item[]>([]);
@@ -63,78 +63,82 @@ window.document.title = 'Inventory check | Invenfinder';
 onMounted(loadItems);
 
 function loadItems() {
-	Api.items
-		.getAll()
-		.then((i) => (items.value = i))
-		.catch((err) => alert('Could not load inventory', PopupColor.Red, err.message));
+  Api.items
+    .getAll()
+    .then((i) => (items.value = i))
+    .catch((err) => alert('Could not load inventory', PopupColor.Red, err.message));
 }
 
 async function uploadFile(e: SubmitEvent) {
-	const body = new FormData();
-	for (const file of ((e.target as HTMLFormElement).file as HTMLInputElement).files) {
-		body.append('file', file);
-	}
+  const body = new FormData();
+  for (const file of ((e.target as HTMLFormElement).file as HTMLInputElement).files) {
+    body.append('file', file);
+  }
 
-	foundItems.value = [];
+  foundItems.value = [];
 
-	const res = await fetch(`${appState.backendURL}/check`, {
-		method: 'POST',
-		body
-	});
+  const res = await fetch(`${appState.backendURL}/check`, {
+    method: 'POST',
+    body,
+  });
 
-	if (res.ok) {
-		const decoder = new TextDecoder();
-		let buffer = '';
+  if (res.ok) {
+    const decoder = new TextDecoder();
+    let buffer = '';
 
-		//@ts-expect-error TS doesn't know res.body has an async iterator
-		for await (const chunk of res.body) {
-			const text = decoder.decode(chunk);
-			buffer += text;
-			const fullEntries = buffer.split('\n');
-			buffer = fullEntries.pop();
-			fullEntries.forEach((e) => foundItems.value.push(JSON.parse(e)));
-		}
-	}
+    //@ts-expect-error TS doesn't know res.body has an async iterator
+    for await (const chunk of res.body) {
+      const text = decoder.decode(chunk);
+      buffer += text;
+      const fullEntries = buffer.split('\n');
+      buffer = fullEntries.pop();
+      fullEntries.forEach((e) => foundItems.value.push(JSON.parse(e)));
+    }
+  }
 }
 
 function download(filename: string) {
-	const element = document.createElement('a');
-	element.setAttribute(
-		'href',
-		'data:text/json;charset=utf-8,' +
-			encodeURIComponent(
-				toCSV(foundItems.value.map((i) => ({name: i.name, amount: i.amount, id: i.foundItem?.id})))
-			)
-	);
-	element.setAttribute('download', filename);
+  const element = document.createElement('a');
+  element.setAttribute(
+    'href',
+    'data:text/json;charset=utf-8,' +
+      encodeURIComponent(
+        toCSV(
+          foundItems.value.map((i) => ({ name: i.name, amount: i.amount, id: i.foundItem?.id })),
+        ),
+      ),
+  );
+  element.setAttribute('download', filename);
 
-	element.style.display = 'none';
-	document.body.appendChild(element);
+  element.style.display = 'none';
+  document.body.appendChild(element);
 
-	element.click();
+  element.click();
 
-	document.body.removeChild(element);
+  document.body.removeChild(element);
 }
 </script>
 
 <style scoped>
+@import '../assets/style.css';
+
 table {
-	@apply w-full;
+  @apply w-full;
 }
 
 th {
-	@apply text-left py-2;
+  @apply text-left py-2;
 }
 
 th:not(:first-child) {
-	@apply pl-2;
+  @apply pl-2;
 }
 
 th:not(:last-child) {
-	@apply pr-2;
+  @apply pr-2;
 }
 
 tr {
-	@apply border-b;
+  @apply border-b;
 }
 </style>
